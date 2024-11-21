@@ -1,0 +1,102 @@
+version: "2.1"
+services:
+  # Zookeeper
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    container_name: zookeeper
+    ports:
+      - '2181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  # Kafka
+  kafka:
+    image: 'bitnami/kafka:latest'
+    container_name: kafka
+    ports:
+      - '9094:9094'
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    depends_on:
+      - zookeeper
+
+  # Redis
+  redis:
+    image: 'bitnami/redis:latest'
+    container_name: redis
+    ports:
+      - '6379:6379'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - redis_data:/bitnami/redis
+
+  # PostgreSQL
+  postgres:
+    image: 'bitnami/postgresql:latest'
+    container_name: postgres
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/bitnami/postgresql
+
+  # Elasticsearch
+  elasticsearch:
+    image: 'bitnami/elasticsearch:latest'
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - '9200:9200'
+    networks:
+      - elk
+    volumes:
+      - elasticsearch_data:/bitnami/elasticsearch
+
+  # Logstash
+  logstash:
+    image: 'bitnami/logstash:latest'
+    container_name: logstash
+    ports:
+      - '5044:5044'
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    volumes:
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  # Kibana
+  kibana:
+    image: 'bitnami/kibana:latest'
+    container_name: kibana
+    ports:
+      - '5601:5601'
+    environment:
+      ELASTICSEARCH_HOSTS: 'http://elasticsearch:9200'
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+networks:
+  elk:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  elasticsearch_data:
