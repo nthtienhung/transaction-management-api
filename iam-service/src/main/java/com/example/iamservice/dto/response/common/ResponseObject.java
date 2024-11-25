@@ -31,4 +31,10 @@ public class ResponseObject<T> {
         this.localDateTime = localDateTime;
         this.data = data;
     }
+
+    public ResponseObject(int status, String message, LocalDateTime localDateTime) {
+        this.message = message;
+        this.status = status;
+        this.localDateTime = localDateTime;
+    }
 }

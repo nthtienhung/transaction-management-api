@@ -9,7 +9,7 @@ import com.example.iamservice.enums.MessageCode;
 import com.example.iamservice.exception.handler.BadRequestAlertException;
 import com.example.iamservice.repository.PasswordHistoryRepository;
 import com.example.iamservice.repository.UserRepository;
-import com.example.iamservice.service.UserService;
+import com.example.iamservice.service.ChangePasswordService;
 import com.example.iamservice.util.Validator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ import java.util.Optional;
 @Transactional
 @Slf4j
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class ChangePasswordServiceImpl implements ChangePasswordService {
 
     private final UserRepository userRepository;
 

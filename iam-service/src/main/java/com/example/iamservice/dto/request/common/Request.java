@@ -20,11 +20,13 @@ import java.io.Serializable;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true, value = {"clientMessageId", "requestLog", "url", "method"})
 public abstract class Request implements Serializable {
+
     private static final long serialVersionUID = -8440513573690364524L;
 
     @JsonIgnore
     @ApiModelProperty(hidden = true)
     protected transient String clientMessageId;
+
 
     @JsonIgnore
     @ApiModelProperty(hidden = true)
@@ -44,5 +46,6 @@ public abstract class Request implements Serializable {
     @Transient
     @ApiModelProperty(hidden = true)
     protected transient HttpMethod method = HttpMethod.GET;
+
 
 }

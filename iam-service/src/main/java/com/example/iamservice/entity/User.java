@@ -31,7 +31,7 @@ public class User {
     private String password;
 
     @Column(name = "status", nullable = false)
-    private boolean status;
+    private Boolean status;
 
     @Column(name = "role", length = 10)
     private String role;
@@ -42,13 +42,4 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }

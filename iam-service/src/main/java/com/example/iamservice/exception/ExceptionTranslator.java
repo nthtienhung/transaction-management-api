@@ -2,7 +2,8 @@ package com.example.iamservice.exception;
 
 import com.example.iamservice.dto.response.common.ResponseObject;
 import com.example.iamservice.exception.handler.BadRequestAlertException;
-//import com.example.iamservice.exception.handler.InternalServerErrorException;
+import com.example.iamservice.exception.handler.InternalServerErrorException;
+import com.example.iamservice.exception.handler.InternalServerErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
  * @version 1.0
  * @since 2024-04-08
  */
+
 
 @Slf4j
 @RestControllerAdvice
@@ -45,8 +47,9 @@ public class ExceptionTranslator implements ProblemHandling {
      * @param ex Đối tượng InternalServerErrorException.
      * @return ResponseEntity chứa thông báo lỗi.
      */
-//    @ExceptionHandler(InternalServerErrorException.class)
-//    public ResponseObject<String> handleInternalServerErrorException(InternalServerErrorException ex) {
-//        return new ResponseObject<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), LocalDateTime.now());
-//    }
+    @ExceptionHandler(InternalServerErrorException.class)
+    public ResponseObject<String> handleInternalServerErrorException(InternalServerErrorException ex) {
+        return new ResponseObject<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), LocalDateTime.now());
+    }
 }
+
