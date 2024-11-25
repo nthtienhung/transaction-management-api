@@ -9,46 +9,29 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tbl_user")
+@Table(name = "password_history")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class PasswordHistory {
 
     @Id
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String userId;
+    private String id;
 
-    @Column(name = "is_verified", length = 10)
-    private String isVerified;
-
-    @Column(name = "email", length = 255, nullable = false, unique = true)
+    @Column(name = "email", length = 255, nullable = false)
     private String email;
 
     @Column(name = "password", length = 255, nullable = false)
     private String password;
 
-    @Column(name = "status", nullable = false)
-    private boolean status;
-
-    @Column(name = "role", length = 10)
-    private String role;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
     }
 }
