@@ -22,9 +22,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   mail:
     host: smtp.gmail.com
+    from: thinhtdhe173229@fpt.edu.vn
     port: 587
-    username: iceteasoftware.training@gmail.com
-    password: xdrzojeruqavxpzw
+    username: thinhtdhe173229@fpt.edu.vn
+    password: mikakduqvwlcmdrs
     properties:
       mail:
         smtp:
