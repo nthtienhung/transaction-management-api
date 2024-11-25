@@ -2,7 +2,7 @@ package com.example.iamservice.exception.handler;
 
 import com.example.iamservice.configuration.message.Labels;
 import com.example.iamservice.constant.ApiConstants;
-import com.example.iamservice.enums.ErrorCode;
+import com.example.iamservice.enums.MessageCode;
 import lombok.Getter;
 import org.zalando.problem.AbstractThrowableProblem;
 import org.zalando.problem.Status;
@@ -21,8 +21,8 @@ public class InternalServerErrorException extends AbstractThrowableProblem {
 
     private final Object[] errorParams;
 
-    public InternalServerErrorException(ErrorCode errorCode) {
-        this(Labels.getLabels(errorCode.getKey()), errorCode.name(), errorCode.getKey());
+    public InternalServerErrorException(MessageCode msgCode) {
+        this(Labels.getLabels(msgCode.getKey()), msgCode.name(), msgCode.getKey());
     }
 
     public InternalServerErrorException(String defaultMessage, String errorCode, String errorKey) {

@@ -12,7 +12,6 @@ import com.example.iamservice.dto.response.login.TokenResponse;
 import com.example.iamservice.entity.User;
 import com.example.iamservice.entity.UserLoginFailed;
 import com.example.iamservice.entity.UserProperties;
-import com.example.iamservice.enums.ErrorCode;
 import com.example.iamservice.enums.MessageCode;
 import com.example.iamservice.enums.Status;
 import com.example.iamservice.exception.handler.BadRequestAlertException;
@@ -27,7 +26,6 @@ import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.bridge.Message;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -48,14 +46,11 @@ import java.util.Optional;
 public class LoginServiceImpl implements LoginService {
 
     private final UserRepository userRepository;
-
     private final UserLoginFailedRepository userLoginFailedRepository;
-
     private final PasswordEncoder passwordEncoder;
 
     @Getter
     private final UserProperties userProperties;
-
     private final JWTTokenProvider<UserPrincipal> jwtTokenProvider;
 
     @Override
