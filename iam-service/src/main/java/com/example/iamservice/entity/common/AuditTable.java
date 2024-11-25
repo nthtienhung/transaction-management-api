@@ -22,20 +22,20 @@ import java.time.Instant;
 @NoArgsConstructor
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class AuditTable {
+public class AuditTable {
 
     @CreatedBy
-    @Column(name = "user_create", updatable = false)
+    @Column(updatable = false,name = "user_create")
     private Integer userCreate;
 
     @LastModifiedBy
-    @Column(name = " user_update")
+    @Column(name = "user_update")
     private Integer userUpdate;
 
     @CreatedDate
-    @Column(name = "create_date", updatable = false)
+    @Column(name = "create_date",updatable = false)
     @JsonIgnore
-    private Instant createdDate = Instant.now();
+    private Instant createDate = Instant.now();
 
     @LastModifiedDate
     @Column(name = "update_date")

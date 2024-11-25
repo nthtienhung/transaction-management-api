@@ -21,8 +21,9 @@ public class InternalServerErrorException extends AbstractThrowableProblem {
 
     private final Object[] errorParams;
 
-    public InternalServerErrorException(MessageCode errorCode) {
-        this(Labels.getLabels(errorCode.getKey()), errorCode.name(), errorCode.getKey());
+
+    public InternalServerErrorException(MessageCode msgCode) {
+        this(Labels.getLabels(msgCode.getKey()), msgCode.name(), msgCode.getKey());
     }
 
     public InternalServerErrorException(String defaultMessage, String errorCode, String errorKey) {

@@ -2,36 +2,35 @@ package com.example.iamservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.Date;
-
-@Setter
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
-@Table
+@Table(name = "tbl_user")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@EntityListeners(AuditingEntityListener.class)
 public class User {
 
     @Id
+    @Column(name = "user_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private String userId;
 
-    @Column(name = "email", unique = true, nullable = false)
+    @Column(name = "is_verified", length = 10)
+    private String isVerified;
+
+    @Column(name = "email", length = 255, nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password", length = 255, nullable = false)
     private String password;
-
-    @Column(name = "is_verified", nullable = false)
-    private Boolean isVerified;
 
     @Column(name = "status", nullable = false)
     private Boolean status;
 
+    @Column(name = "role", length = 10)
+    private String role;
 
 
 }

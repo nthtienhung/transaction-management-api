@@ -1,5 +1,6 @@
 package com.example.iamservice.exception.handler;
 
+
 import com.example.iamservice.configuration.message.Labels;
 import com.example.iamservice.constant.ApiConstants;
 import com.example.iamservice.enums.MessageCode;
@@ -34,6 +35,7 @@ public class UnauthorizedException extends AbstractThrowableProblem {
     }
 
     /**
+
      * Contructor 3 tham số để gán giá trị vào label
      *
      * @param defaultMessage

@@ -1,6 +1,7 @@
 server:
     port: 8081
-
+    servlet:
+        context-path: /auth
 spring:
     application:
         name: iam-service
@@ -8,23 +9,18 @@ spring:
         url: jdbc:postgresql://localhost:5432/team2db
         username: postgres
         password: 123
-        hikari:
-            maximum-pool-size: 10
-            minimum-idle: 5
-            idle-timeout: 30000
-            max-lifetime: 1800000
     jpa:
         hibernate:
             ddl-auto: update
-            show-sql: true
+        show-sql: true
         properties:
             hibernate:
                 dialect: org.hibernate.dialect.PostgreSQLDialect
     messages:
-        encoding: 'UTF-8'
-        use-code-as-default-message: true
-        basename: i18n/labels
-        cache-duration: 60
+        encoding: 'UTF-8'   # Đảm bảo mã hóa đúng
+        use-code-as-default-message: true  # Sử dụng code làm thông điệp mặc định nếu không tìm thấy thông điệp
+        basename: i18n/labels  # Đảm bảo đúng tên file (không cần đuôi .properties trong basename)
+        cache-duration: 60   # Thời gian cache (60 giây)
     kafka:
         producer:
             bootstrap-servers: localhost:9094
@@ -34,7 +30,90 @@ spring:
         redis:
             host: localhost
             port: 6379
+security:
+    cache:
+        url-patterns: '/i18n/*,/content/*,/app/*'
+        max-age: 86400 # Image cache max-age in second, duration: 86400 (1 day)
+    # CORS is only enabled by default with the "dev" profile, so BrowserSync can access the API
+    cors:
+        allowed-origins: '*' # http://localhost:8780
+        allowed-methods: 'POST,OPTIONS'
+        allowed-headers: '*'
+        exposed-headers: 'Authorization,Link,X-Total-Count,X-Action-Message,X-Action-Params'
+        allow-credentials: true
+        max-age: 1800
+    authentication:
+        jwt:
+            # This token must be encoded using Base64 and be at least 256 bits long (you can type `openssl rand -base64 64` on your command line to generate a 512 bits one)
+            base64-secret: 'ajMywt0FWnZYET/u3Pm309ziD6eXRewGX+QsyHs6/Y4ascWDHAAK46ARsuUZKLcjMQxUa5mQfNTaujgm8Sg4TJh4wKGwwXBAtB2gsEm1TkZuSRo97/BEFIR5rEKefTBf41J4kcU/YndvNFJcMRXkgMoC6fvzjSVYx1fGNYxSJqO+neilVm3uBpQiuhQrhTMmrKZJYa5M9xutWfJsbQ1Tf6IQ6zlRKZqdt8edUD/mOuUwltlyC1UZCyALrcji2vFlgXu+eks6IjBkxlAT3LvwVe5Et4MoNaB+eHetIdL6epigf1nYxmLSPT3rWfQxRRmHAwSQnO+1atAubG/xQqvsTQ=='
+        cookie:
+            domain-name: ''
+            enable-ssl: false
+            http-only: true
+            path: '/'
+            same-site: 'Strict'
+    login:
+        max-attempt-time: 5
+    password:
+        max-attempt-time: 5
+cache:
+    config-type: 'redisson'
+    redisson:
+        mode: single
+        single:
+            address: 'redis://localhost:6379'
+            password: ''
+            clientName: 'my-redis-client'
+            connectionMinimumIdleSize: 24
+            connectionPoolSize: 64
+            subscriptionConnectionPoolSize: 50
+            subscriptionConnectionMinimumIdleSize: 1
+        retryAttempts: 3
+        retryInterval: 1500 # Đặt giá trị khác 0
+        idleConnectionTimeout: 10000 # Đặt giá trị khác 0
+        connectTimeout: 10000
+        timeout: 3000
+    time-to-lives:
+        default: -1
+        token: 300
+        remember-me-token: 7200
+        refresh-token: 86400
+        otp: 180
+        otp-verify: 3600
+        temp-file: 3600
+        login-failed: 86400
+        captcha: 300
+        password-verify: 300
+        customer_draft_password: 300
+        apiGee_getToken: 300
+        customer_verify_password_failed: 3600
+user:
+    pre-register-verify-limit: 5
+    login-attempts: 5
+    login-failed-lock-duration: 2 # đơn vị phút
+    reset-pw-verify-limit: 5
+    change-pw-verify-limit: 5
+    pw-duplicated-limit: 2
+    pw-duration: 180 # đơn vị ngày
+    pw-expired-notice-before: 1,5,10 # thời gian gửi thông báo mật khẩu hết hạn, trước thời hạn 1, 5, 10 ngày
+    ekyc-min-images: 6 # số ảnh ekyc tối thiểu
+    ekyc-max-images: 7 # số ảnh ekyc tối đa
+    default-branch-code: LA0010001 # mã chi nhánh mặc định bên Lào
+    sms-default-language: EN # ngôn ngữ mặc định gửi sms
+    id-card-issue-date-less-than: 5 # year, ngày mở không được lớn hơn 5 năm
+    passport-issue-date-less-than: 10 # year, ngày mở không được lớn hơn 10 năm
+    pw-verify-failed-limit: 3 # số lần tối đa xác nhận mật khẩu thất bại
+
+
 eureka:
     client:
         server-url:
             defaultZone: http://localhost:8761/eureka/
+
+springdoc:
+    api-docs:
+        enabled: true
+    swagger-ui:
+        enabled: true
+        path: /swagger-ui.html
+

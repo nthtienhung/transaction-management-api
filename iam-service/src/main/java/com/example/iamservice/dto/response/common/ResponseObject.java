@@ -20,10 +20,16 @@ public class ResponseObject<T> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T data;
 
-    public ResponseObject(int status, String message, LocalDateTime localDateTime) {
+    public ResponseObject(int status, String message, LocalDateTime localDateTime, T data) {
         this.status = status;
         this.message = message;
         this.localDateTime = localDateTime;
+        this.data = data;
     }
 
+    public ResponseObject(int status, String message, LocalDateTime localDateTime) {
+        this.message = message;
+        this.status = status;
+        this.localDateTime = localDateTime;
+    }
 }

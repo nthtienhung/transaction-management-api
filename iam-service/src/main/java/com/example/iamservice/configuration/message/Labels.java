@@ -35,7 +35,7 @@ public class Labels {
     /**
      * The Constant US.
      */
-    public static final Locale US = Locale.US;
+    public static final Locale US = new Locale(Language.EN, Country.US);
 
     /**
      * The Constant VN.
@@ -83,7 +83,7 @@ public class Labels {
      * @return the default locale
      */
     public static Locale getDefaultLocale() {
-        return VN;
+        return US;
     }
 
     /**
@@ -221,7 +221,7 @@ public class Labels {
             case Language.EN:
                 return US;
             default:
-                return VN;
+                return US;
         }
     }
 
@@ -235,10 +235,10 @@ public class Labels {
         }
 
         if (request == null) {
-            return Language.VI;
+            return Language.EN;
         }
 
-        return GetterUtil.getString(request.getHeader(Constants.DEFAULT_LOCALE), Language.VI);
+        return GetterUtil.getString(request.getHeader(Constants.DEFAULT_LOCALE), Language.EN);
 
     }
 

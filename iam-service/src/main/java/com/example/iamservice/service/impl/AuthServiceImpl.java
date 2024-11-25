@@ -1,7 +1,5 @@
 package com.example.iamservice.service.impl;
 
-import com.example.iamservice.constant.KafkaTopicConstants;
-import com.example.iamservice.dto.request.email.EmailRequest;
 import com.example.iamservice.dto.request.signup.SignUpRequest;
 import com.example.iamservice.entity.User;
 import com.example.iamservice.enums.MessageCode;
@@ -29,7 +27,7 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setStatus(true);
-        user.setIsVerified(false);
+        user.setIsVerified("NOT_VERIFIED");
         userRepository.save(user);
 
 

@@ -1,10 +1,5 @@
 package com.example.iamservice.configuration.message;
 
-/**
- * 01/06/2021 - LinhLH: Create new
- *
- * @author LinhLH
- */
 public interface LabelKey {
 
     public static final String ERROR_ACCOUNT_DOES_NOT_EXIST = "error.account-does-not-exist";

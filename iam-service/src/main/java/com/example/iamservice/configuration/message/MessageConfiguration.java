@@ -1,10 +1,12 @@
 package com.example.iamservice.configuration.message;
 
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
@@ -14,12 +16,16 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 @Setter
 public class MessageConfiguration {
 
+    @Value("${spring.messages.encoding}")
     private String encoding;
 
+    @Value("${spring.messages.basename}")
     private String basename;
 
+    @Value("${spring.messages.cache-duration}")
     private int cacheDuration;
 
+    @Value("${spring.messages.use-code-as-default-message}")
     private boolean useCodeAsDefaultMessage;
 
     /**
@@ -43,10 +49,10 @@ public class MessageConfiguration {
     public MessageSource bundleMessageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
 
-        messageSource.setBasename(this.basename);
-        messageSource.setDefaultEncoding(this.encoding);
-        messageSource.setCacheSeconds(this.cacheDuration);
-        messageSource.setUseCodeAsDefaultMessage(this.useCodeAsDefaultMessage);
+        messageSource.setBasename(basename);
+        messageSource.setDefaultEncoding(encoding);
+        messageSource.setCacheSeconds(cacheDuration);
+        messageSource.setUseCodeAsDefaultMessage(useCodeAsDefaultMessage);
 
         return messageSource;
     }
