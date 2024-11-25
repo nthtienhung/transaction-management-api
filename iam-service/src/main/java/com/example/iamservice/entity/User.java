@@ -8,13 +8,15 @@ import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table
+@Table(name = "customer")
 @EntityListeners(AuditingEntityListener.class)
 public class User {
     @Id
@@ -38,5 +40,11 @@ public class User {
 
     @Column(name = "secretKey")
     private String secretKey;
-
+    @ManyToMany()
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 }

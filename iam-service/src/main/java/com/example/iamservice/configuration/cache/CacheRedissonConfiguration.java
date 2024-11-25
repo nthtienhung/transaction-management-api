@@ -1,6 +1,8 @@
 package com.example.iamservice.configuration.cache;
 
 import com.example.iamservice.util.Validator;
+import jakarta.annotation.PostConstruct;
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -10,7 +12,9 @@ import org.redisson.api.RedissonClient;
 import org.redisson.config.*;
 import org.redisson.spring.cache.CacheConfig;
 import org.redisson.spring.cache.RedissonSpringCacheManager;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -25,54 +29,37 @@ import java.util.Map;
 @Configuration
 @EnableCaching
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "cache", name = "config-type", havingValue = "redisson",
-        matchIfMissing = false)
+@ConfigurationProperties(prefix = "cache.redisson")
+@ConditionalOnProperty(prefix = "cache", name = "config-type", havingValue = "redisson", matchIfMissing = false)
 public class CacheRedissonConfiguration {
-    private String mode;
 
-    private int cacheDuration;
-
+    private String mode; // Mode: single or sentinel
+    private int cacheDuration; // Cache duration in minutes
+    @Value("${cache.redisson.clientName:my-redis-client}")
     private String clientName;
-
     private String password;
-
     private int subscriptionsPerConnection;
-
     private int idleConnectionTimeout;
-
     private int connectTimeout;
-
     private int timeout;
-
     private int retryAttempts;
-
     private int retryInterval;
-
     private int threads;
-
     private int nettyThreads;
-
-    private String transportMode;
-
+    private String transportMode; // NIO or EPOLL
     private int database;
 
-    private Single single;
-
-    private Sentinel sentinel;
+    private Single single; // Single server configuration
+    private Sentinel sentinel; // Sentinel configuration
 
     @Getter
     @Setter
     public static class Single {
-        private String address;
-
+        private String address; // Redis address (e.g., redis://localhost:6379)
         private int subscriptionConnectionMinimumIdleSize;
-
         private int subscriptionConnectionPoolSize;
-
         private int connectionMinimumIdleSize;
-
         private int connectionPoolSize;
-
         private long dnsMonitoringInterval;
     }
 
@@ -80,132 +67,92 @@ public class CacheRedissonConfiguration {
     @Setter
     public static class Sentinel {
         private int failedSlaveReconnectionInterval;
-
         private int failedSlaveCheckInterval;
-
         private int subscriptionConnectionMinimumIdleSize;
-
         private int subscriptionConnectionPoolSize;
-
         private int slaveConnectionMinimumIdleSize;
-
         private int slaveConnectionPoolSize;
-
         private int masterConnectionMinimumIdleSize;
-
         private int masterConnectionPoolSize;
-
-        private String readMode;
-
-        private String subscriptionMode;
-
-        private String[] nodes;
-
-        private String masterName;
-
+        private String readMode; // SLAVE, MASTER, MASTER_SLAVE
+        private String subscriptionMode; // SLAVE or MASTER
+        private String[] nodes; // Sentinel nodes
+        private String masterName; // Master name for sentinel
         private boolean checkSentinelsList;
     }
 
-    public static enum Mode {
+    public enum Mode {
         SINGLE, SENTINEL
     }
-
-    private final CacheProperties properties;
 
     @Bean("redissonClient")
     public RedissonClient redissonClient() {
         Config config = new Config();
 
-        // common config
+        // Đảm bảo transportMode không bị null
+        if (this.transportMode == null || this.transportMode.isEmpty()) {
+            this.transportMode = "NIO"; // Giá trị mặc định
+        }
+        config.setTransportMode(TransportMode.valueOf(this.transportMode.toUpperCase()));
 
-        config.setNettyThreads(this.nettyThreads);
-        config.setThreads(this.threads);
-        config.setTransportMode(TransportMode.valueOf(this.transportMode));
+        // Kiểm tra giá trị timeout và retryInterval, thiết lập mặc định nếu bị thiếu
+        int retryIntervalValue = this.retryInterval > 0 ? this.retryInterval : 1500;
+        int idleTimeoutValue = this.idleConnectionTimeout > 0 ? this.idleConnectionTimeout : 10000;
 
-        // sentinel
-        if (Validator.equals(this.mode, Mode.SENTINEL.name().toLowerCase())) {
-            SentinelServersConfig sentinelConfig = config.useSentinelServers();
-
-            // common config
-            sentinelConfig.setClientName(this.clientName);
-
-            if (Validator.isNotNull(this.password)) {
-                sentinelConfig.setPassword(this.password);
-            }
-
-            sentinelConfig.setSubscriptionsPerConnection(this.subscriptionsPerConnection);
-            sentinelConfig.setDatabase(this.database);
-            sentinelConfig.setRetryAttempts(this.retryAttempts);
-            sentinelConfig.setRetryInterval(this.retryInterval);
-            sentinelConfig.setConnectTimeout(this.connectTimeout);
-            sentinelConfig.setTimeout(this.timeout);
-            sentinelConfig.setIdleConnectionTimeout(this.idleConnectionTimeout);
-
-            // special config
-            sentinelConfig.setMasterName(this.sentinel.getMasterName());
-            sentinelConfig.addSentinelAddress(this.sentinel.getNodes());
-            sentinelConfig.setFailedSlaveReconnectionInterval(this.sentinel.getFailedSlaveReconnectionInterval());
-            sentinelConfig.setFailedSlaveCheckInterval(this.sentinel.getFailedSlaveCheckInterval());
-            sentinelConfig
-                    .setSubscriptionConnectionMinimumIdleSize(this.sentinel.getSubscriptionConnectionMinimumIdleSize());
-            sentinelConfig.setSubscriptionConnectionPoolSize(this.sentinel.getSubscriptionConnectionPoolSize());
-            sentinelConfig.setSlaveConnectionMinimumIdleSize(this.sentinel.getSlaveConnectionMinimumIdleSize());
-            sentinelConfig.setSlaveConnectionPoolSize(this.sentinel.getSlaveConnectionPoolSize());
-            sentinelConfig.setMasterConnectionMinimumIdleSize(this.sentinel.getMasterConnectionMinimumIdleSize());
-            sentinelConfig.setMasterConnectionPoolSize(this.sentinel.getMasterConnectionPoolSize());
-            sentinelConfig.setReadMode(ReadMode.valueOf(this.sentinel.getReadMode()));
-            sentinelConfig.setSubscriptionMode(SubscriptionMode.valueOf(this.sentinel.getSubscriptionMode()));
-            sentinelConfig.setCheckSentinelsList(this.sentinel.isCheckSentinelsList());
-
-        } else { // single server
+        // Single mode
+        if ("single".equalsIgnoreCase(this.mode)) {
             SingleServerConfig singleConfig = config.useSingleServer();
-
-            // common config
+            singleConfig.setAddress(this.single.getAddress());
+            singleConfig.setPassword(this.password);
             singleConfig.setClientName(this.clientName);
-
-            if (Validator.isNotNull(this.password)) {
-                singleConfig.setPassword(this.password);
-            }
-
-            singleConfig.setSubscriptionsPerConnection(this.subscriptionsPerConnection);
-            singleConfig.setDatabase(this.database);
             singleConfig.setRetryAttempts(this.retryAttempts);
-            singleConfig.setRetryInterval(this.retryInterval);
+            singleConfig.setRetryInterval(retryIntervalValue);
+            singleConfig.setIdleConnectionTimeout(idleTimeoutValue);
             singleConfig.setConnectTimeout(this.connectTimeout);
             singleConfig.setTimeout(this.timeout);
-            singleConfig.setIdleConnectionTimeout(this.idleConnectionTimeout);
-
-            // special config
-            // format as redis://127.0.0.1:7181 or rediss://127.0.0.1:7181 for SSL
-            singleConfig.setAddress(this.single.getAddress());
-            singleConfig.setSubscriptionConnectionMinimumIdleSize(this.single.getSubscriptionConnectionMinimumIdleSize());
-            singleConfig.setSubscriptionConnectionPoolSize(this.single.getSubscriptionConnectionPoolSize());
             singleConfig.setConnectionMinimumIdleSize(this.single.getConnectionMinimumIdleSize());
             singleConfig.setConnectionPoolSize(this.single.getConnectionPoolSize());
-            singleConfig.setDnsMonitoringInterval(this.single.getDnsMonitoringInterval());
+            singleConfig.setSubscriptionConnectionMinimumIdleSize(this.single.getSubscriptionConnectionMinimumIdleSize());
+            singleConfig.setSubscriptionConnectionPoolSize(this.single.getSubscriptionConnectionPoolSize());
+        } else {
+            throw new IllegalArgumentException("Unsupported Redis mode: " + this.mode);
         }
 
         return Redisson.create(config);
     }
 
-    @Bean
-    CacheManager cacheManager() {
-        Map<String, CacheConfig> config = new HashMap<String, CacheConfig>();
+    private void configureCommonSettings(BaseConfig<?> config) {
+        config.setClientName(this.clientName);
 
-        // define local cache settings for "default" cache.
-        // ttl = {cacheDuration} minutes and maxIdleTime = {cacheDuration/2} minutes for local cache entries
-        config.put("default", new CacheConfig(this.cacheDuration * 60 * 1000, this.cacheDuration * 60 * 1000 / 2));
-
-        Map<String, Integer> timeTolives = this.properties.getTimeToLives();
-
-        for (Map.Entry<String, Integer> entry : timeTolives.entrySet()) {
-            String key = entry.getKey();
-            Integer timeTolive = entry.getValue();
-
-            config.put(key, new CacheConfig(timeTolive * 1000, timeTolive * 1000 / 2));
+        if (this.password != null && !this.password.isEmpty()) {
+            config.setPassword(this.password);
         }
 
-        return new RedissonSpringCacheManager(redissonClient(), config);
+        config.setSubscriptionsPerConnection(this.subscriptionsPerConnection);
+        config.setRetryAttempts(this.retryAttempts);
+        config.setRetryInterval(this.retryInterval);
+        config.setConnectTimeout(this.connectTimeout);
+        config.setTimeout(this.timeout);
+        config.setIdleConnectionTimeout(this.idleConnectionTimeout);
     }
 
+    @Bean
+    CacheManager cacheManager() {
+        Map<String, CacheConfig> cacheConfigs = new HashMap<>();
+        cacheConfigs.put("default", new CacheConfig(this.cacheDuration * 60 * 1000, this.cacheDuration * 60 * 1000 / 2));
+
+        return new RedissonSpringCacheManager(redissonClient(), cacheConfigs);
+    }
+
+    @PostConstruct
+    public void validateConfiguration() {
+        log.info("Initializing Redisson configuration: mode={}, clientName={}, transportMode={}", mode, clientName, transportMode);
+        if (this.mode == null || (!this.mode.equalsIgnoreCase("single") && !this.mode.equalsIgnoreCase("sentinel"))) {
+            throw new IllegalArgumentException("Invalid or missing Redis mode configuration: " + this.mode);
+        }
+
+        if ("single".equalsIgnoreCase(this.mode) && (this.single == null || this.single.getAddress() == null)) {
+            throw new IllegalArgumentException("Redis single server address is not configured.");
+        }
+    }
 }

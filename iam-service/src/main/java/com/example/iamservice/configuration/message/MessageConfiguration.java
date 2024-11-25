@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
@@ -40,14 +41,11 @@ public class MessageConfiguration {
      * @return the message source
      */
     @Bean
-    public MessageSource bundleMessageSource() {
-        ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-
-        messageSource.setBasename(this.basename);
-        messageSource.setDefaultEncoding(this.encoding);
-        messageSource.setCacheSeconds(this.cacheDuration);
-        messageSource.setUseCodeAsDefaultMessage(this.useCodeAsDefaultMessage);
-
+    public MessageSource messageSource() {
+        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+        messageSource.setBasename("i18n/labels"); // Tên basename (không cần phần mở rộng .properties)
+        messageSource.setDefaultEncoding("UTF-8"); // Encoding
+        messageSource.setUseCodeAsDefaultMessage(true); // Dùng code làm thông điệp mặc định nếu không có trong resource
         return messageSource;
     }
 

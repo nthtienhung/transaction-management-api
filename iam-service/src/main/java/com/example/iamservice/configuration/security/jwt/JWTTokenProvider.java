@@ -44,9 +44,9 @@ public class JWTTokenProvider<T extends AbstractUserPrincipal> implements Initia
 
     private final UserDetailsService userDetailsService;
 
-    private CacheProperties cacheProperties;
+    private final CacheProperties cacheProperties;
 
-    private TokenService tokenService;
+    private final TokenService tokenService;
 
     private JwtParser jwtParser;
 
@@ -75,7 +75,7 @@ public class JWTTokenProvider<T extends AbstractUserPrincipal> implements Initia
         this.jwtParser = Jwts.parserBuilder().setSigningKey(key).build();
 
         // get timeToLives map
-        this.timeToLives = this.cacheProperties.getTimeToLives();
+        this.timeToLives = cacheProperties.getTimeToLives();
     }
     public JWTAccessToken createAccessToken(String email, boolean rememberMe) {
         try {
@@ -92,14 +92,16 @@ public class JWTTokenProvider<T extends AbstractUserPrincipal> implements Initia
                     .build();
 
             // invalidate token
-            this.tokenService.invalidateToken(email);
 
-            // save token
-            if (rememberMe) {
-                this.tokenService.saveRememberMeToken(email, jwtAccessToken);
-            } else {
-                this.tokenService.saveToken(email, jwtAccessToken);
-            }
+                this.tokenService.invalidateToken(email);
+
+                // save token
+                if (rememberMe) {
+                    this.tokenService.saveRememberMeToken(email, jwtAccessToken);
+                } else {
+                    this.tokenService.saveToken(email, jwtAccessToken);
+                }
+
 
             return jwtAccessToken;
         } catch (UsernameNotFoundException e) {

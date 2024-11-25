@@ -1,6 +1,6 @@
 package com.example.iamservice.exception.handler;
 
-import com.example.iamservice.config.message.Labels;
+import com.example.iamservice.configuration.message.Labels;
 import com.example.iamservice.constant.ApiConstants;
 import com.example.iamservice.enums.ErrorCode;
 import lombok.Getter;

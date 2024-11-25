@@ -8,6 +8,7 @@ import com.example.iamservice.constant.SecurityConstants;
 import com.example.iamservice.dto.request.login.LoginRequest;
 import com.example.iamservice.dto.response.common.ResponseObject;
 import com.example.iamservice.dto.response.login.TokenResponse;
+
 import com.example.iamservice.entity.User;
 import com.example.iamservice.entity.UserLoginFailed;
 import com.example.iamservice.entity.UserProperties;
@@ -21,6 +22,7 @@ import com.example.iamservice.util.GetterUtil;
 import com.example.iamservice.util.Validator;
 import com.example.iamservice.util.security.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,9 +34,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 @Slf4j
@@ -72,23 +74,23 @@ public class LoginServiceImpl implements LoginService {
         }
 
         //Lấy thông tin user
-        User user = this.findByEmail(email);
+        Optional<User> user = userRepository.findByEmail(email);
 
         // Check tài khoản có bị block k
-        if (Validator.equals(Status.BLOCK.name(), user.getStatus())) {
+        if (Validator.equals(Status.BLOCK.name(), user.get().getStatus())) {
             throw new BadRequestAlertException(ErrorCode.MSG1006);
-        } else if (Validator.equals(Status.INACTIVE.name(), user.getStatus())) {
+        } else if (Validator.equals(Status.INACTIVE.name(), user.get().getStatus())) {
             // Check tài khoản đã được active chưa
             throw new BadRequestAlertException(ErrorCode.MSG1008);
         }
 
-        UserLoginFailed userLoginFailed = this.userLoginFailedRepository.findByUserId(user.getId());
+        UserLoginFailed userLoginFailed = this.userLoginFailedRepository.findByUserId(user.get().getId());
 
         // kiểm tra xem có đang bị tạm khóa không
         if (Validator.isNotNull(userLoginFailed) && Validator.isNotNull(userLoginFailed.getUnlockTime())
                 && userLoginFailed.getUnlockTime().isAfter(LocalDateTime.now())) {
             throw new BadRequestAlertException(ErrorCode.MSG1007);
-        } else if (!passwordEncoder.matches(password, user.getPassword())) {
+        } else if (!passwordEncoder.matches(password, user.get().getPassword())) {
             // Check password
             this.updateLoginAttempts(userLoginFailed, false);
 
@@ -152,12 +154,12 @@ public class LoginServiceImpl implements LoginService {
     }
 
     private User findByEmail(String email) {
-        User user = this.userRepository.findByEmail(email);
-        if (user == null) {
+        Optional<User> user = this.userRepository.findByEmail(email);
+        if (user.isEmpty()) {
             throw new BadRequestAlertException(ErrorCode.MSG1005);
         }
 
-        return user;
+        return user.orElse(null);
     }
 }
 
