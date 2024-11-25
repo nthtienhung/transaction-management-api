@@ -1,0 +1,62 @@
+package com.example.userservice.message;
+
+/**
+ * 01/06/2021 - LinhLH: Create new
+ *
+ * @author LinhLH
+ */
+public interface LabelKey {
+
+    public static final String ERROR_ACCOUNT_DOES_NOT_EXIST = "error.account-does-not-exist";
+    public static final String ERROR_ACCOUNT_DOES_EXIST = "error.account-does-exist";
+    public static final String ERROR_TOTP_IS_INCORRECT_OR_HAS_EXPIRED = "error.otp-is-incorrect-or-has-expired";
+    public static final String ERROR_EMAIL_IS_EMPTY = "error.email-is-empty";
+    public static final String ERROR_EMAIL_IS_INVALID = "error.email-is-invalid";
+    public static final String ERROR_PASSWORD_IS_EMPTY = "error.password-is-empty";
+    public static final String ERROR_PASSWORD_IS_INVALID = "error.password-is-invalid";
+    public static final String ERROR_FULL_NAME_IS_EMPTY = "error.full-name-is-empty";
+    public static final String ERROR_FULL_NAME_IS_INVALID = "error.full-name-is-invalid";
+    public static final String ERROR_DATE_OF_BIRTH_IS_EMPTY = "error.date-of-birth-is-empty";
+    public static final String ERROR_DATE_OF_BIRTH_IS_INVALID = "error.date-of-birth-is-invalid";
+    public static final String ERROR_DOB_GREATER_THAN_NOW = "error.dob-greater-than-now";
+    public static final String ERROR_ID_USER_NOT_EMPTY = "error.id-user-not-empty";
+    public static final String ERROR_TOTP_NOT_EMPTY = "error.totp-not-empty";
+    public static final String ERROR_TOTP_IS_INVALID = "error.totp-is-invalid";
+    public static final String ERROR_INTERNAL_SERVER = "error.internal-server";
+    public static final String ERROR_OTP_NOT_EMPTY = "error.otp-not-empty";
+    public static final String ERROR_OTP_IS_INVALID = "error.otp-is-invalid";
+    public static final String ERROR_OTP_ALREADY_USED = "error.otp-is-already-used";
+    public static final String ERROR_OTP_HAS_EXPIRED = "error.otp-has-expired";
+    public static final String ERROR_PASSWORD_CONFIRM_NOT_EMPTY = "error.password-confirm-not-empty";
+    public static final String ERROR_OTP_IS_INVALID_FOR_EMAIL = "error.otp-is-invalid-for-email";
+    public static final String ERROR_PASSWORD_DOES_NOT_MATCH = "error.password-do-does-not-match";
+    public static final String ERROR_NEW_PASSWORD_DUPLICATE = "error.new-password-duplicate";
+    public static final String ERROR_INVALID_EMAIL_OR_PASSWORD = "error.invalid-email-or-password";
+    public static final String ERROR_INVALID_TOKEN = "error.invalid-token";
+    public static final String ERROR_TOKEN_MALFORMED = "error.token-malformed";
+    public static final String ERROR_TOKEN_HAS_EXPIRED = "error.token-has-expired";
+    public static final String ERROR_JWT_TOKEN_IS_UNSUPPORTED = "error.jwt-token-is-unsupported";
+    public static final String ERROR_ACCOUNT_IS_BLOCK = "error.account-has-been-blocked";
+    public static final String ERROR_ACCOUNT_IS_INACTIVE = "error.account-is-inactive";
+    public static final String ERROR_EMAIL_OR_PASS_WORD_IS_WRONG = "error.email-or-password-is-wrong";
+    public static final String ERROR_YOUR_ACCOUNT_HAS_BEEN_TEMPORARILY_LOCKED = "error.your-account-has-been-temporarily-locked";
+    public static final String ERROR_ACCOUNT_NOT_EXITS = "error.account-not-exits";
+    public static final String ERROR_ACCOUNT_IS_ACTIVE = "error.account-is-active";
+    public static final String ERROR_ILLEGAL_ACCESS_TO_API = "error.illegal-access-to-api";
+    public static final String ERROR_INPUT_WRONG_OTP_MORE_THAN_FIVE_TIMES = "error.input-wrong-otp-more-than-five-times";
+    public static final String SUCCESS_LOGIN_SUCCESS = "success.login-success";
+    public static final String ERROR_EMAIL_NOT_EXIST = "error.email-not-exist";
+    public static final String ERROR_OLD_PASSWORD_IS_EMPTY = "error.old-password-is-empty";
+    public static final String ERROR_NEW_PASSWORD_IS_EMPTY = "error.new-password-is-empty";
+    public static final String ERROR_CONFIRM_PASSWORD_IS_EMPTY = "error.confirm-password-is-empty";
+    public static final String ERROR_OLD_PASSWORD_IS_WRONG = "error.old-password-is-wrong";
+    public static final String ERROR_PHONE_NUMBER_IS_INVALID = "error.phone-number-is-invalid";
+    public static final String ERROR_PHONE_NUMBER_IS_EMPTY = "error.phone-number-is-empty";
+    public static final String ERROR_USER_IS_NOT_LOGIN = "error.user-is-not-login";
+    public static final String ERROR_YOU_HAVE_NOT_PERMISSION = "error.you-have-no-permission";
+    public static final String SUCCESS_CHANGE_PASSWORD_SUCCESS = "success.change-password-success";
+    public static final String SUCCESS_LOGOUT_SUCCESS = "success.logout-success";
+    public static final String SUCCESS_DEFAULT = "success.default";
+    public static final String SUCCESS_CREATE = "success.create-success";
+
+}

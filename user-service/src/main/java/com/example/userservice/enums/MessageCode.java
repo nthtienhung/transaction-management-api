@@ -1,4 +1,4 @@
-package com.example.iamservice.enums;
+package com.example.userservice.enums;
 
 import com.example.iamservice.configuration.message.LabelKey;
 import lombok.AllArgsConstructor;
@@ -103,7 +103,7 @@ public enum MessageCode {
     // Yêu cầu nhập lại mật khẩu
     MSG1032(LabelKey.ERROR_PASSWORD_CONFIRM_NOT_EMPTY),
 
-    // Mật khẩu mới trùng với mật khẩu cũ
+    // Mật khẩu mới trùng với mật khẩu hiện tại
     MSG1033(LabelKey.ERROR_NEW_PASSWORD_DUPLICATE),
 
     MSG1101(LabelKey.ERROR_ID_USER_NOT_EMPTY),
@@ -123,7 +123,7 @@ public enum MessageCode {
     // Mật khẩu xác nhận không để trống
     MSG1038(LabelKey.ERROR_CONFIRM_PASSWORD_IS_EMPTY),
 
-    // Mật khẩu cũ sai
+    // Mật khẩu cũ không để trống
     MSG1039(LabelKey.ERROR_OLD_PASSWORD_IS_WRONG),
 
     // Đổi mật khẩu thành công

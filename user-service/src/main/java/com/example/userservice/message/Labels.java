@@ -1,4 +1,4 @@
-package com.example.iamservice.configuration.message;
+package com.example.userservice.message;
 
 import com.example.iamservice.constant.Constants;
 import com.example.iamservice.util.GetterUtil;
@@ -35,7 +35,7 @@ public class Labels {
     /**
      * The Constant US.
      */
-    public static final Locale US = new Locale(Language.EN, Country.US);
+    public static final Locale US = Locale.US;
 
     /**
      * The Constant VN.
@@ -83,7 +83,7 @@ public class Labels {
      * @return the default locale
      */
     public static Locale getDefaultLocale() {
-        return US;
+        return VN;
     }
 
     /**
@@ -221,7 +221,7 @@ public class Labels {
             case Language.EN:
                 return US;
             default:
-                return US;
+                return VN;
         }
     }
 
@@ -235,10 +235,10 @@ public class Labels {
         }
 
         if (request == null) {
-            return Language.EN;
+            return Language.VI;
         }
 
-        return GetterUtil.getString(request.getHeader(Constants.DEFAULT_LOCALE), Language.EN);
+        return GetterUtil.getString(request.getHeader(Constants.DEFAULT_LOCALE), Language.VI);
 
     }
 
