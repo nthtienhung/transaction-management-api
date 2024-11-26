@@ -2,31 +2,35 @@ package com.example.iamservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
+
+@Entity
+@Table(name = "tbl_user")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "tbl_User")
-@Entity
+@Builder
 public class User {
+
     @Id
+    @Column(name = "user_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
-    String userId;
-    @Column(nullable = false, unique = true)
-    String email;
-    @Column(nullable = false)
-    String password;
-    @Column(nullable = false)
-    Boolean active;
-    @Column(nullable = false)
-    Boolean status;
-    @Column(nullable = false)
-    String role;
-    @Column(nullable = false)
-    String secretKey;
+    private String userId;
+
+    @Column(name = "is_verified", length = 10)
+    private String isVerified;
+
+    @Column(name = "email", length = 255, nullable = false, unique = true)
+    private String email;
+
+    @Column(name = "password", length = 255, nullable = false)
+    private String password;
+
+    @Column(name = "status", nullable = false)
+    private Boolean status;
+
+    @Column(name = "role", length = 10)
+    private String role;
 
 }

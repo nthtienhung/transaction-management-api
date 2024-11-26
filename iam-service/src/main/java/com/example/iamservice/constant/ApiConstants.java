@@ -97,5 +97,4 @@ public interface ApiConstants {
 
         public static final String USER = "user";
     }
-
 }

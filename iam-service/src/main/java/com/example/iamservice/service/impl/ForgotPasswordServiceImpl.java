@@ -82,9 +82,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
         int passwordLength = request.getNewPassword().length();
         if (user.isEmpty()) {
             throw new BadRequestAlertException(MessageCode.MSG1002);
-        }else if (!user.get().getSecretKey().equals(request.getResetPasswordKey())) {
-            throw new BadRequestAlertException(MessageCode.MSG1042);
-        } else if (Validator.isBlankOrEmpty(request.getNewPassword())) {
+        }else  if (Validator.isBlankOrEmpty(request.getNewPassword())) {
             throw new BadRequestAlertException(MessageCode.MSG1001);
         } else if (Validator.isPassword(request.getNewPassword())
                 || passwordLength < Constants.DEFAULT_PASSWORD_LENGTH_MIN
@@ -99,7 +97,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
         }
 
         user.get().setPassword(passwordEncoder.encode(request.getNewPassword()));
-        user.get().setSecretKey(DEFAULT_SECRET_KEY);
+
         userRepository.save(user.get());
         redisTemplate.delete(request.getEmail());
         return Constants.DEFAULT_MESSAGE_UPDATE_SUCCESS;
@@ -171,7 +169,6 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
             throw new BadRequestAlertException(MessageCode.MSG1016);
         }
 
-        user.get().setSecretKey(resetPasswordKey);
         userRepository.save(user.get());
 
         return new OTPResponse(request.getEmail(), resetPasswordKey);

@@ -1,0 +1,114 @@
+@startuml
+actor User as u
+participant Frontend as fe
+participant IAMService as iam
+participant Redis as rd
+database Database as db
+queue MessageQueue as queue
+participant NotiService as noti
+u -> fe: 1 Request sign up
+alt correct syntax
+activate fe
+fe -> fe: 2 Validate request sign up form
+alt invalid input
+else invalid first name
+fe --> u: 3 Return message "First Name is invalid"
+else invalid last name
+fe --> u: 4 Return message "Last Name is invalid"
+else invalid email
+fe --> u: 5 Return message "Email is invalid"
+else invalid password
+fe --> u: 6 Return message "Password is invalid"
+else invalid date of birth
+fe --> u: 7 Return message "Date of birth is invalid"
+else invalid phone
+fe --> u: 8 Return message "Phone is invalid"
+else invalid address
+fe --> u: 9 Return message "Address is invalid"
+else valid input
+fe -> iam: 10 Call API /api/v1/register
+activate iam
+iam -> iam: 11 Validate request
+alt invalid request
+iam -> fe: 12 Response
+fe -> u: 13 Send message error
+else valid request
+iam -> db: 14 Get User By Email
+activate db
+db -> iam: 15 Result
+deactivate db
+alt email is existed
+iam -> fe: 16 Response
+fe -> u: 17 Return message "Email is existed"
+else email is not existed
+iam -> db: 18 Save new user
+activate db
+db -> iam: 19 Result
+deactivate db
+alt server failed
+iam -> fe: 20 Response
+fe -> u: 21 Return message "500 Internal Server Error"
+else server succeeded
+iam -> fe: 22 Response
+fe -> u: 23 Return message "Sign up successfully" and redirect to OTP form
+end
+iam -> rd: 24 Create OTP
+activate rd
+rd -> iam: 25 Result
+deactivate rd
+alt Create OTP failed
+iam -> fe: 26 Response
+fe -> u: 27 Return message "Cannot create OTP"
+else create OTP successfully
+alt Create timestamp failed
+iam -> fe: 28 Response
+fe -> u: 29 Show message "Cannot create OTP"
+else Create timestamp successfully
+iam -> queue: 30 Send OTP
+activate queue
+queue -> noti: 31 Send OTP to user email
+deactivate queue
+iam -> fe: 32 Response
+fe -> u: 33 Show message "OTP has been sent to your email"
+u -> fe: 34 Request OTP
+fe --> fe: 35 Check OTP format
+alt Invalid OTP format
+fe -> u: 36 Return message "OTP is invalid format"
+else Valid OTP format
+fe -> iam: 37 Call API /api/v1/verify
+iam -> iam: 38 Check OTP format
+alt invalid OTP format
+iam -> fe: 39 Response
+fe -> u: 40 Return message "OTP is invalid format"
+else Valid OTP Format
+iam -> rd: 41 Get OTP
+activate rd
+rd -> iam: 42 Result
+deactivate rd
+alt Invalid OTP
+iam -> fe: 43 Response
+fe -> u: 44 Return message "OTP is invalid"
+else Valid OTP
+alt OTP timeout
+iam -> fe: 45 Response
+fe -> u: 46 Return message "OTP timeout"
+else OTP on time
+iam -> rd: 47 Delete OTP
+activate rd
+rd -> iam: 48 Result
+deactivate rd
+iam -> fe: 49 Response
+fe -> u: 50 Send message "User verify successfully" and redirect to log in form
+deactivate iam
+deactivate fe
+end
+end
+end
+end
+end
+end
+end
+end
+end
+
+@enduml

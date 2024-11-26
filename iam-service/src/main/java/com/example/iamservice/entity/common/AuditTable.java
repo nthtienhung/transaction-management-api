@@ -15,6 +15,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -39,4 +40,5 @@ public abstract class AuditTable{
     @Column(name = "update_date", updatable = false)
     @JsonIgnore
     private Instant updatedDate = Instant.now();
+
 }

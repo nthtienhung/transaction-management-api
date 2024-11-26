@@ -1,4 +1,4 @@
-package com.example.iamservice.entity;
+package com.example.userservice.entity;
 
 public abstract class AbstractEntity {
 }

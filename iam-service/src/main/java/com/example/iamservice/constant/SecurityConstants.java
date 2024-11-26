@@ -1,6 +1,8 @@
 package com.example.iamservice.constant;
 
-public class SecurityConstants {
+public interface SecurityConstants {
+
+
     public interface SystemRole {
         public static final String USER = "ROLE_USER";
 
@@ -11,6 +13,13 @@ public class SecurityConstants {
      * Phương thức
      *
      */
+
+        public static final String ROLE_USER_POTENTIAL = "ROLE_USER_POTENTIAL";
+
+        public static final String ROLE_USER_RESIDENT = "ROLE_USER_RESIDENT";
+
+
+
     public interface Privilege {
         public static final String ADMINISTRATOR = "ADMINISTRATOR";
 
@@ -35,9 +44,11 @@ public class SecurityConstants {
      * Tài khoản
      *
      */
+
     public interface Account {
         public static final String SUPER_AMDIN = "superadmin";
     }
+
 
     /**
      * Header
@@ -70,6 +81,7 @@ public class SecurityConstants {
 
     }
 
+
     /**
      * Cookie
      *
@@ -81,6 +93,7 @@ public class SecurityConstants {
 
         public static final String REMEMBER_ME = "its-cms-rememberMe";
     }
+
 
     /**
      * Cache
@@ -106,6 +119,7 @@ public class SecurityConstants {
 
         public static final String CSRF_TOKEN = "csrf-token";
     }
+
 
     /**
      * Dạng token
