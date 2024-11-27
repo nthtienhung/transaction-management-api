@@ -74,6 +74,11 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
 
     }
 
+    /**
+     *
+     * @param request
+     * @return
+     */
     @Override
     public String resetPassword(ResetPasswordRequest request) {
         Optional<User> user = userRepository.findByEmail(request.getEmail());
@@ -101,6 +106,10 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
         return Constants.DEFAULT_MESSAGE_UPDATE_SUCCESS;
     }
 
+    /**
+     * Generate OTP and send to user's email.
+     * @param email
+     */
     @Override
     public void generateOtp(String email) {
         Optional<User> user = userRepository.findByEmail(email);
