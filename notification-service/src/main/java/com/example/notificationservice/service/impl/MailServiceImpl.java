@@ -1,5 +1,6 @@
 package com.example.notificationservice.service.impl;
 
+import com.example.notificationservice.constant.KafkaTopicConstants;
 import com.example.notificationservice.model.Notification;
 import com.example.notificationservice.model.Template;
 import com.example.notificationservice.repository.NotificationRepository;
@@ -40,13 +41,16 @@ public class MailServiceImpl implements MailService {
 
     @Override
     @Transactional
-    @KafkaListener(topics = "send-email-forgot-password-topic", groupId = "send-email-forgot-password-group")
+    @KafkaListener(
+            topics = KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_FORGOT_PASSWORD,
+            groupId = "send-email-forgot-password-group")
     public void sendOTP (String message) throws JsonProcessingException, MessagingException {
         // 1. Parse tin nhắn Kafka
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonNode = mapper.readTree(message);
-        String email = jsonNode.get("email").asText();
-        String otp = jsonNode.get("otp").asText();
+        JsonNode jsonNode = objectMapper.readTree(message);
+        String data = jsonNode.get("data").asText();
+        JsonNode dataNode = objectMapper.readTree(data);
+        String email = dataNode.get("email").asText();
+        String otp = dataNode.get("otp").asText();
 
         // 2. Tạo email MIME
         MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -81,7 +85,7 @@ public class MailServiceImpl implements MailService {
         mimeMessageHelper.setFrom(emailFrom);
         mimeMessageHelper.setTo(email);
         mimeMessageHelper.setSubject("Reset Your Password");
-        String html = templateEngine.process("forgot-password-email", context);
+        String html = templateEngine.process("NotiTemplate", context);
         mimeMessageHelper.setText(html, true);
 
         // 7. Gửi email

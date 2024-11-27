@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
   <style>
     /* Toàn bộ khung email */
@@ -62,23 +62,24 @@
 <div class="email-container">
   <!-- Header -->
   <div class="email-header">
-    <h1>Password Reset Request</h1>
+    <h1 th:text="'Password Reset Request'"></h1>
   </div>
 
   <!-- Body -->
   <div class="email-body">
     <p>Hi,</p>
-    <p>We received a request to reset your password for the account associated with this email address: <strong>{{email}}</strong>.</p>
+    <p th:text="'We received a request to reset your password for the account associated with this email address: ' + ${email} + '.'"></p>
     <p>Use the OTP below to reset your password:</p>
-    <h2 style="text-align: center; color: #4CAF50;">{{otp}}</h2>
+    <h2 style="text-align: center; color: #4CAF50;" th:text="${otp}"></h2>
     <p>Alternatively, click the button below to reset your password:</p>
-    <a href="{{resetUrl}}" class="email-button">Reset Password</a>
+    <a href="#" th:href="${resetUrl}" class="email-button" th:text="'Reset Password'"></a>
     <p>If you did not request a password reset, you can safely ignore this email.</p>
   </div>
 
   <!-- Footer -->
   <div class="email-footer">
-    <p>Thank you,<br>Olong Tea Plus</p>
+    <p th:text="'Thank you,'"></p>
+    <p th:text="'Olong Tea Plus'"></p>
   </div>
 </div>
 </body>

@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 
 @RestController
-@CrossOrigin(origins = "*")
-@RequestMapping("/api/v1/forgotPassword")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -33,35 +31,36 @@ public class AuthController {
     private final LoginService loginService;
     private final ChangePasswordService userService;
 
-    @PostMapping()
+    @PostMapping("/forgot-password/verify-mail")
     public ResponseObject<ForgotPasswordResponse> verifyMail(@RequestBody EmailRequest email) throws MessagingException, IOException {
         forgotPasswordService.verifyMail(email);
         return new ResponseObject<>(HttpStatus.OK.value(),Constants.DEFAULT_MESSAGE_SUCCESS,
                 LocalDateTime.now());
     }
 
-    @PostMapping("/OTP")
+    @PostMapping("/forgot-password/verify-otp")
     public ResponseObject<OTPResponse> verifyOTP(@RequestBody OTPRequest request) {
         return new ResponseObject<>(Constants.DEFAULT_MESSAGE_SUCCESS_TOTP, HttpStatus.OK.value(),
                 LocalDateTime.now(), forgotPasswordService.verifyOTP(request));
     }
 
-    @PostMapping("/generateOTP")
+    @PostMapping("/forgot-password/generate")
     public ResponseObject<String> generateOTP(@RequestParam String email) {
         forgotPasswordService.generateOtp(email);
         return new ResponseObject<>(HttpStatus.OK.value(),Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
     }
-    @PostMapping("/resetPassword")
+
+    @PostMapping("/forgot-password/reset")
     public ResponseObject<String> resetPassword(@RequestBody ResetPasswordRequest request) {
         return new ResponseObject<>(Constants.DEFAULT_MESSAGE_UPDATE_SUCCESS, HttpStatus.OK.value(),
                 LocalDateTime.now(), forgotPasswordService.resetPassword(request));
     }
 
-
     @GetMapping("")
     public ResponseEntity<String> login() {
         return new ResponseEntity<>("hello", HttpStatus.OK);
     }
+
     @PostMapping("/login")
     public ResponseEntity<ResponseObject<TokenResponse>> authorize(HttpServletRequest request,
                                                                    @RequestBody LoginRequest loginRequest) {

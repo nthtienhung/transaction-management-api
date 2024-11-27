@@ -6,9 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EmailDTORequest {
-    private String key;
 
-    private Integer userId;
+    private String userId;
 
     private String topicName;
 

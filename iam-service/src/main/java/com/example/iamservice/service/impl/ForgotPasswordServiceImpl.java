@@ -48,8 +48,6 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
 
     private final PasswordEncoder passwordEncoder;
 
-//    private final TwoFactorAuthentication twoFactorAuthentication;
-
     private static final String OTP_PREFIX = "OTP:";
 
 
@@ -122,10 +120,9 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
         // Gửi email OTP
         OTPRequest data = OTPRequest.builder().email(user.get().getEmail()).otp(otp).build();
         EmailDTORequest emailDTO = new EmailDTORequest();
-        emailDTO.setKey(KafkaTopicConstants.DEFAULT_KEY_SEND_EMAIL_FORGOT_PASSWORD);
-        emailDTO.setUserId(Integer.valueOf(user.get().getUserId()));
+        emailDTO.setUserId(user.get().getUserId());
         emailDTO.setData(new Gson().toJson(data));
-        emailDTO.setTopicName(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL);
+        emailDTO.setTopicName(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_FORGOT_PASSWORD);
 
         kafkaProducer.sendMessageForgotPassword(emailDTO);
     }
@@ -144,7 +141,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
             throw new BadRequestAlertException(MessageCode.MSG1030);
         } else if (Validator.isBlankOrEmpty(request.getOtp())) {
             throw new BadRequestAlertException(MessageCode.MSG1027);
-        } else if (!Validator.isOTP(request.getOtp())
+        } else if (Validator.isOTP(request.getOtp())
                 || request.getOtp().length() != DEFAULT_OTP_LENGTH) {
             throw new BadRequestAlertException(MessageCode.MSG1026);
         } else if (!request.getOtp().equals(value.getOtp())) {

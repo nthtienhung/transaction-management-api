@@ -15,7 +15,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "tbl_notification")
+@Table(name = "tbl_template")
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class Template {
