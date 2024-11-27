@@ -85,7 +85,7 @@ public class MailServiceImpl implements MailService {
         mimeMessageHelper.setFrom(emailFrom);
         mimeMessageHelper.setTo(email);
         mimeMessageHelper.setSubject("Reset Your Password");
-        String html = templateEngine.process("NotiTemplate", context);
+        String html = templateEngine.process("forgot-password-email", context);
         mimeMessageHelper.setText(html, true);
 
         // 7. Gửi email
