@@ -1218,6 +1218,7 @@ public class Validator {
     public static boolean isBlankOrEmpty(String s) {
         return StringUtils.isBlank(s) || StringUtils.isEmpty(s);
     }
+
     public static boolean isOTP(String otp) {
         return !Pattern.compile(RegularExpressionConstants.DEFAULT_REGEXP_TOTP)
                 .matcher(otp)

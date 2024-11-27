@@ -33,5 +33,4 @@ public class User extends AuditTable {
     @Column(name = "role", length = 10)
     private String role;
 
-
 }

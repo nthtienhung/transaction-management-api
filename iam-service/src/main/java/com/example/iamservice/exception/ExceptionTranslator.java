@@ -1,9 +1,9 @@
 package com.example.iamservice.exception;
 
+
+import com.example.iamservice.exception.handle.BadRequestAlertException;
+import com.example.iamservice.exception.handle.InternalServerErrorException;
 import com.example.iamservice.dto.response.common.ResponseObject;
-import com.example.iamservice.exception.handler.BadRequestAlertException;
-import com.example.iamservice.exception.handler.InternalServerErrorException;
-import com.example.iamservice.exception.handler.InternalServerErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,15 +12,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
 
 import java.time.LocalDateTime;
-
-/**
- * Bộ xử lý ngoại lệ toàn cục cho các controller REST.
- * Lớp này xử lý các ngoại lệ cụ thể và trả về các HTTP response tương ứng.
- *
- * @author vinhnv
- * @version 1.0
- * @since 2024-04-08
- */
 
 
 @Slf4j
