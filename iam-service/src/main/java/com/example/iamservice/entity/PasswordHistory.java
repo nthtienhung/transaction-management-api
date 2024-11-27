@@ -9,7 +9,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tbl_password_history")
+@Table(name = "tbl_password_history", schema = "iam_service")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

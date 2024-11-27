@@ -5,9 +5,9 @@ spring:
   application:
     name: notification-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/team2db
+    url: jdbc:postgresql://localhost:1200/team2db
     username: postgres
-    password: 123
+    password: quang232003
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5

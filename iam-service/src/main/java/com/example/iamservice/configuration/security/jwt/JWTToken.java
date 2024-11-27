@@ -11,7 +11,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class JWTToken implements Serializable{
+public class JWTToken implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 6079085501370429127L;
@@ -21,6 +21,8 @@ public class JWTToken implements Serializable{
     private int duration;
 
     private Date expiredTime;
+
+    private String Role;
 
     public JWTToken(String token) {
         this.token = token;

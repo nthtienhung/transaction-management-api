@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "tbl_user_login_failed")
+@Table(name = "tbl_user_login_failed", schema = "iam_service")
 @EqualsAndHashCode(callSuper = true)
 public class UserLoginFailed extends AuditTable {
 
