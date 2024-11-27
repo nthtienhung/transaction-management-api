@@ -156,6 +156,18 @@ public enum MessageCode {
     // Not have permission
     MSG1049(LabelKey.ERROR_YOU_HAVE_NOT_PERMISSION),
 
+    //Invalid address
+    MSG1050(LabelKey.ERROR_INVALID_ADDRESS),
+
+    // Invalid first name
+    MSG1051(LabelKey.ERROR_FIRST_NAME_IS_INVALID),
+
+    // Invalid last name
+    MSG1052(LabelKey.ERROR_LAST_NAME_IS_INVALID),
+
+    MSG1053(LabelKey.EROR_FIRST_NAME_IS_EMPTY),
+
+    MSG1054(LabelKey.EROR_LAST_NAME_IS_EMPTY),
     ;
 
     private String key;

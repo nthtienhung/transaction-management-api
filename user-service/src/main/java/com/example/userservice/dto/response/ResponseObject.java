@@ -12,21 +12,24 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseData<T> {
+public class ResponseObject<T> {
 
     private String message;
-
     private int status;
-
-    private LocalDateTime timestamp;
-
+    private LocalDateTime localDateTime;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T data;
 
-    public ResponseData(int status, String message, LocalDateTime timestamp) {
+    public ResponseObject(int status, String message, LocalDateTime localDateTime, T data) {
         this.status = status;
         this.message = message;
-        this.timestamp = timestamp;
+        this.localDateTime = localDateTime;
+        this.data = data;
     }
 
+    public ResponseObject(int status, String message, LocalDateTime localDateTime) {
+        this.message = message;
+        this.status = status;
+        this.localDateTime = localDateTime;
+    }
 }

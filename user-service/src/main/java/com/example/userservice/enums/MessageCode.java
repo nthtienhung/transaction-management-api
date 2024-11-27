@@ -1,6 +1,6 @@
 package com.example.userservice.enums;
 
-import com.example.iamservice.configuration.message.LabelKey;
+import com.example.userservice.configuration.message.LabelKey;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

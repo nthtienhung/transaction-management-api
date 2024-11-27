@@ -1,0 +1,36 @@
+server:
+  port: 8084
+  servlet:
+    context-path: /user
+
+spring:
+  application:
+    name: user-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/team2db
+    username: postgres
+    password: 123
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      max-lifetime: 1800000
+  jpa:
+    hibernate:
+      ddl-auto: update
+      how-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  messages:
+    encoding: 'UTF-8'   # Đảm bảo mã hóa đúng
+    use-code-as-default-message: true  # Sử dụng code làm thông điệp mặc định nếu không tìm thấy thông điệp
+    basename: i18n/labels  # Đảm bảo đúng tên file (không cần đuôi .properties trong basename)
+    cache-duration: 60
+
+eureka:
+  client:
+    server-url:
+      defaultZone: http://localhost:8761/eureka/
+

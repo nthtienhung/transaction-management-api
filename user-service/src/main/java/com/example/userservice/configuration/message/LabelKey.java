@@ -1,4 +1,4 @@
-package com.example.userservice.message;
+package com.example.userservice.configuration.message;
 
 /**
  * 01/06/2021 - LinhLH: Create new

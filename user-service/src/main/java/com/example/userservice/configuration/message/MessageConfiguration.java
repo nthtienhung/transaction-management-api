@@ -1,6 +1,7 @@
-package com.example.userservice.message;
+package com.example.userservice.configuration.message;
 
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -14,12 +15,16 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 @Setter
 public class MessageConfiguration {
 
+    @Value("${spring.messages.encoding}")
     private String encoding;
 
+    @Value("${spring.messages.basename}")
     private String basename;
 
+    @Value("${spring.messages.cache-duration}")
     private int cacheDuration;
 
+    @Value("${spring.messages.use-code-as-default-message}")
     private boolean useCodeAsDefaultMessage;
 
     /**

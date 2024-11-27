@@ -1,7 +1,7 @@
-package com.example.userservice.message;
+package com.example.userservice.configuration.message;
 
-import com.example.iamservice.constant.Constants;
-import com.example.iamservice.util.GetterUtil;
+import com.example.userservice.constant.Constants;
+import com.example.userservice.util.GetterUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

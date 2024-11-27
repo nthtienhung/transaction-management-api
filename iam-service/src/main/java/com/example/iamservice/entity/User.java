@@ -1,5 +1,6 @@
 package com.example.iamservice.entity;
 
+import com.example.iamservice.entity.common.AuditTable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,14 +11,14 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class User extends AuditTable {
 
     @Id
     @Column(name = "user_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
     private String userId;
 
-    @Column(name = "is_verified", length = 10)
+    @Column(name = "is_verified", length = 255)
     private String isVerified;
 
     @Column(name = "email", length = 255, nullable = false, unique = true)
