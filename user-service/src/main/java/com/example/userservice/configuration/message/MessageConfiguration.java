@@ -48,10 +48,10 @@ public class MessageConfiguration {
     public MessageSource bundleMessageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
 
-        messageSource.setBasename(this.basename);
-        messageSource.setDefaultEncoding(this.encoding);
-        messageSource.setCacheSeconds(this.cacheDuration);
-        messageSource.setUseCodeAsDefaultMessage(this.useCodeAsDefaultMessage);
+        messageSource.setBasename(basename);
+        messageSource.setDefaultEncoding(encoding);
+        messageSource.setCacheSeconds(cacheDuration);
+        messageSource.setUseCodeAsDefaultMessage(useCodeAsDefaultMessage);
 
         return messageSource;
     }

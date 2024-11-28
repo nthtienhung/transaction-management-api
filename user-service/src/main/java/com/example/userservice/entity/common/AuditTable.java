@@ -22,7 +22,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public class AuditTable {
+public abstract class AuditTable {
 
     @CreatedBy
     @Column(updatable = false,name = "user_create")

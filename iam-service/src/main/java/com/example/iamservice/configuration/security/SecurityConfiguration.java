@@ -28,8 +28,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/register").permitAll()
-                        .requestMatchers("/api/v1/forgot-password/**").permitAll()
+                        .requestMatchers("/register/**").permitAll()
+                        .requestMatchers("/forgot-password/**").permitAll()
                         .requestMatchers("/swagger/**").permitAll()// Cho phép truy cập không cần xác thực
                         .anyRequest().permitAll()// Yêu cầu xác thực với các request khác
                 )

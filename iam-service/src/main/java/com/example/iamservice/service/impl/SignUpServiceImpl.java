@@ -69,9 +69,9 @@ public class SignUpServiceImpl implements SignUpService {
             throw new BadRequestAlertException(MessageCode.MSG1045);
         }
 
-        if(!Validator.isVNPhoneNumber(request.getPhone())){
-            throw new BadRequestAlertException(MessageCode.MSG1044);
-        }
+//        if(!Validator.isVNPhoneNumber(request.getPhone())){
+//            throw new BadRequestAlertException(MessageCode.MSG1044);
+//        }
 
         if(userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new BadRequestAlertException(MessageCode.MSG1012);
@@ -95,6 +95,7 @@ public class SignUpServiceImpl implements SignUpService {
         createProfileRequest.setFirstName(request.getFirstName());
         createProfileRequest.setLastName(request.getLastName());
         createProfileRequest.setDateOfBirth(request.getDateOfBirth());
+        createProfileRequest.setEmail(request.getEmail());
         createProfileRequest.setUserId(user.getUserId());
 
         ResponseObject<String> createProfile = userClient.createProfile(createProfileRequest);

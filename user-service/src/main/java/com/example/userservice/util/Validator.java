@@ -5,19 +5,13 @@
 package com.example.userservice.util;
 
 import com.example.userservice.constant.RegularExpressionConstants;
-import com.example.userservice.util.StringPool;
-import com.example.userservice.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
