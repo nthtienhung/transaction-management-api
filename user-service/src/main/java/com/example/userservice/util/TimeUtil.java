@@ -1,8 +1,5 @@
 package com.example.userservice.util;
 
-import com.example.iamservice.util.FastDateFormatFactoryUtil;
-import com.example.iamservice.util.StringPool;
-
 import java.sql.Timestamp;
 import java.text.Format;
 import java.util.Calendar;
