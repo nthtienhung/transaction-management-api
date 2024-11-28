@@ -8,7 +8,7 @@ import com.example.iamservice.dto.request.signup.VerifyUserRequest;
 import com.example.iamservice.dto.response.common.ResponseObject;
 import com.example.iamservice.entity.User;
 import com.example.iamservice.enums.MessageCode;
-import com.example.iamservice.exception.handler.BadRequestAlertException;
+import com.example.iamservice.exception.handle.BadRequestAlertException;
 import com.example.iamservice.repository.UserRepository;
 import com.example.iamservice.service.SignUpService;
 import com.example.iamservice.util.Validator;
@@ -57,6 +57,10 @@ public class SignUpServiceImpl implements SignUpService {
             throw new BadRequestAlertException(MessageCode.MSG1002);
         }
 
+        if(Validator.isBlankOrEmpty(request.getPassword())) {
+            throw new BadRequestAlertException(MessageCode.MSG1001);
+        }
+
         if(!Validator.isPasswordRegex(request.getPassword())) {
             throw new BadRequestAlertException(MessageCode.MSG1004);
         }
@@ -65,7 +69,7 @@ public class SignUpServiceImpl implements SignUpService {
             throw new BadRequestAlertException(MessageCode.MSG1045);
         }
 
-        if(Validator.isVNPhoneNumber(request.getPhone())){
+        if(!Validator.isVNPhoneNumber(request.getPhone())){
             throw new BadRequestAlertException(MessageCode.MSG1044);
         }
 

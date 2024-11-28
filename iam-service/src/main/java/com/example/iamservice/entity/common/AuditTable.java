@@ -11,6 +11,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
@@ -23,6 +24,7 @@ import java.time.Instant;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class AuditTable{
+
     @CreatedBy
     @Column(name = "user_create", updatable = false)
     private Integer userCreate;
@@ -36,7 +38,7 @@ public abstract class AuditTable{
     @JsonIgnore
     private Instant createdDate = Instant.now();
 
-    @LastModifiedBy
+    @LastModifiedDate
     @Column(name = "update_date", updatable = false)
     @JsonIgnore
     private Instant updatedDate = Instant.now();

@@ -30,13 +30,11 @@ import java.time.LocalDateTime;
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
+
     private final SignUpService signUpService;
-
     private final ForgotPasswordService forgotPasswordService;
-
     private final LoginService loginService;
     private final ChangePasswordService changePasswordService;
-
 
     @PostMapping("/forgot-password/verify-mail")
     public ResponseObject<ForgotPasswordResponse> verifyMail(@RequestBody EmailRequest email) throws MessagingException, IOException {
@@ -94,7 +92,7 @@ public class AuthController {
     @PostMapping("/register/verify")
     public ResponseObject<String> verifyOtp(@RequestBody VerifyUserRequest request){
         signUpService.verifyUser(request);
-        return new ResponseObject<>(HttpStatus.CREATED.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
+        return new ResponseObject<>(HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
     }
 
 }

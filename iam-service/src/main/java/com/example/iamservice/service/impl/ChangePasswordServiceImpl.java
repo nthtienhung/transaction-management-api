@@ -6,7 +6,7 @@ import com.example.iamservice.dto.response.common.ResponseObject;
 import com.example.iamservice.entity.PasswordHistory;
 import com.example.iamservice.entity.User;
 import com.example.iamservice.enums.MessageCode;
-import com.example.iamservice.exception.handler.BadRequestAlertException;
+import com.example.iamservice.exception.handle.BadRequestAlertException;
 import com.example.iamservice.repository.PasswordHistoryRepository;
 import com.example.iamservice.repository.UserRepository;
 import com.example.iamservice.service.ChangePasswordService;

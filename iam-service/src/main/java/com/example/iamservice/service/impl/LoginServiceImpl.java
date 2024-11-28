@@ -14,7 +14,7 @@ import com.example.iamservice.entity.UserLoginFailed;
 import com.example.iamservice.entity.UserProperties;
 import com.example.iamservice.enums.MessageCode;
 import com.example.iamservice.enums.Status;
-import com.example.iamservice.exception.handler.BadRequestAlertException;
+import com.example.iamservice.exception.handle.BadRequestAlertException;
 import com.example.iamservice.repository.UserLoginFailedRepository;
 import com.example.iamservice.repository.UserRepository;
 import com.example.iamservice.service.LoginService;
