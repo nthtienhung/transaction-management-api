@@ -90,6 +90,7 @@ public class JWTTokenProvider<T extends AbstractUserPrincipal> implements Initia
             JWTToken accessToken = createToken(email, duration, SecurityConstants.TokenType.ACCESS_TOKEN);
 
             JWTToken csrfToken = createToken(email, duration, SecurityConstants.TokenType.CSRF_TOKEN);
+            System.out.println(csrfToken);
 
             JWTAccessToken jwtAccessToken = JWTAccessToken.builder()
                     .accessToken(accessToken)
