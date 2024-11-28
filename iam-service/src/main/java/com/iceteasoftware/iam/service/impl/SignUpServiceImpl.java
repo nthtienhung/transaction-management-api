@@ -19,7 +19,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -127,11 +126,7 @@ public class SignUpServiceImpl implements SignUpService {
         }
 
         redisTemplate.delete(request.getEmail());
-        Optional<User> user = userRepository.findByEmail(request.getEmail());
-        if(user.isPresent()) {
-            user.get().setIsVerified("VERIFIED");
-            userRepository.save(user.get());
-        }
+        userRepository.findByEmail(request.getEmail()).ifPresent(user -> user.setIsVerified("VERIFIED"));
     }
 
     private String generateOtpString(){
