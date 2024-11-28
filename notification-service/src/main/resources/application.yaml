@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: 8083
 
 spring:
   application:
@@ -7,7 +7,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/team2db
     username: postgres
-    password: root
+    password: 123
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
