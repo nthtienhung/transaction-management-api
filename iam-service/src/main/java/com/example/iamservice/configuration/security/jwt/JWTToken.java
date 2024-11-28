@@ -21,6 +21,7 @@ public class JWTToken implements Serializable{
     private int duration;
 
     private Date expiredTime;
+    private String Role;
 
     public JWTToken(String token) {
         this.token = token;
