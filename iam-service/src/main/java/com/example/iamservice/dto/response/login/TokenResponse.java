@@ -2,6 +2,7 @@ package com.example.iamservice.dto.response.login;
 
 import com.example.iamservice.annotation.Exclude;
 import com.example.iamservice.dto.response.common.Response;
+import com.example.iamservice.entity.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.Builder;
@@ -24,5 +25,6 @@ public class TokenResponse extends Response {
     private Integer csrfTokenDuration;
     private Integer refreshTokenDuration;
     private Date csrfExpiresAt;
+
 
 }
