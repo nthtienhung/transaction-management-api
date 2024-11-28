@@ -1,5 +1,6 @@
 package com.example.userservice.service.impl;
 
+import com.example.userservice.dto.request.CreateProfileRequest;
 import com.example.userservice.dto.response.common.ResponseObject;
 import com.example.userservice.entity.Profile;
 import com.example.userservice.repository.UserProfileRepository;
@@ -77,6 +78,25 @@ public class UserServiceImpl implements UserService {
             );
             return ResponseEntity.status(404).body(response);
         }
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void createProfile(CreateProfileRequest request) {
+        userProfileRepository.save(Profile.builder()
+                        .userId(request.getUserId())
+                        .dob(request.getDateOfBirth())
+                        .email(request.getEmail())
+                        .firstName(request.getFirstName())
+                        .lastName(request.getLastName())
+                        .address(request.getAddress())
+                        .phone(request.getPhone())
+                .build());
+    }
+
+    @Override
+    public boolean isPhoneExists(String phone) {
+        return userProfileRepository.findByPhone(phone).isPresent();
     }
 
     // Phương thức lấy JWT từ header Authorization

@@ -1,10 +1,12 @@
 package com.example.userservice.entity;
 
+import com.example.userservice.entity.common.AuditTable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Auditable;
 
 import java.time.LocalDateTime;
 import java.time.LocalDate;
@@ -15,7 +17,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Entity
 @Table(name = "tbl_user_profile")
-public class Profile {
+public class Profile extends AuditTable {
 
     @Id
     @Column(name = "profile_id", nullable = false)
@@ -43,10 +45,5 @@ public class Profile {
     @Column(name = "dob")
     private LocalDate dob;
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 }
 

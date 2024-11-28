@@ -1,5 +1,7 @@
 server:
   port: 8082
+  servlet:
+    context-path: /user
 spring:
   application:
     name: user-service
@@ -15,10 +17,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   messages:
-    encoding: 'UTF-8'   # ??m b?o mã hóa ?úng
-    use-code-as-default-message: true  # S? d?ng code làm thông ?i?p m?c ??nh n?u không tìm th?y thông ?i?p
-    basename: i18n/labels  # ??m b?o ?úng tên file (không c?n ?uôi .properties trong basename)
-    cache-duration: 60   # Th?i gian cache (60 giây)
+    encoding: 'UTF-8'   # ??m b?o mï¿½ hï¿½a ?ï¿½ng
+    use-code-as-default-message: true  # S? d?ng code lï¿½m thï¿½ng ?i?p m?c ??nh n?u khï¿½ng tï¿½m th?y thï¿½ng ?i?p
+    basename: i18n/labels  # ??m b?o ?ï¿½ng tï¿½n file (khï¿½ng c?n ?uï¿½i .properties trong basename)
+    cache-duration: 60   # Th?i gian cache (60 giï¿½y)
   kafka:
     producer:
       bootstrap-servers: localhost:9094
@@ -67,8 +69,8 @@ cache:
       subscriptionConnectionPoolSize: 50
       subscriptionConnectionMinimumIdleSize: 1
     retryAttempts: 3
-    retryInterval: 1500 # ??t giá tr? khác 0
-    idleConnectionTimeout: 10000 # ??t giá tr? khác 0
+    retryInterval: 1500 # ??t giï¿½ tr? khï¿½c 0
+    idleConnectionTimeout: 10000 # ??t giï¿½ tr? khï¿½c 0
     connectTimeout: 10000
     timeout: 3000
   time-to-lives:
@@ -88,19 +90,19 @@ cache:
 user:
   pre-register-verify-limit: 5
   login-attempts: 5
-  login-failed-lock-duration: 2 # ??n v? phút
+  login-failed-lock-duration: 2 # ??n v? phï¿½t
   reset-pw-verify-limit: 5
   change-pw-verify-limit: 5
   pw-duplicated-limit: 2
-  pw-duration: 180 # ??n v? ngày
-  pw-expired-notice-before: 1,5,10 # th?i gian g?i thông báo m?t kh?u h?t h?n, tr??c th?i h?n 1, 5, 10 ngày
+  pw-duration: 180 # ??n v? ngï¿½y
+  pw-expired-notice-before: 1,5,10 # th?i gian g?i thï¿½ng bï¿½o m?t kh?u h?t h?n, tr??c th?i h?n 1, 5, 10 ngï¿½y
   ekyc-min-images: 6 # s? ?nh ekyc t?i thi?u
   ekyc-max-images: 7 # s? ?nh ekyc t?i ?a
-  default-branch-code: LA0010001 # mã chi nhánh m?c ??nh bên Lào
-  sms-default-language: EN # ngôn ng? m?c ??nh g?i sms
-  id-card-issue-date-less-than: 5 # year, ngày m? không ???c l?n h?n 5 n?m
-  passport-issue-date-less-than: 10 # year, ngày m? không ???c l?n h?n 10 n?m
-  pw-verify-failed-limit: 3 # s? l?n t?i ?a xác nh?n m?t kh?u th?t b?i
+  default-branch-code: LA0010001 # mï¿½ chi nhï¿½nh m?c ??nh bï¿½n Lï¿½o
+  sms-default-language: EN # ngï¿½n ng? m?c ??nh g?i sms
+  id-card-issue-date-less-than: 5 # year, ngï¿½y m? khï¿½ng ???c l?n h?n 5 n?m
+  passport-issue-date-less-than: 10 # year, ngï¿½y m? khï¿½ng ???c l?n h?n 10 n?m
+  pw-verify-failed-limit: 3 # s? l?n t?i ?a xï¿½c nh?n m?t kh?u th?t b?i
 
 
 eureka:
