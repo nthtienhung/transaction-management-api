@@ -1,27 +1,24 @@
 package com.example.iamservice.entity;
 
+import com.example.iamservice.entity.common.AuditTable;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-
-import java.time.LocalDateTime;
+import lombok.*;
 
 @Entity
 @Table(name = "tbl_user")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class User extends AuditTable {
 
     @Id
     @Column(name = "user_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
     private String userId;
 
-    @Column(name = "is_verified", length = 10)
+    @Column(name = "is_verified", length = 255)
     private String isVerified;
 
     @Column(name = "email", length = 255, nullable = false, unique = true)
@@ -35,11 +32,5 @@ public class User {
 
     @Column(name = "role", length = 10)
     private String role;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
 }

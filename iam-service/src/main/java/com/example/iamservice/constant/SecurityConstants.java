@@ -2,15 +2,23 @@ package com.example.iamservice.constant;
 
 public interface SecurityConstants {
 
+
     public interface SystemRole {
         public static final String USER = "ROLE_USER";
 
         public static final String SUPER_ADMIN = "ROLE_SUPER_ADMIN";
+    }
+
+    /**
+     * Phương thức
+     *
+     */
 
         public static final String ROLE_USER_POTENTIAL = "ROLE_USER_POTENTIAL";
 
         public static final String ROLE_USER_RESIDENT = "ROLE_USER_RESIDENT";
-    }
+
+
 
     public interface Privilege {
         public static final String ADMINISTRATOR = "ADMINISTRATOR";
@@ -32,10 +40,20 @@ public interface SecurityConstants {
         public static final String WRITE = "WRITE";
     }
 
+    /**
+     * Tài khoản
+     *
+     */
+
     public interface Account {
         public static final String SUPER_AMDIN = "superadmin";
     }
 
+
+    /**
+     * Header
+     *
+     */
     public interface Header {
         public static final String AUTHORIZATION_HEADER = "Authorization";
 
@@ -63,6 +81,11 @@ public interface SecurityConstants {
 
     }
 
+
+    /**
+     * Cookie
+     *
+     */
     public interface Cookie {
         public static final String ACCESS_TOKEN = "its-cms-accessToken";
 
@@ -71,6 +94,11 @@ public interface SecurityConstants {
         public static final String REMEMBER_ME = "its-cms-rememberMe";
     }
 
+
+    /**
+     * Cache
+     *
+     */
     public interface Cache {
 
         public static final String REFRESH_TOKEN = "refresh-token";
@@ -80,6 +108,10 @@ public interface SecurityConstants {
         public static final String TOKEN = "token";
     }
 
+    /**
+     * Loại token
+     *
+     */
     public interface TokenType {
         public static final String REFRESH_TOKEN = "refresh-token";
 
@@ -88,6 +120,11 @@ public interface SecurityConstants {
         public static final String CSRF_TOKEN = "csrf-token";
     }
 
+
+    /**
+     * Dạng token
+     *
+     */
     public interface Claim {
         public static final String TOKEN_TYPE = "token-type";
     }

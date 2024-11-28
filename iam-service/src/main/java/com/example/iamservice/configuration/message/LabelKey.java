@@ -53,5 +53,9 @@ public interface LabelKey {
     public static final String SUCCESS_LOGOUT_SUCCESS = "success.logout-success";
     public static final String SUCCESS_DEFAULT = "success.default";
     public static final String SUCCESS_CREATE = "success.create-success";
-
+    public static final String ERROR_INVALID_ADDRESS = "error.invalid-address";
+    public static final String ERROR_FIRST_NAME_IS_INVALID = "error.invalid-first-name";
+    public static final String ERROR_LAST_NAME_IS_INVALID = "error.invalid-last-name";
+    public static final String EROR_FIRST_NAME_IS_EMPTY = "eror.first-name-is-empty";
+    public static final String EROR_LAST_NAME_IS_EMPTY = "eror.first-name-is-empty";
 }

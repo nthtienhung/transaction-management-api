@@ -1,6 +1,6 @@
 package com.example.userservice.util;
 
-import com.example.iamservice.util.StringPool;
+import com.example.userservice.util.StringPool;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.text.Format;

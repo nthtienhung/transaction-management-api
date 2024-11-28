@@ -38,17 +38,17 @@ services:
       - redis_data:/bitnami/redis
 
   # PostgreSQL
-  postgres:
-    image: 'bitnami/postgresql:latest'
-    container_name: postgres
-    environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydatabase
-    ports:
-      - '5432:5432'
-    volumes:
-      - postgres_data:/bitnami/postgresql
+#  postgres:
+#    image: 'bitnami/postgresql:latest'
+#    container_name: postgres
+#    environment:
+#      POSTGRES_USER: myuser
+#      POSTGRES_PASSWORD: mypassword
+#      POSTGRES_DB: mydatabase
+#    ports:
+#      - '5432:5432'
+#    volumes:
+#      - postgres_data:/bitnami/postgresql
 
   # Elasticsearch
   elasticsearch:

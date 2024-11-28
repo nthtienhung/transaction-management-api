@@ -4,9 +4,9 @@
  */
 package com.example.userservice.util;
 
-import com.example.iamservice.constant.RegularExpressionConstants;
-import com.example.iamservice.util.StringPool;
-import com.example.iamservice.util.StringUtil;
+import com.example.userservice.constant.RegularExpressionConstants;
+import com.example.userservice.util.StringPool;
+import com.example.userservice.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -1177,8 +1177,8 @@ public class Validator {
      * @return true nếu đối tượng là sai định dạng, false nếu ngược lại.
      */
     public static boolean isPasswordRegex(String password) {
-        if (password.length() < com.example.iamservice.constant.Constants.DEFAULT_PASSWORD_LENGTH_MIN
-                || password.length() > com.example.iamservice.constant.Constants.DEFAULT_PASSWORD_LENGTH_MAX){
+        if (password.length() < com.example.userservice.constant.Constants.DEFAULT_PASSWORD_LENGTH_MIN
+                || password.length() > com.example.userservice.constant.Constants.DEFAULT_PASSWORD_LENGTH_MAX){
             return false;
         }
 

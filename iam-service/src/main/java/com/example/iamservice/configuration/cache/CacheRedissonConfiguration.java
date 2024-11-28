@@ -35,7 +35,7 @@ public class CacheRedissonConfiguration {
 
     private String mode; // Mode: single or sentinel
     private int cacheDuration; // Cache duration in minutes
-    @Value("${cache.redisson.clientName:my-redis-client}")
+    @Value("${cache.redisson.single.clientName:my-redis-client}")
     private String clientName;
     private String password;
     private int subscriptionsPerConnection;

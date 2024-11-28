@@ -2,11 +2,11 @@ package com.example.iamservice.service.impl;
 
 import com.example.iamservice.configuration.message.Labels;
 import com.example.iamservice.dto.request.changepassword.ChangePasswordRequest;
-import com.example.iamservice.dto.response.ResponseData;
+import com.example.iamservice.dto.response.common.ResponseObject;
 import com.example.iamservice.entity.PasswordHistory;
 import com.example.iamservice.entity.User;
 import com.example.iamservice.enums.MessageCode;
-import com.example.iamservice.exception.handler.BadRequestAlertException;
+import com.example.iamservice.exception.handle.BadRequestAlertException;
 import com.example.iamservice.repository.PasswordHistoryRepository;
 import com.example.iamservice.repository.UserRepository;
 import com.example.iamservice.service.ChangePasswordService;
@@ -36,7 +36,7 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public ResponseEntity<ResponseData> changePasswordByEmail(ChangePasswordRequest request){
+    public ResponseEntity<ResponseObject> changePasswordByEmail(ChangePasswordRequest request){
         Optional<User> optionalUser = this.userRepository.findByEmail(request.getEmail());
         if (optionalUser.isEmpty()) {
             throw new BadRequestAlertException(MessageCode.MSG1035);
@@ -71,7 +71,7 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
             passwordHistory.setEmail(request.getEmail());
             passwordHistory.setPassword(passwordEncoder.encode(request.getNewPassword()));
             passwordHistoryRepository.save(passwordHistory);
-            ResponseData response = new ResponseData(Labels.getLabels(MessageCode.MSG1040.getKey()), 200, LocalDateTime.now(), newUser);
+            ResponseObject response = new ResponseObject(Labels.getLabels(MessageCode.MSG1040.getKey()), 200, LocalDateTime.now(), newUser);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             throw new BadRequestAlertException(MessageCode.MSG1014);

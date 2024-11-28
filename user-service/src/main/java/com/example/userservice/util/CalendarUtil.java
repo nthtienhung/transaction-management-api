@@ -1,8 +1,8 @@
 package com.example.userservice.util;
 
-import com.example.iamservice.util.FastDateFormatFactoryUtil;
-import com.example.iamservice.util.TimeUtil;
-import com.example.iamservice.util.Validator;
+import com.example.userservice.util.FastDateFormatFactoryUtil;
+import com.example.userservice.util.TimeUtil;
+import com.example.userservice.util.Validator;
 
 import java.sql.Timestamp;
 import java.text.Format;
