@@ -29,8 +29,8 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class AuthController {
-
     private final SignUpService signUpService;
     private final ForgotPasswordService forgotPasswordService;
     private final LoginService loginService;
