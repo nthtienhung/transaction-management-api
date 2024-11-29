@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tbl_user_profile")
+@Table(name = "tbl_user_profile", schema = "user_service")
 public class Profile extends AuditTable {
 
     @Id

@@ -1,4 +1,4 @@
-package com.iceteasoftware.iam.configuration.auditing;
+package com.iceteasoftware.notification.configuration.auditing;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

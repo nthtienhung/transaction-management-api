@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @EnableDiscoveryClient
 @SpringBootApplication
-@EnableJpaAuditing
 public class NotificationServiceApplication {
 
     public static void main(String[] args) {
