@@ -121,6 +121,7 @@ public class SignUpServiceImpl implements SignUpService {
                     .email(request.getEmail())
                     .lastName(request.getLastName())
                     .firstName(request.getFirstName())
+                    .userId(user.getUserId())
                     .build();
 
         ResponseObject<String> createProfile = userClient.createProfile(createProfileRequest);
