@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: 8083
 
 spring:
   application:
@@ -8,6 +8,7 @@ spring:
     url: jdbc:postgresql://localhost:1200/team2db
     username: postgres
     password: quang232003
+    driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
@@ -22,9 +23,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   mail:
     host: smtp.gmail.com
+    from: thinhtdhe173229@fpt.edu.vn
     port: 587
-    username: iceteasoftware.training@gmail.com
-    password: xdrzojeruqavxpzw
+    username: thinhtdhe173229@fpt.edu.vn
+    password: mikakduqvwlcmdrs
     properties:
       mail:
         smtp:
