@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iceteasoftware.notification.util.ThreadLocalUtil;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -44,10 +45,15 @@ public class EmailServiceImpl implements EmailService {
     @Transactional
     @KafkaListener(topics = KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SIGN_UP, groupId = "email-otp-group")
     public void sendOTPSignUp(String message) throws JsonProcessingException, MessagingException {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonNode = mapper.readTree(message);
-        String email = jsonNode.get("email").asText();
-        String otp = jsonNode.get("otp").asText();
+        JsonNode jsonNode = objectMapper.readTree(message);
+        String data = jsonNode.get("data").asText();
+        String userId = jsonNode.get("userId").asText();
+
+        ThreadLocalUtil.setCurrentUser(userId);
+
+        JsonNode dataNode = objectMapper.readTree(data);
+        String email = dataNode.get("email").asText();
+        String otp = dataNode.get("otp").asText();
 
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(
@@ -81,6 +87,7 @@ public class EmailServiceImpl implements EmailService {
         mimeMessageHelper.setText(html, true);
 
         mailSender.send(mimeMessage);
+        ThreadLocalUtil.remove();
         log.info("OTP has been sent to email: {}", email);
     }
 
@@ -94,6 +101,10 @@ public class EmailServiceImpl implements EmailService {
         JsonNode jsonNode = objectMapper.readTree(message);
         String data = jsonNode.get("data").asText();
         JsonNode dataNode = objectMapper.readTree(data);
+        String userId = jsonNode.get("userId").asText();
+
+        ThreadLocalUtil.setCurrentUser(userId);
+
         String email = dataNode.get("email").asText();
         String otp = dataNode.get("otp").asText();
 
@@ -135,6 +146,7 @@ public class EmailServiceImpl implements EmailService {
 
         // 7. Gửi email
         mailSender.send(mimeMessage);
+        ThreadLocalUtil.remove();
         log.info("Password reset email has been sent to: {}", email);
     }
 }

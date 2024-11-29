@@ -1,5 +1,6 @@
 package com.iceteasoftware.notification.entity;
 
+import com.iceteasoftware.notification.entity.common.AuditTable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -12,10 +13,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "tbl_notification")
+@Table(name = "tbl_notification", schema = "notification_service")
 @Entity
-@EntityListeners(AuditingEntityListener.class)
-public class Notification {
+public class Notification extends AuditTable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -24,10 +24,6 @@ public class Notification {
 
     @Column(name = "status")
     private String status;
-
-    @CreatedDate
-    @Column(nullable = false, updatable = false, name = "created_at")
-    private LocalDateTime createdAt;
 
     @Column(name ="work")
     private String work;

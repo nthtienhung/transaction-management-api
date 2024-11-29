@@ -1,5 +1,6 @@
 package com.iceteasoftware.notification.entity;
 
+import com.iceteasoftware.notification.entity.common.AuditTable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -15,10 +16,9 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "tbl_template")
+@Table(name = "tbl_template", schema = "notification_service")
 @Entity
-@EntityListeners(AuditingEntityListener.class)
-public class Template {
+public class Template extends AuditTable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -31,9 +31,5 @@ public class Template {
     @Column(name = "parameter", columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> parameter;
-
-    @CreatedDate
-    @Column(nullable = false, updatable = false, name = "created_at")
-    private LocalDateTime createdAt;
 
 }
