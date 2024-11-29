@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class JwtTokenProvider {
 
     @Value("${jwt.secret}")
-    private String secretKey; // Inject từ cấu hình
+    private String secretKey;
 
     /**
      * Xác thực token JWT.
@@ -21,7 +21,8 @@ public class JwtTokenProvider {
      */
     public boolean validateToken(String token) {
         try {
-            getClaims(token); // Gọi hàm getClaims để kiểm tra token
+            getClaims(token); // Giải mã token để kiểm tra tính hợp lệ
+            log.info("Token is valid");
             return true;
         } catch (RuntimeException e) {
             log.error("Token validation failed: {}", e.getMessage());
@@ -36,9 +37,9 @@ public class JwtTokenProvider {
      */
     public String getRoleFromToken(String token) {
         try {
-            Claims claims = getClaims(token); // Lấy claims từ token
-            String role = claims.get("role", String.class); // Lấy role từ claims
-            log.info("Extracted role: {}", role);
+            Claims claims = getClaims(token);
+            String role = claims.get("role", String.class);
+            log.info("Extracted role from token: {}", role);
             return role;
         } catch (RuntimeException e) {
             log.error("Failed to extract role: {}", e.getMessage());
@@ -59,7 +60,7 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (JwtException e) {
-            log.error("Failed to parse JWT: {}", e.getMessage());
+            log.error("JWT parsing error: {}", e.getMessage());
             throw new RuntimeException("Invalid token", e);
         } catch (IllegalArgumentException e) {
             log.error("Invalid token format: {}", e.getMessage());

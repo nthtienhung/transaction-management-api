@@ -30,15 +30,18 @@ public class JwtGlobalFilter implements GlobalFilter {
         String authorizationHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         log.info("Authorization Header: {}", authorizationHeader);
 
+        // Kiểm tra Header Authorization
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             log.error("Missing or invalid Authorization header");
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
 
+        // Trích xuất token
         String token = authorizationHeader.substring(7);
         log.info("Extracted token: {}", token);
 
+        // Xác thực token
         if (!jwtTokenProvider.validateToken(token)) {
             log.error("Invalid token");
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
@@ -47,19 +50,23 @@ public class JwtGlobalFilter implements GlobalFilter {
 
         // Trích xuất thông tin từ token
         Claims claims = jwtTokenProvider.getClaims(token);
+        String userId = claims.getSubject();
+        String role = claims.get("role", String.class);
 
-        // Bổ sung header để chuyển tiếp
-        exchange = exchange.mutate()
+        log.info("Token valid. User ID: {}, Role: {}", userId, role);
+
+        // Bổ sung Header để gửi đến các microservices
+        ServerWebExchange mutatedExchange = exchange.mutate()
                 .request(r -> r.headers(headers -> {
-                    headers.add("Authorization", authorizationHeader);
-                    headers.add("X-User-Id", claims.getSubject());
-                    headers.add("X-Role", claims.get("role", String.class));
+                    headers.add("X-User-Id", userId);
+                    headers.add("X-Role", role);
+                    // Có thể thêm thông tin khác nếu cần
+                    headers.add("Authorization", authorizationHeader); // Forward original Authorization header
                 }))
                 .build();
 
-        log.info("CHECK", exchange.toString());
-
-        return chain.filter(exchange);
+        return chain.filter(mutatedExchange);
     }
+
 
 }

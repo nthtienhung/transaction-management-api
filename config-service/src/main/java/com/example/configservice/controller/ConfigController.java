@@ -14,12 +14,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -28,6 +32,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/config")
 public class ConfigController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ConfigController.class);
 
     @Autowired
     private ConfigService configService;
@@ -255,6 +261,14 @@ public class ConfigController {
             @RequestParam(required = false) String configKey,
             @RequestParam(required = false) Status status,
             Pageable pageable) {
+
+        logger.info("Accessing getConfig API");
+        // Log các thông tin nhận từ Header
+        logger.info("User-Id: {}", RequestContextHolder.currentRequestAttributes()
+                .getAttribute("X-User-Id", RequestAttributes.SCOPE_REQUEST));
+        logger.info("Role: {}", RequestContextHolder.currentRequestAttributes()
+                .getAttribute("X-Role", RequestAttributes.SCOPE_REQUEST));
+
         Page<ConfigResponse> response = configService.getConfigs(group, type, configKey, status, pageable);
         MessageResponse<Page<ConfigResponse>> messageResponse = MessageResponse.<Page<ConfigResponse>>builder()
                 .message("Success")
