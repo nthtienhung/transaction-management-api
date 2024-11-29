@@ -33,6 +33,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/register/**").permitAll()
                         .requestMatchers("/login/**").permitAll()
                         .requestMatchers("/forgot-password/**").permitAll()
+                        .requestMatchers("/test").permitAll()
                         .requestMatchers("/swagger/**").permitAll()// Cho phép truy cập không cần xác thực
                         .anyRequest().permitAll()// Yêu cầu xác thực với các request khác
                 )
