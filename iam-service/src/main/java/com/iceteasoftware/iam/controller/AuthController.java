@@ -69,6 +69,14 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ResponseObject<TokenResponse>> authorize(HttpServletRequest request,
                                                                    @RequestBody LoginRequest loginRequest) {
+        // Lấy giá trị header từ request
+        String authorizationHeader = request.getHeader("Authorization");
+        String csrfToken = request.getHeader("X-CSRF-TOKEN");
+
+        // Log để kiểm tra
+        System.out.println("Authorization Header: " + authorizationHeader);
+        System.out.println("X-CSRF-TOKEN Header: " + csrfToken);
+
         return this.loginService.authorize(request, loginRequest);
     }
 

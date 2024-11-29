@@ -15,6 +15,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -29,6 +31,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/v1/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/register/**").permitAll()
+                        .requestMatchers("/login/**").permitAll()
                         .requestMatchers("/forgot-password/**").permitAll()
                         .requestMatchers("/swagger/**").permitAll()// Cho phép truy cập không cần xác thực
                         .anyRequest().permitAll()// Yêu cầu xác thực với các request khác
@@ -49,6 +52,7 @@ public class SecurityConfiguration {
         configuration.addAllowedOrigin("*"); // Cho phép tất cả các origin
         configuration.addAllowedMethod("*"); // Cho phép tất cả các method
         configuration.addAllowedHeader("*"); // Cho phép tất cả các header
+        configuration.setExposedHeaders(List.of("X-User-Id", "X-Role", "Authorization", "X-CSRF-TOKEN")); // Expose các header tùy chỉnh cho frontend
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
