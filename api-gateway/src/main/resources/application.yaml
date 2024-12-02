@@ -29,7 +29,7 @@ spring:
               - POST
               - PATCH
               - DELETE
-              - OPTIONS
+#              - OPTIONS
             allowedHeaders:
               - "*"
             allowCredentials: true
