@@ -22,20 +22,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
     private final JWTCookieFilter jwtCookieFilter;
+    private final String[] WHITE_LIST ={
+            "/v3/api-docs/**","/swagger/**","/swagger-ui/**","/login", "/register/**", "/forgot-password/**"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/register/**").permitAll()
-                        .requestMatchers("/login/**").permitAll()
-                        .requestMatchers("/forgot-password/**").permitAll()
-                        .requestMatchers("/test").permitAll()
-                        .requestMatchers("/swagger/**").permitAll()// Cho phép truy cập không cần xác thực
-                        .anyRequest().permitAll()// Yêu cầu xác thực với các request khác
+                        .requestMatchers(WHITE_LIST).permitAll()
+                        .anyRequest().permitAll()
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Kích hoạt CORS với cấu hình mới
                 .addFilterBefore(jwtCookieFilter, UsernamePasswordAuthenticationFilter.class); // Thêm JWT filter
