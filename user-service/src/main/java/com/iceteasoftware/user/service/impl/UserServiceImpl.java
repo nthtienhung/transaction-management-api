@@ -30,9 +30,15 @@ public class UserServiceImpl implements UserService {
     @Value("${security.authentication.jwt.base64-secret}")
     private String jwtSecret;
 
+    /**
+     * Retrieves a user's profile based on the JWT provided in the request.
+     *
+     * @param request the HTTP request containing the JWT in the Authorization header.
+     * @return a {@link ResponseEntity} containing the profile if found, or an error response.
+     */
     @Override
     public ResponseEntity<ResponseObject<Profile>> getProfile(HttpServletRequest request) {
-        // Lấy JWT từ header Authorization
+
         String jwt = getJwtFromHeader(request);
 
         if (jwt == null || jwt.isEmpty()) {
@@ -45,7 +51,6 @@ public class UserServiceImpl implements UserService {
             return ResponseEntity.status(401).body(response);
         }
 
-        // Giải mã JWT và lấy email
         String email = this.extractEmailFromJwt(jwt);
 
         if (email == null) {
@@ -58,7 +63,6 @@ public class UserServiceImpl implements UserService {
             return ResponseEntity.status(401).body(response);
         }
 
-        // Lấy thông tin người dùng từ email
         Optional<Profile> profile = this.getProfileByEmail(email);
 
         if (profile.isPresent()) {
@@ -80,33 +84,54 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Creates a new user profile based on the provided request data.
+     *
+     * @param request the {@link CreateProfileRequest} containing user profile details.
+     */
     @Override
     @org.springframework.transaction.annotation.Transactional
     public void createProfile(CreateProfileRequest request) {
         userProfileRepository.save(Profile.builder()
-                        .userId(request.getUserId())
-                        .dob(request.getDateOfBirth())
-                        .email(request.getEmail())
-                        .firstName(request.getFirstName())
-                        .lastName(request.getLastName())
-                        .address(request.getAddress())
-                        .phone(request.getPhone())
+                .userId(request.getUserId())
+                .dob(request.getDateOfBirth())
+                .email(request.getEmail())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .address(request.getAddress())
+                .phone(request.getPhone())
                 .build());
     }
 
+    /**
+     * Checks if a phone number already exists in the database.
+     *
+     * @param phone the phone number to check.
+     * @return {@code true} if the phone number exists, otherwise {@code false}.
+     */
     @Override
     public boolean isPhoneExists(String phone) {
         return userProfileRepository.findByPhone(phone).isPresent();
     }
 
-    // Phương thức lấy JWT từ header Authorization
+    /**
+     * Extracts the JWT from the Authorization header of the request.
+     *
+     * @param request the HTTP request.
+     * @return the JWT if present, otherwise {@code null}.
+     */
     private String getJwtFromHeader(HttpServletRequest request) {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-       return header;
+        return header;
     }
 
-    // Phương thức giải mã JWT và lấy email
-    public String extractEmailFromJwt(String jwt) {
+    /**
+     * Decodes the JWT and extracts the email of the user.
+     *
+     * @param jwt the JWT string.
+     * @return the email extracted from the token, or {@code null} if decoding fails.
+     */
+    private String extractEmailFromJwt(String jwt) {
         try {
             Claims claims = Jwts.parser()
                     .setSigningKey(jwtSecret)
@@ -118,8 +143,13 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    // Lấy thông tin profile từ email
-    public Optional<Profile> getProfileByEmail(String email) {
+    /**
+     * Retrieves a user's profile based on their email address.
+     *
+     * @param email the email address to search for.
+     * @return an {@link Optional} containing the user's profile if found, or {@code Optional.empty()}.
+     */
+    private Optional<Profile> getProfileByEmail(String email) {
         return userProfileRepository.findByEmail(email);
     }
 }
