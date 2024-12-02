@@ -10,8 +10,6 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
 
 spring:
-  application:
-    name: api-gateway
   cloud:
     gateway:
       globalcors:
@@ -27,12 +25,14 @@ spring:
             allowedHeaders:
               - "*"
             allowCredentials: true
+            maxAge: 86400
+
       mvc:
         routes:
           - id: iam-service
             uri: http://localhost:8081
             predicates:
-              - Path=${app.api-prefix}/**
+              - Path=${app.api-prefix}/auth/**
             filters:
               - StripPrefix=2
           - id: config-service

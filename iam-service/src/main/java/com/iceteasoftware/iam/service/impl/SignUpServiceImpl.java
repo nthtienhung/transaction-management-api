@@ -152,9 +152,9 @@ public class SignUpServiceImpl implements SignUpService {
         redisTemplate.opsForValue().set(email, otp, 2, TimeUnit.MINUTES);
 
         Optional<User> user = userRepository.findByEmail(email);
-        if (user.isEmpty()) {
-            throw new BadRequestAlertException(MessageCode.MSG1016);
-        }
+//        if (user.isEmpty()) {
+//            throw new BadRequestAlertException(MessageCode.MSG1016);
+//        }
 
         OTPRequest data = OTPRequest.builder().email(user.get().getEmail()).otp(otp).build();
         EmailDTORequest emailDTO = new EmailDTORequest();
