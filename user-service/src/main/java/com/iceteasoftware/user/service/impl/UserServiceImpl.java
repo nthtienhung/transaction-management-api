@@ -3,10 +3,11 @@ package com.iceteasoftware.user.service.impl;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
 import com.iceteasoftware.user.entity.Profile;
+import com.iceteasoftware.user.entity.User;
 import com.iceteasoftware.user.repository.UserProfileRepository;
+import com.iceteasoftware.user.repository.UserRepository;
 import com.iceteasoftware.user.service.UserService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.security.SignatureException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -26,6 +28,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserProfileRepository userProfileRepository;
+    private final UserRepository userRepository;
 
     @Value("${security.authentication.jwt.base64-secret}")
     private String jwtSecret;
@@ -84,13 +87,13 @@ public class UserServiceImpl implements UserService {
     @org.springframework.transaction.annotation.Transactional
     public void createProfile(CreateProfileRequest request) {
         userProfileRepository.save(Profile.builder()
-                        .userId(request.getUserId())
-                        .dob(request.getDateOfBirth())
-                        .email(request.getEmail())
-                        .firstName(request.getFirstName())
-                        .lastName(request.getLastName())
-                        .address(request.getAddress())
-                        .phone(request.getPhone())
+                .userId(request.getUserId())
+                .dob(request.getDateOfBirth())
+                .email(request.getEmail())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .address(request.getAddress())
+                .phone(request.getPhone())
                 .build());
     }
 
@@ -99,23 +102,70 @@ public class UserServiceImpl implements UserService {
         return userProfileRepository.findByPhone(phone).isPresent();
     }
 
+    @Override
+    public String getRole(HttpServletRequest request) {
+        String jwt = getJwtFromHeader(request);
+
+        if (jwt == null || jwt.isEmpty()) {
+            ResponseObject<Profile> response = new ResponseObject<>(
+                    "Token không tồn tại trong header Authorization",
+                    401,
+                    LocalDateTime.now(),
+                    null
+            );
+            return null;
+        }
+
+        // Giải mã JWT và lấy email
+        String email = this.extractEmailFromJwt(jwt);
+
+        if (email == null) {
+            ResponseObject<Profile> response = new ResponseObject<>(
+                    "Không thể giải mã email từ token",
+                    401,
+                    LocalDateTime.now(),
+                    null
+            );
+            return null;
+        }
+        Optional<User> userGetRole = userRepository.findByEmail(email);
+        return userGetRole.get().getRole();
+    }
+
     // Phương thức lấy JWT từ header Authorization
     private String getJwtFromHeader(HttpServletRequest request) {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-       return header;
+        return header;
     }
 
     // Phương thức giải mã JWT và lấy email
     public String extractEmailFromJwt(String jwt) {
         try {
+            // Trim and validate the JWT
+            if (jwt == null || jwt.trim().isEmpty()) {
+                throw new IllegalArgumentException("JWT string is null or empty");
+            }
+            jwt = jwt.trim();
+
+            // Parse claims
             Claims claims = Jwts.parser()
                     .setSigningKey(jwtSecret)
                     .parseClaimsJws(jwt)
                     .getBody();
+
             return claims.getSubject();
+        } catch (IllegalArgumentException e) {
+            System.err.println("JWT string is null or empty: " + e.getMessage());
+        } catch (MalformedJwtException e) {
+            System.err.println("Invalid JWT: " + e.getMessage());
+        } catch (ExpiredJwtException e) {
+            System.err.println("JWT is expired: " + e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            System.err.println("Unsupported JWT: " + e.getMessage());
         } catch (Exception e) {
-            return null;
+            System.err.println("Error parsing JWT: " + e.getMessage());
         }
+        return null;
     }
 
     // Lấy thông tin profile từ email

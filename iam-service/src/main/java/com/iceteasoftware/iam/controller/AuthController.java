@@ -61,9 +61,9 @@ public class AuthController {
                 LocalDateTime.now(), forgotPasswordService.resetPassword(request));
     }
 
-    @GetMapping("")
-    public ResponseEntity<String> login() {
-        return new ResponseEntity<>("hello", HttpStatus.OK);
+    @GetMapping("/test")
+    public String login() {
+        return "hello";
     }
 
     @PostMapping("/login")

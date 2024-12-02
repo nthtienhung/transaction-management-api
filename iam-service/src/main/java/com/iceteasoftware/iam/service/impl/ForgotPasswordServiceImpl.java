@@ -133,7 +133,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
         emailDTO.setData(new Gson().toJson(data));
         emailDTO.setTopicName(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_FORGOT_PASSWORD);
 
-        kafkaProducer.sendMessageForgotPassword(emailDTO);
+        kafkaProducer.sendMessageEmail(emailDTO);
     }
 
     private String generateOtpString(){

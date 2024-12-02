@@ -23,7 +23,7 @@ public class PersistentConfig {
      * @return một {@link AuditorAware} để cung cấp thông tin về auditor hiện tại
      */
     @Bean
-    public AuditorAware<Integer> auditorProvider() {
+    public AuditorAware<String> auditorProvider() {
         return new AuditorAwareConfig();
     }
 }

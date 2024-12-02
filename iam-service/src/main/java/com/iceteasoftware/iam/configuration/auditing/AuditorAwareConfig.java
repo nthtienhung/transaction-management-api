@@ -1,15 +1,19 @@
 package com.iceteasoftware.iam.configuration.auditing;
 
+import com.iceteasoftware.iam.configuration.security.CustomUserDetails;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
+
 /**
  * Cấu hình cho AuditorAware để cung cấp thông tin về auditor hiện tại.
  *
  * <p>Lớp này implements {@link AuditorAware} và cung cấp thông tin về người dùng
  * hiện tại (auditor) cho các thực thể được audit.</p>
  */
-public class AuditorAwareConfig implements AuditorAware<Integer> {
+public class AuditorAwareConfig implements AuditorAware<String> {
     /**
      * Trả về thông tin về auditor hiện tại.
      *
@@ -21,8 +25,18 @@ public class AuditorAwareConfig implements AuditorAware<Integer> {
      *         trong trường hợp này là 1.
      */
     @Override
-    public Optional<Integer> getCurrentAuditor() {
-        return Optional.of(1);
+    public Optional<String> getCurrentAuditor() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return Optional.empty();
+        }
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof CustomUserDetails userDetails) {
+            return Optional.of(userDetails.getUserId());
+        } else {
+            return Optional.of("USER_SIGN_UP");
+        }
     }
 }
 

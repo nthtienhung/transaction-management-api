@@ -12,4 +12,5 @@ public interface UserService {
     void createProfile(CreateProfileRequest request);
 
     boolean isPhoneExists(String phone);
+    String getRole(HttpServletRequest request);
 }
