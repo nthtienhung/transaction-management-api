@@ -18,6 +18,7 @@ import com.iceteasoftware.iam.service.LoginService;
 import com.iceteasoftware.iam.service.SignUpService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.MessagingException;
@@ -29,6 +30,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
     private final SignUpService signUpService;
     private final ForgotPasswordService forgotPasswordService;
@@ -83,8 +85,9 @@ public class AuthController {
     }
 
     @PostMapping("/register/generate-otp")
-    public ResponseObject<String> generateOtp(@RequestParam String email){
-        signUpService.generateOtp(email);
+    public ResponseObject<String> generateOtp(@RequestBody EmailRequest request){
+        log.info("Generating OTP for email: {}", request);
+        signUpService.generateOtp(request);
         return new ResponseObject<>(HttpStatus.CREATED.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
     }
 
