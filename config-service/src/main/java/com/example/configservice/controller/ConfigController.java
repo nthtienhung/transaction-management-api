@@ -253,9 +253,9 @@ public class ConfigController {
                                     "  \"data\": null\n" +
                                     "}")))
     })
-    @GetMapping("/getconfig")
     @SecurityRequirement(name = "Bearer Authentication")
     @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/getconfig")
     public ResponseEntity<MessageResponse<Page<ConfigResponse>>> getActiveConfigs(
             @RequestParam(required = false) String group,
             @RequestParam(required = false) String type,

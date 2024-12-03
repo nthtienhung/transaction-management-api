@@ -18,23 +18,30 @@ public class RoleHeaderFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws IOException {
-        // Lấy thông tin role từ header
+            throws IOException, ServletException {
         String roleHeader = request.getHeader("X-Role");
-        if (roleHeader != null) {
-            // Tạo đối tượng Authentication từ header
-            SimpleGrantedAuthority authority = new SimpleGrantedAuthority(roleHeader.trim());
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(null, null, Collections.singletonList(authority));
-            // Đưa Authentication vào SecurityContext
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        if (roleHeader != null && !roleHeader.trim().isEmpty()) {
+            try {
+                String sanitizedRole = roleHeader.trim().startsWith("ROLE_")
+                        ? roleHeader.trim()
+                        : "ROLE_" + roleHeader.trim();
+                SimpleGrantedAuthority authority = new SimpleGrantedAuthority(sanitizedRole);
+
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken("Anonymous", null, Collections.singletonList(authority));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                logger.info("Authentication set with role: " + sanitizedRole);
+            } catch (IllegalArgumentException e) {
+                logger.error("Invalid role in X-Role header: " + roleHeader + e);
+            }
         }
 
         try {
             filterChain.doFilter(request, response);
-        } catch (ServletException e) {
-            throw new RuntimeException(e);
+        } finally {
+            SecurityContextHolder.clearContext(); // Dọn dẹp SecurityContext
         }
     }
 }
-
