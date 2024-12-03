@@ -73,6 +73,14 @@ public class AuthController {
         return this.loginService.authorize(request, loginRequest);
     }
 
+    /**
+     * API endpoint to handle password change requests.
+     *
+     * @param request the {@link ChangePasswordRequest} containing the user's email, old password,
+     *                new password, and confirmation password.
+     * @return a {@link ResponseEntity} containing a success message if the password is changed successfully,
+     *         or an error message if validation fails.
+     */
     @PostMapping("/change-password")
     public ResponseEntity<ResponseObject> changePassword(@RequestBody ChangePasswordRequest request) {
         return changePasswordService.changePasswordByEmail(request);
@@ -96,6 +104,5 @@ public class AuthController {
         signUpService.verifyUser(request);
         return new ResponseObject<>(HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
     }
-
 }
 
