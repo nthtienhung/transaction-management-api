@@ -37,16 +37,16 @@ services:
     volumes:
       - redis_data:/bitnami/redis
 
-  # PostgreSQL
+#  # PostgreSQL
 #  postgres:
 #    image: 'bitnami/postgresql:latest'
 #    container_name: postgres
 #    environment:
-#      POSTGRES_USER: myuser
-#      POSTGRES_PASSWORD: mypassword
-#      POSTGRES_DB: mydatabase
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: quang232003
+#      POSTGRES_DB: team2db
 #    ports:
-#      - '5432:5432'
+#      - '1200:5432'
 #    volumes:
 #      - postgres_data:/bitnami/postgresql
 

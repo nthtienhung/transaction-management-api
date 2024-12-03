@@ -1,13 +1,14 @@
 package com.iceteasoftware.user.configuration.security.jwt;
 
-
 import com.iceteasoftware.user.configuration.cache.CacheProperties;
 import com.iceteasoftware.user.configuration.message.LabelKey;
 import com.iceteasoftware.user.configuration.message.Labels;
 import com.iceteasoftware.user.configuration.security.AuthenticationProperties;
 import com.iceteasoftware.user.constant.SecurityConstants;
+import com.iceteasoftware.user.entity.User;
 import com.iceteasoftware.user.exception.handler.BadRequestAlertException;
 import com.iceteasoftware.user.exception.handler.UnauthorizedException;
+import com.iceteasoftware.user.repository.UserRepository;
 import com.iceteasoftware.user.service.impl.TokenService;
 import com.iceteasoftware.user.util.DateUtil;
 import com.iceteasoftware.user.util.GetterUtil;
@@ -32,6 +33,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -44,6 +46,8 @@ public class JWTTokenProvider<T extends AbstractUserPrincipal> implements Initia
     private final UserDetailsService userDetailsService;
 
     private final CacheProperties cacheProperties;
+
+    private final UserRepository userRepository;
 
     private final TokenService tokenService;
 
@@ -84,6 +88,7 @@ public class JWTTokenProvider<T extends AbstractUserPrincipal> implements Initia
             JWTToken accessToken = createToken(email, duration, SecurityConstants.TokenType.ACCESS_TOKEN);
 
             JWTToken csrfToken = createToken(email, duration, SecurityConstants.TokenType.CSRF_TOKEN);
+            System.out.println(csrfToken);
 
             JWTAccessToken jwtAccessToken = JWTAccessToken.builder()
                     .accessToken(accessToken)
@@ -195,9 +200,17 @@ public class JWTTokenProvider<T extends AbstractUserPrincipal> implements Initia
                     SecurityConstants.Header.TOKEN, LabelKey.ERROR_INVALID_TOKEN);
         }
     }
-    private JWTToken createToken(String email, int duration, Map<String, Object> params) {
-        Date expiration = DateUtil.getDateAfterSecond(new Date(), duration);
 
+//    private JWTToken createToken(String email, int duration, String tokenType) {
+//        Map<String, Object> params = new HashMap<>();
+//
+//        params.put(SecurityConstants.Claim.TOKEN_TYPE, tokenType);
+//
+//        return createToken(email, duration, params);
+//    }
+
+    private JWTToken createToken(String email, int duration,String role, Map<String, Object> params) {
+        Date expiration = DateUtil.getDateAfterSecond(new Date(), duration);
         String jwt = Jwts.builder()
                 .setSubject(email)
                 .addClaims(params)
@@ -206,16 +219,16 @@ public class JWTTokenProvider<T extends AbstractUserPrincipal> implements Initia
                 .setExpiration(expiration)
                 .compact();
 
-        return new JWTToken(jwt, duration, expiration);
+        return new JWTToken(jwt, duration, expiration, role);
     }
 
     private JWTToken createToken(String email, int duration, String tokenType) {
         Map<String, Object> params = new HashMap<>();
-
         params.put(SecurityConstants.Claim.TOKEN_TYPE, tokenType);
-
-        return createToken(email, duration, params);
+        Optional<User> user = userRepository.findByEmail(email);
+        return createToken(user.get().getEmail(), duration,user.get().getRole(), params);
     }
+
     private JWTToken createRefreshToken(String username, Map<String, Object> params) {
         String jwt = Jwts.builder()
                 .setSubject(username)

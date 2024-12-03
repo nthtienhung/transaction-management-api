@@ -80,7 +80,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
      * @return
      */
     @Override
-    public String resetPassword(ResetPasswordRequest request) {
+    public void resetPassword(ResetPasswordRequest request) {
         Optional<User> user = userRepository.findByEmail(request.getEmail());
         int passwordLength = request.getNewPassword().length();
         if (user.isEmpty()) {
@@ -103,7 +103,6 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
 
         userRepository.save(user.get());
         redisTemplate.delete(request.getEmail());
-        return Constants.DEFAULT_MESSAGE_UPDATE_SUCCESS;
     }
 
     /**

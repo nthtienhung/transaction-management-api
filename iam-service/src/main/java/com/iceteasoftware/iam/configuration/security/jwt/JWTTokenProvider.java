@@ -26,16 +26,15 @@ import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -141,13 +140,19 @@ public class JWTTokenProvider<T extends AbstractUserPrincipal> implements Initia
             return null;
         }
 
-        return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
+//        return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(claims.get("role").toString()));
+        log.info("claim: " + claims.toString() + "\n" + "principal: " + principal.toString());
+        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+
     }
     public boolean validateToken(String accessToken, String csrfToken) {
         String username;
 
         try {
             Claims claims = jwtParser.parseClaimsJws(accessToken).getBody();
+            log.info("Token claims: {}", claims);
+            log.info("Role in token: {}", claims.get("role"));
 
             username = claims.getSubject();
 
@@ -218,6 +223,8 @@ public class JWTTokenProvider<T extends AbstractUserPrincipal> implements Initia
         Map<String, Object> params = new HashMap<>();
         params.put(SecurityConstants.Claim.TOKEN_TYPE, tokenType);
         Optional<User> user = userRepository.findByEmail(email);
+//        params.put("role", user.get().getRole());
+        params.put("role", "ROLE_" + user.get().getRole());
         return createToken(user.get().getEmail(), duration,user.get().getRole(), params);
     }
     private JWTToken createRefreshToken(String username, Map<String, Object> params) {
