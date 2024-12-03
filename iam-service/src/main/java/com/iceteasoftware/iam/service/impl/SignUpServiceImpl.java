@@ -39,7 +39,6 @@ public class SignUpServiceImpl implements SignUpService {
     private final UserRepository userRepository;
     private final UserClient userClient;
     private final RedisTemplate<String, String> redisTemplate;
-    private final KafkaTemplate<String, String> kafkaTemplate;
     private final PasswordEncoder passwordEncoder;
     private final PasswordHistoryRepository passwordHistoryRepository;
     private final KafkaProducer kafkaProducer;
@@ -52,7 +51,7 @@ public class SignUpServiceImpl implements SignUpService {
      *     <li>Validates input fields such as first name, last name, email, password, and phone number.</li>
      *     <li>Checks for duplicate email and phone number in the database.</li>
      *     <li>Encodes the user's password and saves it to the database.</li>
-     *     <li>Creates a profile for the user via a remote service.</li>
+     *     <li>Creates a profile for the user via user service.</li>
      * </ul>
      *
      * @param request the {@link SignUpRequest} object containing user information for sign-up.
@@ -145,7 +144,8 @@ public class SignUpServiceImpl implements SignUpService {
      *     <li>Sends the OTP to the default Kafka topic for email notifications.</li>
      * </ul>
      *
-     * @param email the email address for which the OTP is generated.
+     * @param request {@link EmailRequest} email the email address for which the OTP is generated.
+     * @throws BadRequestAlertException if the user is not found in the database.
      */
     @Override
     public void generateOtp(EmailRequest request) {

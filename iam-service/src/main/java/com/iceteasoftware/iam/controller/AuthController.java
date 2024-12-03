@@ -86,12 +86,24 @@ public class AuthController {
         return changePasswordService.changePasswordByEmail(request);
     }
 
+    /**
+     * Handles user registration by accepting a sign-up request.
+     *
+     * @param request the {@link SignUpRequest} object containing user information for sign-up.
+     * @return a {@link ResponseObject} containing a success message if the registration is successful.
+     */
     @PostMapping("/register")
     public ResponseObject<String> signUp(@Valid @RequestBody SignUpRequest request) {
         signUpService.signUp(request);
         return new ResponseObject<>(HttpStatus.CREATED.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
     }
 
+    /**
+     * Generates a One-Time Password (OTP) for the provided email and sends it via Kafka for email delivery.
+     *
+     * @param request the {@link EmailRequest} object containing the email address for which the OTP is generated.
+     * @return a {@link ResponseObject} containing a success message if the OTP is generated successfully.
+     */
     @PostMapping("/register/generate-otp")
     public ResponseObject<String> generateOtp(@RequestBody EmailRequest request){
         log.info("Generating OTP for email: {}", request);
@@ -99,6 +111,12 @@ public class AuthController {
         return new ResponseObject<>(HttpStatus.CREATED.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
     }
 
+    /**
+     * Verifies a user's OTP for account activation.
+     *
+     * @param request the {@link VerifyUserRequest} object containing the user's email and OTP for verification.
+     * @return a {@link ResponseObject} containing a success message if the OTP is verified successfully.
+     */
     @PostMapping("/register/verify")
     public ResponseObject<String> verifyOtp(@RequestBody VerifyUserRequest request){
         signUpService.verifyUser(request);
