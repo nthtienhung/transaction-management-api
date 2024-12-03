@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "tbl_config", schema = "configservice")
+@Table(name = "tbl_config", schema = "config_service")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

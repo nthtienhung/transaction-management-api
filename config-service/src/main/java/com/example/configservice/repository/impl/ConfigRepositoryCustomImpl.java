@@ -23,7 +23,7 @@ public class ConfigRepositoryCustomImpl implements ConfigRepositoryCustom {
 
     @Override
     public Page<Config> findByGroupAndTypeAndKeyAndStatus(String group, String type, String configKey, Status status, Pageable pageable) {
-        String baseQuery = "SELECT * FROM configservice.tbl_config WHERE 1=1";
+        String baseQuery = "SELECT * FROM config_service.tbl_config WHERE 1=1";
         List<Object> params = new ArrayList<>();
 
         if (group != null && !group.isEmpty()) {
@@ -46,7 +46,7 @@ public class ConfigRepositoryCustomImpl implements ConfigRepositoryCustom {
         baseQuery += " LIMIT " + pageable.getPageSize() + " OFFSET " + pageable.getOffset();
 
         List<Config> configs = jdbcTemplate.query(baseQuery, params.toArray(), new BeanPropertyRowMapper<>(Config.class));
-        long total = jdbcTemplate.queryForObject("SELECT count(*) FROM configservice.tbl_config WHERE 1=1", Long.class);
+        long total = jdbcTemplate.queryForObject("SELECT count(*) FROM config_service.tbl_config WHERE 1=1", Long.class);
 
         return new PageImpl<>(configs, pageable, total);
     }

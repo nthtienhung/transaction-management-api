@@ -15,7 +15,7 @@ public interface ConfigRepository extends JpaRepository<Config, UUID>, ConfigRep
 
     Optional<Config> findByGroupAndTypeAndKey(String group, String type, String configKey);
 
-    @Query(value = "select * from configservice.tbl_config c WHERE c.\"group\" = :group AND c.\"type\" = :type AND c.\"key\" = :configKey AND c.status = 'ACTIVE'", nativeQuery = true)
+    @Query(value = "select * from config_service.tbl_config c WHERE c.\"group\" = :group AND c.\"type\" = :type AND c.\"key\" = :configKey AND c.status = 'ACTIVE'", nativeQuery = true)
     Optional<Config> findByGroupAndTypeAndKeyAndActiveStatus(@Param("group") String group, @Param("type") String type, @Param("configKey") String configKey);
 
 }
