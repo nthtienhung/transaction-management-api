@@ -122,7 +122,7 @@ public class SignUpServiceImpl implements SignUpService {
         CreateProfileRequest createProfileRequest = CreateProfileRequest.builder()
                     .phone(request.getPhone())
                     .address(request.getAddress())
-                    .dateOfBirth(request.getDateOfBirth())
+                    .dob(request.getDateOfBirth())
                     .email(request.getEmail())
                     .lastName(request.getLastName())
                     .firstName(request.getFirstName())
