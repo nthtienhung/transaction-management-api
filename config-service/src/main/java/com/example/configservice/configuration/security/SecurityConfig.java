@@ -29,11 +29,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // Vô hiệu hóa CSRF
-//                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Kích hoạt CORS
                 .addFilterBefore(roleHeaderFilter, UsernamePasswordAuthenticationFilter.class) // Đăng ký Filter
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/config/**").permitAll() // Swagger không cần xác thực
-//                        .requestMatchers("/config/**").hasRole("ADMIN")
                         .anyRequest().authenticated() // Các API khác cần xác thực
                 )
                 .sessionManagement(session -> session

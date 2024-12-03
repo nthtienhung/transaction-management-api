@@ -18,9 +18,9 @@ spring:
     cache-duration: 60   # Thời gian cache (60 giây)
 
   datasource:
-    url: jdbc:postgresql://localhost:1200/team2db
+    url: jdbc:postgresql://localhost:5432/team2db
     username: postgres
-    password: quang232003
+    password: root
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
