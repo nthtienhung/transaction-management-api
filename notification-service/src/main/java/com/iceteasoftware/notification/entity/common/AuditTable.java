@@ -1,7 +1,8 @@
-package com.iceteasoftware.iam.entity.common;
+package com.iceteasoftware.notification.entity.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
+/**
+ * Author: Tran Duc Thinh
+ * Date: 11/29/2024
+ * Time: 9:16 AM
+ */
 
 @Getter
 @Setter
@@ -23,24 +29,16 @@ import java.time.Instant;
 @NoArgsConstructor
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class AuditTable{
+public abstract class AuditTable {
 
     @CreatedBy
     @Column(name = "user_create", updatable = false)
     private String userCreate;
-
-    @LastModifiedBy
-    @Column(name = "user_update", updatable = false)
-    private String userUpdate;
 
     @CreatedDate
     @Column(name = "create_date", updatable = false)
     @JsonIgnore
     private Instant createdDate = Instant.now();
 
-    @LastModifiedDate
-    @Column(name = "update_date", updatable = false)
-    @JsonIgnore
-    private Instant updatedDate = Instant.now();
 
 }

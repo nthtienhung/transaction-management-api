@@ -1,7 +1,11 @@
 package com.iceteasoftware.iam.service.impl;
 
+import com.google.gson.Gson;
 import com.iceteasoftware.iam.client.UserClient;
+import com.iceteasoftware.iam.configuration.kafka.KafkaProducer;
 import com.iceteasoftware.iam.constant.KafkaTopicConstants;
+import com.iceteasoftware.iam.dto.request.OTPRequest;
+import com.iceteasoftware.iam.dto.request.email.EmailDTORequest;
 import com.iceteasoftware.iam.dto.request.signup.CreateProfileRequest;
 import com.iceteasoftware.iam.dto.request.signup.SignUpRequest;
 import com.iceteasoftware.iam.dto.request.signup.VerifyUserRequest;
@@ -21,6 +25,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -36,6 +41,7 @@ public class SignUpServiceImpl implements SignUpService {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final PasswordEncoder passwordEncoder;
     private final PasswordHistoryRepository passwordHistoryRepository;
+    private final KafkaProducer kafkaProducer;
 
     /**
      * Handles user sign-up by validating the input, creating a user, and setting up the user's profile.
@@ -121,6 +127,7 @@ public class SignUpServiceImpl implements SignUpService {
                     .email(request.getEmail())
                     .lastName(request.getLastName())
                     .firstName(request.getFirstName())
+                    .userId(user.getUserId())
                     .build();
 
         ResponseObject<String> createProfile = userClient.createProfile(createProfileRequest);
@@ -144,8 +151,18 @@ public class SignUpServiceImpl implements SignUpService {
         String otp = generateOtpString();
         redisTemplate.opsForValue().set(email, otp, 2, TimeUnit.MINUTES);
 
-        String message = String.format("{\"email\": \"%s\", \"otp\": \"%s\"}", email, otp);
-        kafkaTemplate.send(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SIGN_UP, message);
+        Optional<User> user = userRepository.findByEmail(email);
+//        if (user.isEmpty()) {
+//            throw new BadRequestAlertException(MessageCode.MSG1016);
+//        }
+
+        OTPRequest data = OTPRequest.builder().email(user.get().getEmail()).otp(otp).build();
+        EmailDTORequest emailDTO = new EmailDTORequest();
+        emailDTO.setUserId(user.get().getUserId());
+        emailDTO.setData(new Gson().toJson(data));
+        emailDTO.setTopicName(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SIGN_UP);
+
+        kafkaProducer.sendMessageEmail(emailDTO);
     }
 
     /**
@@ -174,12 +191,18 @@ public class SignUpServiceImpl implements SignUpService {
         }
 
         redisTemplate.delete(request.getEmail());
-        userRepository.findByEmail(request.getEmail()).ifPresent(user -> user.setIsVerified("VERIFIED"));
+        Optional<User> user = userRepository.findByEmail(request.getEmail());
+        if (user.isEmpty()) {
+            throw new BadRequestAlertException(MessageCode.MSG1016);
+        }
+        user.get().setIsVerified("VERIFIED");
+        userRepository.save(user.get());
     }
 
     private String generateOtpString(){
         Random rand = new Random();
         int otp = 100000 + rand.nextInt(900000);
+
         return String.valueOf(otp);
     }
 }

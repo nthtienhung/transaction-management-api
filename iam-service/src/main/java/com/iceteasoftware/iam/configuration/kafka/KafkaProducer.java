@@ -14,27 +14,11 @@ import org.springframework.stereotype.Service;
 public class KafkaProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public void sendMessageSignUp(EmailDTORequest emailDTO) {
+    public void sendMessageEmail(EmailDTORequest emailDTO) {
         Gson gson = new Gson();
         String msg = gson.toJson(emailDTO);
         log.info("Sending message : {}", msg);
         kafkaTemplate.send(emailDTO.getTopicName(),msg);
     }
 
-    public void sendMessageForgotPassword(EmailDTORequest emailDTO) {
-        Gson gson = new Gson();
-        String msg = gson.toJson(emailDTO);
-        log.info("Sending message : {}", msg);
-        kafkaTemplate.send(emailDTO.getTopicName(),msg);
-    }
-    /**
-     * Custom message to be sent by Kafka producer
-     * @param topic
-     * @param msg
-     */
-    public void sendMail(String topic, Object msg) {
-        log.info("Sending message : {}", msg);
-        String data = new Gson().toJson(msg);
-        kafkaTemplate.send(topic, data);
-    }
 }
