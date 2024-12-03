@@ -18,6 +18,7 @@ import com.iceteasoftware.iam.service.LoginService;
 import com.iceteasoftware.iam.service.SignUpService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.MessagingException;
@@ -29,6 +30,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
     private final SignUpService signUpService;
     private final ForgotPasswordService forgotPasswordService;
@@ -56,8 +58,9 @@ public class AuthController {
 
     @PostMapping("/forgot-password/reset")
     public ResponseObject<String> resetPassword(@RequestBody ResetPasswordRequest request) {
-        return new ResponseObject<>(Constants.DEFAULT_MESSAGE_UPDATE_SUCCESS, HttpStatus.OK.value(),
-                LocalDateTime.now(), forgotPasswordService.resetPassword(request));
+        forgotPasswordService.resetPassword(request);
+        return new ResponseObject<>(HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_UPDATE_SUCCESS,
+                LocalDateTime.now());
     }
 
     @GetMapping("/test")
@@ -79,6 +82,14 @@ public class AuthController {
         return this.loginService.authorize(request, loginRequest);
     }
 
+    /**
+     * API endpoint to handle password change requests.
+     *
+     * @param request the {@link ChangePasswordRequest} containing the user's email, old password,
+     *                new password, and confirmation password.
+     * @return a {@link ResponseEntity} containing a success message if the password is changed successfully,
+     *         or an error message if validation fails.
+     */
     @PostMapping("/change-password")
     public ResponseEntity<ResponseObject> changePassword(@RequestBody ChangePasswordRequest request) {
         return changePasswordService.changePasswordByEmail(request);
@@ -91,8 +102,9 @@ public class AuthController {
     }
 
     @PostMapping("/register/generate-otp")
-    public ResponseObject<String> generateOtp(@RequestParam String email){
-        signUpService.generateOtp(email);
+    public ResponseObject<String> generateOtp(@RequestBody EmailRequest request){
+        log.info("Generating OTP for email: {}", request);
+        signUpService.generateOtp(request);
         return new ResponseObject<>(HttpStatus.CREATED.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
     }
 
@@ -101,6 +113,5 @@ public class AuthController {
         signUpService.verifyUser(request);
         return new ResponseObject<>(HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
     }
-
 }
 

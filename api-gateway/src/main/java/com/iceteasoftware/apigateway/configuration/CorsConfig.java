@@ -2,6 +2,7 @@ package com.iceteasoftware.apigateway.configuration;
 
 import com.iceteasoftware.apigateway.filter.JwtTokenInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -31,7 +32,5 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowedOrigins("*")
                 .allowedMethods("GET", "POST", "PATCH", "DELETE");
     }
-
-
 
 }

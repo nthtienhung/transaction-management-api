@@ -6,9 +6,6 @@ import org.springframework.http.ResponseEntity;
 
 public interface ChangePasswordService {
 
-    /**
-     * Đổi mật kẩu người dùng bằng email
-     */
     ResponseEntity<ResponseObject> changePasswordByEmail(ChangePasswordRequest request);
 }
 
