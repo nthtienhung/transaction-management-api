@@ -1,23 +1,30 @@
 package com.example.configservice.configuration;
 
+import com.example.configservice.configuration.security.HeaderLoggingInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Slf4j
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        System.out.println("Configuring CORS");
-        registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:3000")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization")
-                .allowCredentials(true)
-                .maxAge(3600);
-        System.out.println("CORS configuration completed");
+    @Autowired
+    private final HeaderLoggingInterceptor headerLoggingInterceptor;
+
+    public WebConfig(HeaderLoggingInterceptor headerLoggingInterceptor) {
+        this.headerLoggingInterceptor = headerLoggingInterceptor;
+        log.info("WebConfig initialized!");
     }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        log.info("Adding HeaderLoggingInterceptor...");
+        registry.addInterceptor(headerLoggingInterceptor)
+                .addPathPatterns("/**") // Đảm bảo interceptor được áp dụng cho mọi route
+                .order(1); // Đảm bảo thứ tự thực thi
+    }
+
 }

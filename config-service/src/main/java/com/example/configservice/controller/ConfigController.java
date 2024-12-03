@@ -30,7 +30,7 @@ import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/api/v1/config")
+@RequestMapping("/config")
 public class ConfigController {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigController.class);
@@ -108,6 +108,7 @@ public class ConfigController {
     @PostMapping("/")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ConfigResponse> addConfig(@Valid @RequestBody ConfigRequest request) {
+        System.out.println("Accessing addConfig API");
 //        ConfigResponse response = configService.addConfig(request);
         return ResponseEntity.ok(configService.addConfig(request));
     }
