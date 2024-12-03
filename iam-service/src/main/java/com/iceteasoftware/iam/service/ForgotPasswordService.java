@@ -11,7 +11,7 @@ import java.io.IOException;
 public interface ForgotPasswordService {
     void verifyMail(EmailRequest request) throws MessagingException, IOException;
     OTPResponse verifyOTP(OTPRequest request);
-    String resetPassword(ResetPasswordRequest request);
+    void resetPassword(ResetPasswordRequest request);
 
     void generateOtp(String email);
 }
