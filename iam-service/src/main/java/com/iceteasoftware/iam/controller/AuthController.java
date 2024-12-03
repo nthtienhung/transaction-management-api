@@ -56,8 +56,9 @@ public class AuthController {
 
     @PostMapping("/forgot-password/reset")
     public ResponseObject<String> resetPassword(@RequestBody ResetPasswordRequest request) {
-        return new ResponseObject<>(Constants.DEFAULT_MESSAGE_UPDATE_SUCCESS, HttpStatus.OK.value(),
-                LocalDateTime.now(), forgotPasswordService.resetPassword(request));
+        forgotPasswordService.resetPassword(request);
+        return new ResponseObject<>(HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_UPDATE_SUCCESS,
+                LocalDateTime.now());
     }
 
     @GetMapping("/test")

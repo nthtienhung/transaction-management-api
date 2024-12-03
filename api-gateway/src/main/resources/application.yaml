@@ -12,21 +12,6 @@ eureka:
 spring:
   cloud:
     gateway:
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins:
-              - "http://localhost:3000"
-            allowedMethods:
-              - GET
-              - POST
-              - PATCH
-              - DELETE
-            allowedHeaders:
-              - "*"
-            allowCredentials: true
-            maxAge: 86400
-
       mvc:
         routes:
           - id: iam-service
