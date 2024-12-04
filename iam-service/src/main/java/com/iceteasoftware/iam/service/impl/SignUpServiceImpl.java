@@ -141,13 +141,13 @@ public class SignUpServiceImpl implements SignUpService {
                 .firstName(request.getFirstName())
                 .userId(user.getUserId())
                 .build();
-        kafkaProducer.sendMessageCreateProfile(createProfileRequest);
+        kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_CREATE_PROFILE, createProfileRequest);
 
         CreateWalletRequest createWalletRequest = CreateWalletRequest.builder()
                 .userId(user.getUserId())
                 .balance(5000000L)
                 .build();
-        kafkaProducer.sendMessageCreateWallet(createWalletRequest);
+        kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_CREATE_WALLET, createWalletRequest);
     }
 
     /**
@@ -164,7 +164,7 @@ public class SignUpServiceImpl implements SignUpService {
      * @throws BadRequestAlertException if the user is not found in the database.
      */
     @Override
-    public void generateOtp(EmailRequest request) {
+    public void generateOtp(EmailRequest request) throws JsonProcessingException {
         Optional<User> user = userRepository.findByEmail(request.getEmail());
         if (user.isEmpty()) {
             throw new BadRequestAlertException(MessageCode.MSG1016);
@@ -179,7 +179,7 @@ public class SignUpServiceImpl implements SignUpService {
         emailDTO.setData(new Gson().toJson(data));
         emailDTO.setTopicName(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SIGN_UP);
 
-        kafkaProducer.sendMessageEmail(emailDTO);
+        kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SIGN_UP,emailDTO);
     }
 
     /**

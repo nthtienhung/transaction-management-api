@@ -9,7 +9,7 @@ public interface SignUpService {
 
     void signUp(SignUpRequest request) throws JsonProcessingException;
 
-    void generateOtp(EmailRequest request);
+    void generateOtp(EmailRequest request) throws JsonProcessingException;
 
     void verifyUser(VerifyUserRequest request);
 

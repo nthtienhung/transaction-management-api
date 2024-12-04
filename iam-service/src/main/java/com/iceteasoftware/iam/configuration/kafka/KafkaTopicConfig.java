@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.KafkaAdmin;
 
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -22,28 +23,17 @@ public class KafkaTopicConfig {
     }
 
     @Bean
-    public NewTopic topicSendEmailSignUp() {
-        return createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SIGN_UP);
+    public List<NewTopic> kafkaTopics() {
+        return List.of(
+                createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SIGN_UP),
+                createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_FORGOT_PASSWORD),
+                createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_CREATE_WALLET),
+                createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_CREATE_PROFILE)
+        );
     }
 
-    @Bean
-    public NewTopic topicSendEmailResetPassword() {
-        return createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_FORGOT_PASSWORD);
-    }
-
-    @Bean
-    public NewTopic topicCreateWallet(){
-        return createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_CREATE_WALLET);
-    }
-
-    @Bean
-    public NewTopic topicCreateProfile(){
-        return createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_CREATE_PROFILE);
-    }
-
-    public NewTopic createTopic(String topicName) {
-        return TopicBuilder
-                .name(topicName)
+    private NewTopic createTopic(String topicName) {
+        return TopicBuilder.name(topicName)
                 .partitions(KafkaTopicConstants.DEFAULT_KAFKA_PARTITIONS)
                 .build();
     }

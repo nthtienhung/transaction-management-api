@@ -52,7 +52,7 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password/generate")
-    public ResponseObject<String> generateOTP(@RequestParam String email) {
+    public ResponseObject<String> generateOTP(@RequestParam String email) throws JsonProcessingException {
         forgotPasswordService.generateOtp(email);
         return new ResponseObject<>(HttpStatus.OK.value(),Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
     }
@@ -72,14 +72,6 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ResponseObject<TokenResponse>> authorize(HttpServletRequest request,
                                                                    @RequestBody LoginRequest loginRequest) {
-        // Lấy giá trị header từ request
-        String authorizationHeader = request.getHeader("Authorization");
-        String csrfToken = request.getHeader("X-CSRF-TOKEN");
-
-        // Log để kiểm tra
-        System.out.println("Authorization Header: " + authorizationHeader);
-        System.out.println("X-CSRF-TOKEN Header: " + csrfToken);
-
         return this.loginService.authorize(request, loginRequest);
     }
 
@@ -115,7 +107,7 @@ public class AuthController {
      * @return a {@link ResponseObject} containing a success message if the OTP is generated successfully.
      */
     @PostMapping("/register/generate-otp")
-    public ResponseObject<String> generateOtp(@RequestBody EmailRequest request){
+    public ResponseObject<String> generateOtp(@RequestBody EmailRequest request) throws JsonProcessingException {
         log.info("Generating OTP for email: {}", request);
         signUpService.generateOtp(request);
         return new ResponseObject<>(HttpStatus.CREATED.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
