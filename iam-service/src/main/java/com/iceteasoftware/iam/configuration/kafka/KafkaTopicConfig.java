@@ -31,7 +31,17 @@ public class KafkaTopicConfig {
         return createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_FORGOT_PASSWORD);
     }
 
-    private NewTopic createTopic(String topicName) {
+    @Bean
+    public NewTopic topicCreateWallet(){
+        return createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_CREATE_WALLET);
+    }
+
+    @Bean
+    public NewTopic topicCreateProfile(){
+        return createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_CREATE_PROFILE);
+    }
+
+    public NewTopic createTopic(String topicName) {
         return TopicBuilder
                 .name(topicName)
                 .partitions(KafkaTopicConstants.DEFAULT_KAFKA_PARTITIONS)

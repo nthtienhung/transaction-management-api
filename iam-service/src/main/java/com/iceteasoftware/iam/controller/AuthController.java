@@ -1,5 +1,6 @@
 package com.iceteasoftware.iam.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iceteasoftware.iam.constant.Constants;
 import com.iceteasoftware.iam.dto.request.changepassword.ChangePasswordRequest;
 import com.iceteasoftware.iam.dto.request.login.LoginRequest;
@@ -102,7 +103,7 @@ public class AuthController {
      * @return a {@link ResponseObject} containing a success message if the registration is successful.
      */
     @PostMapping("/register")
-    public ResponseObject<String> signUp(@Valid @RequestBody SignUpRequest request) {
+    public ResponseObject<String> signUp(@Valid @RequestBody SignUpRequest request) throws JsonProcessingException {
         signUpService.signUp(request);
         return new ResponseObject<>(HttpStatus.CREATED.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
     }

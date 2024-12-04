@@ -6,6 +6,7 @@ server:
 spring:
     application:
         name: iam-service
+
     datasource:
         url: jdbc:postgresql://localhost:5432/team2db
         username: postgres
@@ -37,6 +38,15 @@ spring:
         redis:
             host: localhost
             port: 6379
+feign:
+    client:
+        config:
+            user-service:
+                name: 'user-service'
+                url: http://localhost:8082/user
+            wallet-service:
+                name: 'wallet-service'
+                url: http://localhost:8086/wallet
 security:
     cache:
         url-patterns: '/i18n/*,/content/*,/app/*'

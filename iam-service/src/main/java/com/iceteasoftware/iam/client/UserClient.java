@@ -10,12 +10,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "user-service", url = "http://localhost:8082/user",
+@FeignClient(name = "${feign.client.config.user-service.name}",
+        url = "${feign.client.config.user-service.url}",
         configuration = { AuthenticationRequestInterceptor.class })
 public interface UserClient {
-
-    @PostMapping(value = "/profile", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseObject<String> createProfile(@RequestBody CreateProfileRequest request);
 
     @GetMapping(value = "/check-phone-exists", produces = MediaType.APPLICATION_JSON_VALUE)
     Boolean checkPhoneExists(@RequestParam String phone);

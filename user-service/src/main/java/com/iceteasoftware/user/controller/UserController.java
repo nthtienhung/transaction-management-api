@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin("*")
+//@CrossOrigin("*")
 public class UserController {
 
     private final UserService userService;
@@ -32,11 +32,11 @@ public class UserController {
         return this.userService.getProfile(request);
     }
 
-    @PostMapping("/profile")
-    public com.iceteasoftware.user.dto.response.ResponseObject<String> createProfile(@RequestBody CreateProfileRequest request){
-        userService.createProfile(request);
-        return new com.iceteasoftware.user.dto.response.ResponseObject<>(HttpStatus.CREATED.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
-    }
+//    @PostMapping("/profile")
+//    public com.iceteasoftware.user.dto.response.ResponseObject<String> createProfile(@RequestBody CreateProfileRequest request){
+//        userService.createProfile(request);
+//        return new com.iceteasoftware.user.dto.response.ResponseObject<>(HttpStatus.CREATED.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
+//    }
 
     @GetMapping("/check-phone-exists")
     public Boolean isPhoneExists(@RequestParam String phone){

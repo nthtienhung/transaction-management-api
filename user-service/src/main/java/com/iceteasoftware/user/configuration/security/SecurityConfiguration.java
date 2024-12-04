@@ -32,7 +32,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/swagger/**").permitAll()// Cho phép truy cập không cần xác thực
                         .anyRequest().permitAll()// Yêu cầu xác thực với các request khác
                 )
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Kích hoạt CORS với cấu hình mới
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Kích hoạt CORS với cấu hình mới
                 .addFilterBefore(jwtCookieFilter, UsernamePasswordAuthenticationFilter.class); // Thêm JWT filter
 
         return http.build();
@@ -42,14 +42,14 @@ public class SecurityConfiguration {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("*"); // Cho phép tất cả các origin
-        configuration.addAllowedMethod("*"); // Cho phép tất cả các method
-        configuration.addAllowedHeader("*"); // Cho phép tất cả các header
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.addAllowedOrigin("*"); // Cho phép tất cả các origin
+//        configuration.addAllowedMethod("*"); // Cho phép tất cả các method
+//        configuration.addAllowedHeader("*"); // Cho phép tất cả các header
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
 }

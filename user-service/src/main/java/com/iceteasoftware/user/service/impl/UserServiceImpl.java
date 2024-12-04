@@ -1,10 +1,16 @@
 package com.iceteasoftware.user.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iceteasoftware.user.constant.Constants;
+import com.iceteasoftware.user.constant.KafkaTopicConstants;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
 import com.iceteasoftware.user.entity.Profile;
 import com.iceteasoftware.user.repository.UserProfileRepository;
 import com.iceteasoftware.user.service.UserService;
+import com.iceteasoftware.user.util.ThreadLocalUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,9 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Service
@@ -26,6 +35,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserProfileRepository userProfileRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${security.authentication.jwt.base64-secret}")
     private String jwtSecret;
@@ -95,22 +105,47 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Creates a new user profile based on the provided request data.
+     * Listens for profile creation messages from a Kafka topic and creates a profile for the specified user.
      *
-     * @param request the {@link CreateProfileRequest} containing user profile details.
+     * <p>This method performs the following steps:</p>
+     * <ul>
+     *     <li>Parses the incoming Kafka message to extract user profile details.</li>
+     *     <li>Sets the user ID in the current thread context for tracking purposes.</li>
+     *     <li>Saves a new profile entry with the provided details to the database.</li>
+     *     <li>Removes the user ID from the thread context after processing is complete.</li>
+     * </ul>
+     *
+     * @param createProfileMessage the JSON message received from the Kafka topic, containing profile details.
+     * @throws JsonProcessingException if the message cannot be parsed as JSON.
      */
     @Override
-    @org.springframework.transaction.annotation.Transactional
-    public void createProfile(CreateProfileRequest request) {
+    @Transactional
+    @KafkaListener(topics = KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_CREATE_PROFILE, groupId = "create-group")
+    public void createProfile(String createProfileMessage) throws JsonProcessingException {
+        log.info("Received message: {}", createProfileMessage);
+        JsonNode jsonNode = objectMapper.readTree(createProfileMessage);
+        String userId = jsonNode.get("userId").asText();
+        String firstName = jsonNode.get("firstName").asText();
+        String lastName = jsonNode.get("lastName").asText();
+        String email = jsonNode.get("email").asText();
+        LocalDate dob = LocalDate.parse(jsonNode.get("dob").asText(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String address = jsonNode.get("address").asText();
+        String phone = jsonNode.get("phone").asText();
+
+        ThreadLocalUtil.setCurrentUser(userId);
+
         userProfileRepository.save(Profile.builder()
-                .userId(request.getUserId())
-                .dob(request.getDob())
-                .email(request.getEmail())
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .address(request.getAddress())
-                .phone(request.getPhone())
+                .firstName(firstName)
+                .lastName(lastName)
+                .email(email)
+                .address(address)
+                .phone(phone)
+                .dob(dob)
+                .userId(userId)
                 .build());
+
+        ThreadLocalUtil.remove();
+
     }
 
     /**
@@ -166,7 +201,7 @@ public class UserServiceImpl implements UserService {
     /**
      * Updates a user's profile based on the provided request and JWT in the Authorization header.
      *
-     * @param request the HTTP request containing the JWT.
+     * @param request       the HTTP request containing the JWT.
      * @param updateRequest the data to update the user's profile.
      * @return a {@link ResponseEntity} containing the updated profile if successful, or an error response.
      */
