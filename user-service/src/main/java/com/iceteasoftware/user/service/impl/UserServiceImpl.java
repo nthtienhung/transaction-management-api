@@ -1,13 +1,19 @@
 package com.iceteasoftware.user.service.impl;
 
+import com.iceteasoftware.user.configuration.message.Labels;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
 import com.iceteasoftware.user.entity.Profile;
 import com.iceteasoftware.user.entity.User;
+import com.iceteasoftware.user.enums.MessageCode;
+import com.iceteasoftware.user.exception.handler.BadRequestAlertException;
 import com.iceteasoftware.user.repository.UserProfileRepository;
 import com.iceteasoftware.user.repository.UserRepository;
 import com.iceteasoftware.user.service.UserService;
 import io.jsonwebtoken.*;
+import com.iceteasoftware.user.util.Validator;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.security.SignatureException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -45,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
         if (jwt == null || jwt.isEmpty()) {
             ResponseObject<Profile> response = new ResponseObject<>(
-                    "Token is missing in the Authorization header",
+                    Labels.getLabels(MessageCode.MSG1056.getKey()),
                     401,
                     LocalDateTime.now(),
                     null
@@ -57,7 +62,7 @@ public class UserServiceImpl implements UserService {
 
         if (email == null) {
             ResponseObject<Profile> response = new ResponseObject<>(
-                    "Unable to decode email from token",
+                    Labels.getLabels(MessageCode.MSG1057.getKey()),
                     401,
                     LocalDateTime.now(),
                     null
@@ -70,7 +75,7 @@ public class UserServiceImpl implements UserService {
 
             if (profile.isPresent()) {
                 ResponseObject<Profile> response = new ResponseObject<>(
-                        "Successfully retrieved profile",
+                        Labels.getLabels(MessageCode.MSG1058.getKey()),
                         200,
                         LocalDateTime.now(),
                         profile.get()
@@ -78,7 +83,7 @@ public class UserServiceImpl implements UserService {
                 return ResponseEntity.ok(response);
             } else {
                 ResponseObject<Profile> response = new ResponseObject<>(
-                        "Profile not found for the provided email",
+                        Labels.getLabels(MessageCode.MSG1059.getKey()),
                         404,
                         LocalDateTime.now(),
                         null
@@ -86,9 +91,8 @@ public class UserServiceImpl implements UserService {
                 return ResponseEntity.status(404).body(response);
             }
         } catch (Exception e) {
-            log.error("Error occurred while fetching profile: ", e);
             ResponseObject<Profile> response = new ResponseObject<>(
-                    "An error occurred while fetching the profile",
+                    Labels.getLabels(MessageCode.MSG1060.getKey()),
                     500,
                     LocalDateTime.now(),
                     null
@@ -231,7 +235,7 @@ public class UserServiceImpl implements UserService {
 
         if (jwt == null || jwt.isEmpty()) {
             ResponseObject<Profile> response = new ResponseObject<>(
-                    "Token is missing in the Authorization header",
+                    Labels.getLabels(MessageCode.MSG1056.getKey()),
                     401,
                     LocalDateTime.now(),
                     null
@@ -243,7 +247,7 @@ public class UserServiceImpl implements UserService {
 
         if (email == null) {
             ResponseObject<Profile> response = new ResponseObject<>(
-                    "Unable to decode email from token",
+                    Labels.getLabels(MessageCode.MSG1057.getKey()),
                     401,
                     LocalDateTime.now(),
                     null
@@ -254,14 +258,30 @@ public class UserServiceImpl implements UserService {
         try {
             Optional<Profile> optionalProfile = getProfileByEmail(email);
 
-            if (optionalProfile.isEmpty()) {
+            if(optionalProfile.isEmpty()) {
                 ResponseObject<Profile> response = new ResponseObject<>(
-                        "Profile not found for the provided email",
+                        Labels.getLabels(MessageCode.MSG1059.getKey()),
                         404,
                         LocalDateTime.now(),
                         null
                 );
                 return ResponseEntity.status(404).body(response);
+            } else if(Validator.isBlankOrEmpty(updateRequest.getFirstName())) {
+                throw new BadRequestAlertException(MessageCode.MSG1053);
+            } else if(Validator.isBlankOrEmpty(updateRequest.getLastName())) {
+                throw new BadRequestAlertException(MessageCode.MSG1054);
+            } else if(Validator.isBlankOrEmpty(updateRequest.getPhone())) {
+                throw new BadRequestAlertException(MessageCode.MSG1045);
+            } else if(!Validator.isVNPhoneNumber(updateRequest.getPhone())){
+                throw new BadRequestAlertException(MessageCode.MSG1044);
+            } else if(this.isPhoneExists(updateRequest.getPhone())) {
+                throw new BadRequestAlertException(MessageCode.MSG1055);
+            } else if(!Validator.isAddress(updateRequest.getAddress())) {
+                throw new BadRequestAlertException(MessageCode.MSG1050);
+            } else if(!Validator.isBlankOrEmpty(updateRequest.getDob().toString())) {
+                throw new BadRequestAlertException(MessageCode.MSG1011);
+            } else if(updateRequest.getDob().isAfter(LocalDate.now())){
+                throw new BadRequestAlertException(MessageCode.MSG1019);
             }
 
             Profile existingProfile = optionalProfile.get();
@@ -277,7 +297,7 @@ public class UserServiceImpl implements UserService {
             userProfileRepository.save(existingProfile);
 
             ResponseObject<Profile> response = new ResponseObject<>(
-                    "Profile updated successfully",
+                    Labels.getLabels(MessageCode.MSG1061.getKey()),
                     200,
                     LocalDateTime.now(),
                     existingProfile
@@ -285,9 +305,8 @@ public class UserServiceImpl implements UserService {
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Error occurred while updating profile: ", e);
             ResponseObject<Profile> response = new ResponseObject<>(
-                    "An error occurred while updating the profile",
+                    Labels.getLabels(MessageCode.MSG1060.getKey()),
                     500,
                     LocalDateTime.now(),
                     null
