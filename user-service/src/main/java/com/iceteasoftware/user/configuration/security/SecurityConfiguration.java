@@ -27,6 +27,7 @@ public class SecurityConfiguration {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/user/getRole").permitAll()
                         .requestMatchers("/api/v1/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger/**").permitAll()// Cho phép truy cập không cần xác thực
