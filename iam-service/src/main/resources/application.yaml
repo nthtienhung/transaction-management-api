@@ -41,14 +41,6 @@ security:
     cache:
         url-patterns: '/i18n/*,/content/*,/app/*'
         max-age: 86400 # Image cache max-age in second, duration: 86400 (1 day)
-    # CORS is only enabled by default with the "dev" profile, so BrowserSync can access the API
-    cors:
-        allowed-origins: '*' # http://localhost:8780
-        allowed-methods: 'POST,OPTIONS'
-        allowed-headers: '*'
-        exposed-headers: 'Authorization,Link,X-Total-Count,X-Action-Message,X-Action-Params'
-        allow-credentials: true
-        max-age: 1800
     authentication:
         jwt:
             # This token must be encoded using Base64 and be at least 256 bits long (you can type `openssl rand -base64 64` on your command line to generate a 512 bits one)

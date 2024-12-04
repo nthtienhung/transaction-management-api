@@ -20,6 +20,13 @@ public class UserController {
 
     private final UserService userService;
 
+    /**
+     * API to retrieve the user's profile based on the JWT provided in the Authorization header.
+     *
+     * @param request the HTTP request containing the JWT in the Authorization header.
+     * @return a {@link ResponseEntity} containing the user's profile if found,
+     *         or an error message if the JWT is invalid or the user is not found.
+     */
     @GetMapping("/profile")
     public ResponseEntity<ResponseObject<Profile>> getProfile(HttpServletRequest request) {
         return this.userService.getProfile(request);
@@ -38,4 +45,23 @@ public class UserController {
     public Boolean isPhoneExists(@RequestParam String phone){
         return userService.isPhoneExists(phone);
     }
+
+    /**
+     * Updates the user's profile based on the data provided in the request body.
+     * The email of the user is extracted from the JWT provided in the request header
+     * and cannot be modified through this method.
+     *
+     * @param request       the {@link HttpServletRequest} containing the JWT in the Authorization header.
+     * @param updateRequest the {@link CreateProfileRequest} containing the updated profile details.
+     *                      Note: The email field in the request will be ignored.
+     * @return a {@link ResponseEntity} containing a {@link ResponseObject} with the updated profile if successful,
+     *         or an appropriate error message if the update fails.
+     */
+    @PutMapping("/profile")
+    public ResponseEntity<ResponseObject<Profile>> updateProfile(
+            HttpServletRequest request,
+            @RequestBody CreateProfileRequest updateRequest) {
+        return userService.updateProfile(request, updateRequest);
+    }
+
 }

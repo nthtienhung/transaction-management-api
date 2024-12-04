@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.iceteasoftware.iam.client.UserClient;
 import com.iceteasoftware.iam.configuration.kafka.KafkaProducer;
 import com.iceteasoftware.iam.constant.KafkaTopicConstants;
+import com.iceteasoftware.iam.dto.request.EmailRequest;
 import com.iceteasoftware.iam.dto.request.OTPRequest;
 import com.iceteasoftware.iam.dto.request.email.EmailDTORequest;
 import com.iceteasoftware.iam.dto.request.signup.CreateProfileRequest;
@@ -147,14 +148,14 @@ public class SignUpServiceImpl implements SignUpService {
      * @param email the email address for which the OTP is generated.
      */
     @Override
-    public void generateOtp(String email) {
-        String otp = generateOtpString();
-        redisTemplate.opsForValue().set(email, otp, 2, TimeUnit.MINUTES);
+    public void generateOtp(EmailRequest request) {
+        Optional<User> user = userRepository.findByEmail(request.getEmail());
+        if (user.isEmpty()) {
+            throw new BadRequestAlertException(MessageCode.MSG1016);
+        }
 
-        Optional<User> user = userRepository.findByEmail(email);
-//        if (user.isEmpty()) {
-//            throw new BadRequestAlertException(MessageCode.MSG1016);
-//        }
+        String otp = generateOtpString();
+        redisTemplate.opsForValue().set(request.getEmail(), otp, 2, TimeUnit.MINUTES);
 
         OTPRequest data = OTPRequest.builder().email(user.get().getEmail()).otp(otp).build();
         EmailDTORequest emailDTO = new EmailDTORequest();
