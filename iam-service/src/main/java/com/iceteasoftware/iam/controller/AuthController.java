@@ -7,16 +7,15 @@ import com.iceteasoftware.iam.dto.request.signup.SignUpRequest;
 import com.iceteasoftware.iam.dto.request.signup.VerifyUserRequest;
 import com.iceteasoftware.iam.dto.response.common.ResponseObject;
 import com.iceteasoftware.iam.dto.response.login.TokenResponse;
-import com.iceteasoftware.iam.service.ChangePasswordService;
+import com.iceteasoftware.iam.enums.MessageCode;
+import com.iceteasoftware.iam.service.*;
 import com.iceteasoftware.iam.dto.request.EmailRequest;
 import com.iceteasoftware.iam.dto.request.OTPRequest;
 import com.iceteasoftware.iam.dto.request.ResetPasswordRequest;
 import com.iceteasoftware.iam.dto.response.ForgotPasswordResponse;
 import com.iceteasoftware.iam.dto.response.OTPResponse;
-import com.iceteasoftware.iam.service.ForgotPasswordService;
-import com.iceteasoftware.iam.service.LoginService;
-import com.iceteasoftware.iam.service.SignUpService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -36,6 +35,7 @@ public class AuthController {
     private final ForgotPasswordService forgotPasswordService;
     private final LoginService loginService;
     private final ChangePasswordService changePasswordService;
+    private final LogoutService logoutService;
 
     @PostMapping("/forgot-password/verify-mail")
     public ResponseObject<ForgotPasswordResponse> verifyMail(@RequestBody EmailRequest email) throws MessagingException, IOException {
@@ -81,7 +81,11 @@ public class AuthController {
 
         return this.loginService.authorize(request, loginRequest);
     }
-
+    @GetMapping("/logoutAccount")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        logoutService.logout(request);
+        return new ResponseEntity<>(MessageCode.MSG1041,HttpStatus.OK);
+    }
     /**
      * API endpoint to handle password change requests.
      *

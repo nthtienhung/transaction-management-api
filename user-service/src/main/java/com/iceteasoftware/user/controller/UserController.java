@@ -30,7 +30,10 @@ public class UserController {
     public ResponseEntity<ResponseObject<Profile>> getProfile(HttpServletRequest request) {
         return this.userService.getProfile(request);
     }
-
+    @GetMapping("/getRole")
+    public String getRole(HttpServletRequest request) {
+        return this.userService.getRole(request);
+    }
     @PostMapping("/profile")
     public com.iceteasoftware.user.dto.response.ResponseObject<String> createProfile(@RequestBody CreateProfileRequest request){
         userService.createProfile(request);

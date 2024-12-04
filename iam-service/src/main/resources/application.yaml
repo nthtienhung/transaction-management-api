@@ -7,9 +7,9 @@ spring:
     application:
         name: iam-service
     datasource:
-        url: jdbc:postgresql://localhost:5432/team2db
+        url: jdbc:postgresql://localhost:5431/team2db
         username: postgres
-        password: 123
+        password: 12345
         driver-class-name: org.postgresql.Driver
         hikari:
             maximum-pool-size: 10
@@ -27,7 +27,7 @@ spring:
         encoding: 'UTF-8'   # Đảm bảo mã hóa đúng
         use-code-as-default-message: true  # Sử dụng code làm thông điệp mặc định nếu không tìm thấy thông điệp
         basename: i18n/labels  # Đảm bảo đúng tên file (không cần đuôi .properties trong basename)
-        cache-duration: 60   # Thời gian cache (60 giây)
+        cache-duration: 560   # Thời gian cache (60 giây)
     kafka:
         producer:
             bootstrap-servers: localhost:9094

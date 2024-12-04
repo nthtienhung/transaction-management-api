@@ -29,6 +29,14 @@ public class CorsConfig implements WebMvcConfigurer {
         System.out.println("JwtTokenInterceptor đã được đăng ký!");
     }
 
+<<<<<<< HEAD
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:3000") // Chỉ định origin
+                .allowedMethods("GET", "POST", "PATCH", "DELETE")
+                .allowCredentials(true);
+=======
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
@@ -40,6 +48,7 @@ public class CorsConfig implements WebMvcConfigurer {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
+>>>>>>> 66bc0bba701f2859a5f360a6374891d655ecb12a
     }
 
 }
