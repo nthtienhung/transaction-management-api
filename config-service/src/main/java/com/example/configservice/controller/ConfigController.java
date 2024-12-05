@@ -262,14 +262,6 @@ public class ConfigController {
             @RequestParam(required = false) String configKey,
             @RequestParam(required = false) Status status,
             Pageable pageable) {
-
-        logger.info("Accessing getConfig API");
-        // Log các thông tin nhận từ Header
-        logger.info("User-Id: {}", RequestContextHolder.currentRequestAttributes()
-                .getAttribute("X-User-Id", RequestAttributes.SCOPE_REQUEST));
-        logger.info("Role: {}", RequestContextHolder.currentRequestAttributes()
-                .getAttribute("X-Role", RequestAttributes.SCOPE_REQUEST));
-
         Page<ConfigResponse> response = configService.getConfigs(group, type, configKey, status, pageable);
         MessageResponse<Page<ConfigResponse>> messageResponse = MessageResponse.<Page<ConfigResponse>>builder()
                 .message("Success")

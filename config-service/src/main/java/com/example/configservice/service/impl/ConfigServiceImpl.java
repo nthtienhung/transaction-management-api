@@ -128,13 +128,13 @@ public class ConfigServiceImpl implements ConfigService {
         Config existingConfig = configRepository.findById(configId)
                 .orElseThrow(() -> new NotFoundAlertException(MessageCode.MSG2109));
 
-        if (existingConfig.getStatus() != request.getStatus()) {
-            existingConfig.setStatus(request.getStatus());
-            existingConfig.setUpdate_at(LocalDateTime.now());
-            existingConfig.setUpdated_by("ADMIN");
-            configRepository.save(existingConfig);
-            return mapToResponse(existingConfig);
-        }
+//        if (existingConfig.getStatus() != request.getStatus()) {
+//            existingConfig.setStatus(request.getStatus());
+//            existingConfig.setUpdate_at(LocalDateTime.now());
+//            existingConfig.setUpdated_by("ADMIN");
+//            configRepository.save(existingConfig);
+//            return mapToResponse(existingConfig);
+//        }
 
         // Kiểm tra nếu không có gì thay đổi
 //        if (isConfigUnchanged(existingConfig, request))
@@ -142,7 +142,16 @@ public class ConfigServiceImpl implements ConfigService {
                 existingConfig.getType().equals(request.getType()) &&
                 existingConfig.getKey().equals(request.getConfigKey()) &&
                 existingConfig.getValue().equals(request.getConfigValue())) {
-            return mapToResponse(existingConfig);
+
+            if (existingConfig.getStatus() != request.getStatus()) {
+                existingConfig.setStatus(request.getStatus());
+                existingConfig.setUpdate_at(LocalDateTime.now());
+                existingConfig.setUpdated_by("ADMIN");
+                configRepository.save(existingConfig);
+                return mapToResponse(existingConfig);
+            }
+            else
+                return mapToResponse(existingConfig);
         }
 
         if (existingConfig.getStatus() == Status.ACTIVE) {

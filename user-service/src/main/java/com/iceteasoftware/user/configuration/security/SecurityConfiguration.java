@@ -32,7 +32,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/swagger/**").permitAll()// Cho phép truy cập không cần xác thực
                         .anyRequest().permitAll()// Yêu cầu xác thực với các request khác
                 )
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Kích hoạt CORS với cấu hình mới
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Kích hoạt CORS với cấu hình mới
                 .addFilterBefore(jwtCookieFilter, UsernamePasswordAuthenticationFilter.class); // Thêm JWT filter
 
         return http.build();
