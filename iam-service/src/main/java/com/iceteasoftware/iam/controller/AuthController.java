@@ -52,8 +52,8 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password/generate")
-    public ResponseObject<String> generateOTP(@RequestParam String email) throws JsonProcessingException {
-        forgotPasswordService.generateOtp(email);
+    public ResponseObject<String> generateOTP(@RequestBody EmailRequest request) throws JsonProcessingException {
+        forgotPasswordService.generateOtp(request);
         return new ResponseObject<>(HttpStatus.OK.value(),Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
     }
 
