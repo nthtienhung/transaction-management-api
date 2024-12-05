@@ -1,6 +1,7 @@
 package com.iceteasoftware.iam.service.impl;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iceteasoftware.iam.configuration.kafka.KafkaProducer;
 import com.iceteasoftware.iam.constant.Constants;
 import com.iceteasoftware.iam.constant.KafkaTopicConstants;
@@ -110,7 +111,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
      * @param email
      */
     @Override
-    public void generateOtp(String email) {
+    public void generateOtp(String email) throws JsonProcessingException {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isEmpty()) {
             throw new BadRequestAlertException(MessageCode.MSG1016);
@@ -132,7 +133,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
         emailDTO.setData(new Gson().toJson(data));
         emailDTO.setTopicName(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_FORGOT_PASSWORD);
 
-        kafkaProducer.sendMessageEmail(emailDTO);
+        kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_FORGOT_PASSWORD,emailDTO);
     }
 
     private String generateOtpString(){

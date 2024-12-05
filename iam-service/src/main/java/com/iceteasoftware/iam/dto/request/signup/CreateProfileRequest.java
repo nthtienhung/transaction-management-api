@@ -16,7 +16,7 @@ public class CreateProfileRequest {
 
     private String lastName;
 
-    private LocalDate dateOfBirth;
+    private LocalDate dob;
 
     private String phone;
 

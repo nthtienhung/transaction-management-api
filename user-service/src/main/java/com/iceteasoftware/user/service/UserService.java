@@ -1,5 +1,6 @@
 package com.iceteasoftware.user.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
 import com.iceteasoftware.user.entity.Profile;
@@ -9,9 +10,11 @@ import org.springframework.http.ResponseEntity;
 public interface UserService {
     ResponseEntity<ResponseObject<Profile>> getProfile(HttpServletRequest request);
 
-    void createProfile(CreateProfileRequest request);
+    void createProfile(String createProfileMessage) throws JsonProcessingException;
 
     boolean isPhoneExists(String phone);
+
+    String getRole(HttpServletRequest request);
 
     ResponseEntity<ResponseObject<Profile>> updateProfile(
             HttpServletRequest request,

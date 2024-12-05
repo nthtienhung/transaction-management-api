@@ -1,5 +1,6 @@
 package com.iceteasoftware.iam.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iceteasoftware.iam.dto.request.EmailRequest;
 import com.iceteasoftware.iam.dto.request.OTPRequest;
 import com.iceteasoftware.iam.dto.request.ResetPasswordRequest;
@@ -13,5 +14,5 @@ public interface ForgotPasswordService {
     OTPResponse verifyOTP(OTPRequest request);
     void resetPassword(ResetPasswordRequest request);
 
-    void generateOtp(String email);
+    void generateOtp(String email) throws JsonProcessingException;
 }

@@ -1,7 +1,9 @@
 package com.iceteasoftware.iam.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.iceteasoftware.iam.client.UserClient;
+import com.iceteasoftware.iam.client.WalletClient;
 import com.iceteasoftware.iam.configuration.kafka.KafkaProducer;
 import com.iceteasoftware.iam.constant.KafkaTopicConstants;
 import com.iceteasoftware.iam.dto.request.EmailRequest;
@@ -10,6 +12,7 @@ import com.iceteasoftware.iam.dto.request.email.EmailDTORequest;
 import com.iceteasoftware.iam.dto.request.signup.CreateProfileRequest;
 import com.iceteasoftware.iam.dto.request.signup.SignUpRequest;
 import com.iceteasoftware.iam.dto.request.signup.VerifyUserRequest;
+import com.iceteasoftware.iam.dto.request.wallet.CreateWalletRequest;
 import com.iceteasoftware.iam.dto.response.common.ResponseObject;
 import com.iceteasoftware.iam.entity.PasswordHistory;
 import com.iceteasoftware.iam.entity.User;
@@ -22,7 +25,6 @@ import com.iceteasoftware.iam.util.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,100 +41,113 @@ public class SignUpServiceImpl implements SignUpService {
     private final UserRepository userRepository;
     private final UserClient userClient;
     private final RedisTemplate<String, String> redisTemplate;
-    private final KafkaTemplate<String, String> kafkaTemplate;
     private final PasswordEncoder passwordEncoder;
     private final PasswordHistoryRepository passwordHistoryRepository;
     private final KafkaProducer kafkaProducer;
 
     /**
-     * Handles user sign-up by validating the input, creating a user, and setting up the user's profile.
+     * Handles the user sign-up process by validating inputs, creating a user record,
+     * and setting up associated resources such as user profile and wallet.
      *
-     * <p>This method performs the following tasks:</p>
-     *
-     *     <li>Validates input fields such as first name, last name, email, password, and phone number.</li>
-     *     <li>Checks for duplicate email and phone number in the database.</li>
-     *     <li>Encodes the user's password and saves it to the database.</li>
-     *     <li>Creates a profile for the user via a remote service.</li>
+     * <p>This method performs the following steps:</p>
+     * <ul>
+     *     <li>Validates required fields: first name, last name, email, password, and phone number.</li>
+     *     <li>Ensures the first name and last name follow specified format rules.</li>
+     *     <li>Verifies the email address and phone number adhere to proper formats.</li>
+     *     <li>Checks for duplicate email addresses in the database and duplicate phone numbers via an external service.</li>
+     *     <li>Encodes the user's password before saving it to the database.</li>
+     *     <li>Creates a user profile by sending a message to the appropriate Kafka topic.</li>
+     *     <li>Initializes a wallet for the user with a default balance by sending a message to another Kafka topic.</li>
      * </ul>
      *
-     * @param request the {@link SignUpRequest} object containing user information for sign-up.
-     * @throws BadRequestAlertException if any validation fails or if a duplicate email/phone number is found.
+     * @param request the {@link SignUpRequest} object containing user-provided information for sign-up.
+     *                This includes fields such as first name, last name, email, password, phone number, address, and date of birth.
+     * @throws BadRequestAlertException if:
+     *                                  <ul>
+     *                                      <li>A required field is blank or empty.</li>
+     *                                      <li>The input data does not meet validation rules (e.g., incorrect email or password format).</li>
+     *                                      <li>A duplicate email address or phone number is detected.</li>
+     *                                  </ul>
      */
     @Override
-    public void signUp(SignUpRequest request) {
-        if(Validator.isBlankOrEmpty(request.getFirstName())) {
+    public void signUp(SignUpRequest request) throws JsonProcessingException {
+        if (Validator.isBlankOrEmpty(request.getFirstName())) {
             throw new BadRequestAlertException(MessageCode.MSG1053);
         }
 
-        if(Validator.isBlankOrEmpty(request.getFirstName())) {
+        if (Validator.isBlankOrEmpty(request.getFirstName())) {
             throw new BadRequestAlertException(MessageCode.MSG1054);
         }
 
-        if(Validator.isFullName(request.getFirstName())){
+        if (Validator.isFullName(request.getFirstName())) {
             throw new BadRequestAlertException(MessageCode.MSG1052);
         }
 
-        if(Validator.isFullName(request.getLastName())){
+        if (Validator.isFullName(request.getLastName())) {
             throw new BadRequestAlertException(MessageCode.MSG1051);
         }
 
-        if(Validator.isBlankOrEmpty(request.getEmail())) {
+        if (Validator.isBlankOrEmpty(request.getEmail())) {
             throw new BadRequestAlertException(MessageCode.MSG1003);
         }
 
-        if(Validator.isEmail(request.getEmail())) {
+        if (Validator.isEmail(request.getEmail())) {
             throw new BadRequestAlertException(MessageCode.MSG1002);
         }
 
-        if(Validator.isBlankOrEmpty(request.getPassword())) {
+        if (Validator.isBlankOrEmpty(request.getPassword())) {
             throw new BadRequestAlertException(MessageCode.MSG1001);
         }
 
-        if(!Validator.isPasswordRegex(request.getPassword())) {
+        if (!Validator.isPasswordRegex(request.getPassword())) {
             throw new BadRequestAlertException(MessageCode.MSG1004);
         }
 
-        if(Validator.isBlankOrEmpty(request.getPhone())) {
+        if (Validator.isBlankOrEmpty(request.getPhone())) {
             throw new BadRequestAlertException(MessageCode.MSG1045);
         }
 
-        if(!Validator.isVNPhoneNumber(request.getPhone())){
+        if (!Validator.isVNPhoneNumber(request.getPhone())) {
             throw new BadRequestAlertException(MessageCode.MSG1044);
         }
 
-        if(userRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new BadRequestAlertException(MessageCode.MSG1012);
         }
 
-        if(userClient.checkPhoneExists(request.getPhone())) {
+        if (userClient.checkPhoneExists(request.getPhone())) {
             throw new BadRequestAlertException(MessageCode.MSG1055);
         }
 
         User user = userRepository.save(User.builder()
-                    .email(request.getEmail())
-                    .password(passwordEncoder.encode(request.getPassword()))
-                    .role("USER")
-                    .isVerified("NOT_VERIFIED")
-                    .status(true)
-                    .build());
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role("USER")
+                .isVerified("NOT_VERIFIED")
+                .status(true)
+                .build());
 
         passwordHistoryRepository.save(PasswordHistory.builder()
-                        .email(user.getEmail())
-                        .password(user.getPassword())
-                .       build());
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .build());
 
         CreateProfileRequest createProfileRequest = CreateProfileRequest.builder()
-                    .phone(request.getPhone())
-                    .address(request.getAddress())
-                    .dateOfBirth(request.getDateOfBirth())
-                    .email(request.getEmail())
-                    .lastName(request.getLastName())
-                    .firstName(request.getFirstName())
-                    .userId(user.getUserId())
-                    .build();
+                .phone(request.getPhone())
+                .address(request.getAddress())
+                .dob(request.getDateOfBirth())
+                .email(request.getEmail())
+                .lastName(request.getLastName())
+                .firstName(request.getFirstName())
+                .userId(user.getUserId())
+                .build();
+        kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_CREATE_PROFILE, createProfileRequest);
 
-        ResponseObject<String> createProfile = userClient.createProfile(createProfileRequest);
-        log.info("createProfile: {}", createProfile.toString());
+        CreateWalletRequest createWalletRequest = CreateWalletRequest.builder()
+                .userId(user.getUserId())
+                .balance(5000000L)
+                .build();
+        kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_CREATE_WALLET, createWalletRequest);
     }
 
     /**
@@ -145,10 +160,11 @@ public class SignUpServiceImpl implements SignUpService {
      *     <li>Sends the OTP to the default Kafka topic for email notifications.</li>
      * </ul>
      *
-     * @param email the email address for which the OTP is generated.
+     * @param request {@link EmailRequest} email the email address for which the OTP is generated.
+     * @throws BadRequestAlertException if the user is not found in the database.
      */
     @Override
-    public void generateOtp(EmailRequest request) {
+    public void generateOtp(EmailRequest request) throws JsonProcessingException {
         Optional<User> user = userRepository.findByEmail(request.getEmail());
         if (user.isEmpty()) {
             throw new BadRequestAlertException(MessageCode.MSG1016);
@@ -163,7 +179,7 @@ public class SignUpServiceImpl implements SignUpService {
         emailDTO.setData(new Gson().toJson(data));
         emailDTO.setTopicName(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SIGN_UP);
 
-        kafkaProducer.sendMessageEmail(emailDTO);
+        kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SIGN_UP,emailDTO);
     }
 
     /**
@@ -183,24 +199,27 @@ public class SignUpServiceImpl implements SignUpService {
     public void verifyUser(VerifyUserRequest request) {
         String storedOtp = redisTemplate.opsForValue().get(request.getEmail());
 
-        if(storedOtp == null) {
+        if (storedOtp == null) {
             throw new BadRequestAlertException(MessageCode.MSG1017);
         }
 
-        if(!storedOtp.equals(request.getOtp())) {
+        if (!storedOtp.equals(request.getOtp())) {
             throw new BadRequestAlertException(MessageCode.MSG1017);
         }
 
         redisTemplate.delete(request.getEmail());
+
         Optional<User> user = userRepository.findByEmail(request.getEmail());
         if (user.isEmpty()) {
             throw new BadRequestAlertException(MessageCode.MSG1016);
         }
+
         user.get().setIsVerified("VERIFIED");
         userRepository.save(user.get());
+
     }
 
-    private String generateOtpString(){
+    private String generateOtpString() {
         Random rand = new Random();
         int otp = 100000 + rand.nextInt(900000);
 

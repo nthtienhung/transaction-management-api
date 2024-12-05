@@ -23,7 +23,13 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-
+/**
+ * Aspect để xử lý caching cho các phương thức được đánh dấu bởi {@link CacheCollection}.
+ *
+ * <p>Lớp này sử dụng AOP để tự động cập nhật cache sau khi một phương thức
+ * đã được thực thi thành công. Nó kiểm tra điều kiện, xử lý các khóa cache,
+ * và thực hiện các hành động cache tương ứng.</p>
+ */
 @Slf4j
 @Aspect
 @Component
@@ -31,7 +37,17 @@ import java.util.Map;
 public class CacheAspect {
 
     private final CacheManager cacheManager;
-
+    /**
+     * Phương thức được gọi sau khi một phương thức đã hoàn thành thành công.
+     *
+     * <p>Phương thức này sẽ cập nhật cache dựa trên thông tin từ annotation {@link CacheCollection}.
+     * Nó kiểm tra điều kiện, lấy khóa và cập nhật cache với các giá trị mới.</p>
+     *
+     * @param joinPoint thông tin về phương thức đang thực thi
+     * @param cacheCollection annotation {@link CacheCollection} được áp dụng
+     * @param returnValue giá trị trả về từ phương thức
+     * @throws Exception nếu có lỗi xảy ra trong quá trình xử lý
+     */
     @AfterReturning(pointcut = "@annotation(cacheCollection)", returning = "returnValue")
     public void cacheCollectionUpdate(final JoinPoint joinPoint, CacheCollection cacheCollection,
                                       Object returnValue) throws Exception {
@@ -122,7 +138,17 @@ public class CacheAspect {
             }
         }
     }
-
+    /**
+     * Phương thức được gọi sau khi một phương thức đã hoàn thành thành công.
+     *
+     * <p>Phương thức này cập nhật cache dựa trên thông tin từ annotation {@link CacheMap}.
+     * Nó kiểm tra điều kiện, lấy các khóa cache và cập nhật bản đồ cache với giá trị mới.</p>
+     *
+     * @param joinPoint thông tin về phương thức đang thực thi
+     * @param cacheMap annotation {@link CacheMap} được áp dụng
+     * @param returnValue giá trị trả về từ phương thức
+     * @throws Exception nếu có lỗi xảy ra trong quá trình xử lý
+     */
     @AfterReturning(pointcut = "@annotation(cacheMap)", returning = "returnValue")
     public void cacheMapUpdate(final JoinPoint joinPoint, CacheMap cacheMap,
                                Object returnValue) throws Exception {

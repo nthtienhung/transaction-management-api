@@ -156,6 +156,32 @@ public enum MessageCode {
     // Not have permission
     MSG1049(LabelKey.ERROR_YOU_HAVE_NOT_PERMISSION),
 
+    //Invalid address
+    MSG1050(LabelKey.ERROR_INVALID_ADDRESS),
+
+    // Invalid first name
+    MSG1051(LabelKey.ERROR_FIRST_NAME_IS_INVALID),
+
+    // Invalid last name
+    MSG1052(LabelKey.ERROR_LAST_NAME_IS_INVALID),
+
+    MSG1053(LabelKey.ERROR_FIRST_NAME_IS_EMPTY),
+
+    MSG1054(LabelKey.ERROR_LAST_NAME_IS_EMPTY),
+
+    MSG1055(LabelKey.ERROR_PHONE_NUMBER_IS_USED),
+
+    MSG1056(LabelKey.ERROR_TOKEN_IS_MISSING),
+
+    MSG1057(LabelKey.ERROR_UNABLE_TO_DECODE_EMAIL_FROM_TOKEN),
+
+    MSG1058(LabelKey.SUCCESS_RETRIEVED_PROFILE),
+
+    MSG1059(LabelKey.ERROR_PROFILE_IS_NOT_FOUND),
+
+    MSG1060(LabelKey.ERROR_ERROR_WHILE_RUNNING),
+
+    MSG1061(LabelKey.SUCCESS_UPDATE_PROFILE),
     ;
 
     private String key;
