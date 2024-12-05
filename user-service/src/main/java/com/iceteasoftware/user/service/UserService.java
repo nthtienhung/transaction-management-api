@@ -14,6 +14,8 @@ public interface UserService {
 
     boolean isPhoneExists(String phone);
 
+    String getRole(HttpServletRequest request);
+
     ResponseEntity<ResponseObject<Profile>> updateProfile(
             HttpServletRequest request,
             CreateProfileRequest updateRequest);

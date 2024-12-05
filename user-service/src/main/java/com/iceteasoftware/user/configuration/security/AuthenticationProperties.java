@@ -31,26 +31,8 @@ public class AuthenticationProperties {
     @Value("${security.cache.max-age}")
     private long cacheMaxAge;
 
-//    @Value("${security.cors.allowed-origins}")
-//    private String allowedOrigins;
-//
-//    @Value("${security.cors.allowed-methods}")
-//    private String allowedMethods;
-//
-//    @Value("${security.cors.allowed-headers}")
-//    private String allowedHeaders;
-//
-//    @Value("${security.cors.exposed-headers}")
-//    private String exposedHeaders;
-//
-//    @Value("${security.cors.allow-credentials}")
-//    private boolean allowCredentials;
-//
-//    @Value("${security.cors.max-age}")
-//    private long maxAge;
-//
-//    @Value("${security.login.max-attempt-time}")
-//    private int loginMaxAttemptTime;
+    @Value("${security.login.max-attempt-time}")
+    private int loginMaxAttemptTime;
 
     @Value("${security.password.max-attempt-time}")
     private int passwordMaxAttemptTime;
