@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
-
+@CrossOrigin("*")
 public class UserController {
 
     private final UserService userService;
