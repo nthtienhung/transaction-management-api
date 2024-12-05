@@ -288,7 +288,7 @@ public class UserServiceImpl implements UserService {
             return ResponseEntity.status(401).body(response);
         }
 
-        try {
+        // try {
             Optional<Profile> optionalProfile = getProfileByEmail(email);
 
             if(optionalProfile.isEmpty()) {
@@ -307,13 +307,7 @@ public class UserServiceImpl implements UserService {
                 throw new BadRequestAlertException(MessageCode.MSG1045);
             } else if(!Validator.isVNPhoneNumber(updateRequest.getPhone())){
                 throw new BadRequestAlertException(MessageCode.MSG1044);
-            } else if(this.isPhoneExists(updateRequest.getPhone())) {
-                throw new BadRequestAlertException(MessageCode.MSG1055);
-            } else if(!Validator.isAddress(updateRequest.getAddress())) {
-                throw new BadRequestAlertException(MessageCode.MSG1050);
-            } else if(!Validator.isBlankOrEmpty(updateRequest.getDob().toString())) {
-                throw new BadRequestAlertException(MessageCode.MSG1011);
-            } else if(updateRequest.getDob().isAfter(LocalDate.now())){
+            }else if(updateRequest.getDob().isAfter(LocalDate.now())){
                 throw new BadRequestAlertException(MessageCode.MSG1019);
             }
 
@@ -337,14 +331,14 @@ public class UserServiceImpl implements UserService {
             );
 
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            ResponseObject<Profile> response = new ResponseObject<>(
-                    Labels.getLabels(MessageCode.MSG1060.getKey()),
-                    500,
-                    LocalDateTime.now(),
-                    null
-            );
-            return ResponseEntity.status(500).body(response);
-        }
+        // } catch (Exception e) {
+        //     ResponseObject<Profile> response = new ResponseObject<>(
+        //             Labels.getLabels(MessageCode.MSG1060.getKey()),
+        //             500,
+        //             LocalDateTime.now(),
+        //             null
+        //     );
+        //     return ResponseEntity.status(500).body(response);
+        // }
     }
 }

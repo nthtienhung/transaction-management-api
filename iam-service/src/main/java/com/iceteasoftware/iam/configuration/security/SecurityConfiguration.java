@@ -24,7 +24,7 @@ import java.util.List;
 public class SecurityConfiguration {
     private final JWTCookieFilter jwtCookieFilter;
     private final String[] WHITE_LIST ={
-            "/v3/api-docs/**","/swagger/**","/swagger-ui/**","/login","/logoutAccount", "/register/**", "/forgot-password/**"};
+            "/v3/api-docs/**","/swagger/**","/swagger-ui/**","/login","/logoutAccount", "/register/**", "/forgot-password/**", "/change-password/**"};
 
 
     @Bean
