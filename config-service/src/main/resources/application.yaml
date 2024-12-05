@@ -20,7 +20,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/team2db
     username: postgres
-    password: 123
+    password: root
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

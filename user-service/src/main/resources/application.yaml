@@ -6,9 +6,9 @@ spring:
   application:
     name: user-service
   datasource:
-    url: jdbc:postgresql://localhost:5431/team2db
+    url: jdbc:postgresql://localhost:5432/team2db
     username: postgres
-    password: 12345
+    password: root
   jpa:
     hibernate:
       ddl-auto: update
