@@ -24,11 +24,8 @@ import java.util.List;
 public class SecurityConfiguration {
     private final JWTCookieFilter jwtCookieFilter;
     private final String[] WHITE_LIST ={
-<<<<<<< HEAD
             "/v3/api-docs/**","/swagger/**","/swagger-ui/**","/login","/logoutAccount", "/register/**", "/forgot-password/**"};
-=======
-            "/v3/api-docs/**","/swagger/**","/swagger-ui/**","/login", "/register/**", "/forgot-password/**", "/change-password/**"};
->>>>>>> 66bc0bba701f2859a5f360a6374891d655ecb12a
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -47,15 +44,4 @@ public class SecurityConfiguration {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("*"); // Cho phép tất cả các origin
-        configuration.addAllowedMethod("*"); // Cho phép tất cả các method
-        configuration.addAllowedHeader("*"); // Cho phép tất cả các header
-        configuration.setExposedHeaders(List.of("X-User-Id", "X-Role", "Authorization", "X-CSRF-TOKEN")); // Expose các header tùy chỉnh cho frontend
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
 }
