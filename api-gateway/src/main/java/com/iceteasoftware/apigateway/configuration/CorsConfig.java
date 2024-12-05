@@ -12,10 +12,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.iceteasoftware.apigateway.filter.JwtTokenInterceptor;
 
 /**
-* Author: Tran Duc Thinh, Nguyen Minh Quang
-* Date: 12/2/2024
-* Time: 2:16 PM
-*/
+ * Author: Tran Duc Thinh, Nguyen Minh Quang
+ * Date: 12/2/2024
+ * Time: 2:16 PM
+ */
 
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
@@ -40,7 +40,5 @@ public class CorsConfig implements WebMvcConfigurer {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
-
     }
-
 }
