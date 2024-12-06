@@ -26,11 +26,11 @@ public abstract class AuditTable {
 
     @CreatedBy
     @Column(updatable = false,name = "user_create")
-    private Integer userCreate;
+    private String userCreate;
 
     @LastModifiedBy
     @Column(name = "user_update")
-    private Integer userUpdate;
+    private String userUpdate;
 
     @CreatedDate
     @Column(name = "create_date",updatable = false)

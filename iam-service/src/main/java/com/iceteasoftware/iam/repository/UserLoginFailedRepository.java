@@ -26,4 +26,5 @@ public interface UserLoginFailedRepository extends JpaRepository<UserLoginFailed
     default UserLoginFailed save_(UserLoginFailed entity) {
         return save(entity);
     }
+
 }

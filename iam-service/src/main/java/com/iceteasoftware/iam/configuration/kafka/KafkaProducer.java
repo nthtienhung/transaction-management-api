@@ -1,8 +1,8 @@
 package com.iceteasoftware.iam.configuration.kafka;
 
-
-import com.iceteasoftware.iam.dto.request.email.EmailDTORequest;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iceteasoftware.iam.configuration.JacksonConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -14,11 +14,15 @@ import org.springframework.stereotype.Service;
 public class KafkaProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public void sendMessageEmail(EmailDTORequest emailDTO) {
-        Gson gson = new Gson();
-        String msg = gson.toJson(emailDTO);
-        log.info("Sending message : {}", msg);
-        kafkaTemplate.send(emailDTO.getTopicName(),msg);
+    public <T> void sendMessage(String topicName, T messageObject) throws JsonProcessingException {
+        try {
+            ObjectMapper objectMapper = JacksonConfig.createObjectMapper();
+            String message = objectMapper.writeValueAsString(messageObject);
+            log.info("Sending message to topic {}: {}", topicName, message);
+            kafkaTemplate.send(topicName, message);
+        } catch (JsonProcessingException e){
+            log.error("Failed to serialize message for topic {}: {}", topicName, messageObject, e);
+        }
     }
 
 }

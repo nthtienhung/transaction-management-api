@@ -1,18 +1,14 @@
 package com.iceteasoftware.apigateway.configuration;
 
-import com.iceteasoftware.apigateway.filter.JwtTokenInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.Arrays;
+import com.iceteasoftware.apigateway.filter.JwtTokenInterceptor;
 
 /**
  * Author: Tran Duc Thinh, Nguyen Minh Quang
@@ -32,15 +28,6 @@ public class CorsConfig implements WebMvcConfigurer {
         System.out.println("JwtTokenInterceptor đã được đăng ký!");
     }
 
-//    @Override
-//    public void addCorsMappings(CorsRegistry registry) {
-//        registry.addMapping("/**")
-//                .allowedOrigins("http://localhost:3000")
-//                .allowedMethods("GET", "POST", "PATCH", "DELETE")
-//                .allowedHeaders("Authorization", "Content-Type")
-//                .allowCredentials(true);
-//    }
-
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
@@ -48,11 +35,8 @@ public class CorsConfig implements WebMvcConfigurer {
         config.addAllowedMethod("*"); // Cho phép tất cả các phương thức (GET, POST, PUT, DELETE,...)
         config.addAllowedHeader("*"); // Cho phép tất cả các header
         config.setAllowCredentials(true); // Cho phép gửi cookie
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
-
-
 }
