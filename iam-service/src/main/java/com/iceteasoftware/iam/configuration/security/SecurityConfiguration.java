@@ -19,9 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfiguration {
     private final JWTCookieFilter jwtCookieFilter;
     private final String[] WHITE_LIST ={
-
             "/v3/api-docs/**","/swagger/**","/swagger-ui/**","/login","/logoutAccount", "/register/**", "/forgot-password/**", "/change-password/**"};
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

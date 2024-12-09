@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -340,5 +341,35 @@ public class UserServiceImpl implements UserService {
         //     );
         //     return ResponseEntity.status(500).body(response);
         // }
+    }
+
+    @Override
+    public ResponseEntity<User> findUser(HttpServletRequest request) {
+        String jwt = getJwtFromHeader(request);
+
+        if (jwt == null || jwt.isEmpty()) {
+            ResponseObject<Profile> response = new ResponseObject<>(
+                    "Token không tồn tại trong header Authorization",
+                    401,
+                    LocalDateTime.now(),
+                    null
+            );
+            return null;
+        }
+
+        // Giải mã JWT và lấy email
+        String email = this.extractEmailFromJwt(jwt);
+
+        if (email == null) {
+            ResponseObject<Profile> response = new ResponseObject<>(
+                    "Không thể giải mã email từ token",
+                    401,
+                    LocalDateTime.now(),
+                    null
+            );
+            return null;
+        }
+        Optional<User> user = userRepository.findByEmail(email);
+        return new ResponseEntity<>(user.get(), HttpStatus.OK);
     }
 }
