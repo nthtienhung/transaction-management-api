@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin("*")
 public class UserController {
 
     private final UserService userService;
@@ -52,7 +51,7 @@ public class UserController {
             @RequestBody CreateProfileRequest updateRequest) {
         return userService.updateProfile(request, updateRequest);
     }
-    @CrossOrigin(origins = "http://localhost:3000")
+
     @GetMapping("/getUser")
     public ResponseEntity<User> getUser(HttpServletRequest request) {
         return this.userService.findUser(request);
