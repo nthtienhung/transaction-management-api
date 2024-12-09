@@ -1,9 +1,11 @@
 package com.iceteasoftware.config.controller;
 
 
+import com.iceteasoftware.config.configuration.message.Labels;
 import com.iceteasoftware.config.dto.request.ConfigRequest;
 import com.iceteasoftware.config.dto.response.ConfigResponse;
 import com.iceteasoftware.config.dto.response.MessageResponse;
+import com.iceteasoftware.config.enums.MessageCode;
 import com.iceteasoftware.config.enums.Status;
 import com.iceteasoftware.config.service.ConfigService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -262,17 +264,9 @@ public class ConfigController {
             @RequestParam(required = false) String configKey,
             @RequestParam(required = false) Status status,
             Pageable pageable) {
-
-        logger.info("Accessing getConfig API");
-        // Log các thông tin nhận từ Header
-        logger.info("User-Id: {}", RequestContextHolder.currentRequestAttributes()
-                .getAttribute("X-User-Id", RequestAttributes.SCOPE_REQUEST));
-        logger.info("Role: {}", RequestContextHolder.currentRequestAttributes()
-                .getAttribute("X-Role", RequestAttributes.SCOPE_REQUEST));
-
         Page<ConfigResponse> response = configService.getConfigs(group, type, configKey, status, pageable);
         MessageResponse<Page<ConfigResponse>> messageResponse = MessageResponse.<Page<ConfigResponse>>builder()
-                .message("Success")
+                .message(Labels.getLabels(MessageCode.MSG2003.getKey()))
                 .status((short) 200)
                 .localDateTime(LocalDateTime.now().toString())
                 .data(response)

@@ -4,6 +4,7 @@ import com.iceteasoftware.user.entity.Profile;
 import com.iceteasoftware.user.entity.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.util.Lazy;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -15,4 +16,5 @@ public interface UserProfileRepository extends JpaRepository<Profile, String> {
 
     Optional<Profile> findByPhone(String phone);
 
+    Optional<Profile> findByUserId(String userId);
 }

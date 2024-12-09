@@ -8,7 +8,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 import com.iceteasoftware.apigateway.filter.JwtTokenInterceptor;
 
 /**
@@ -36,7 +35,6 @@ public class CorsConfig implements WebMvcConfigurer {
         config.addAllowedMethod("*"); // Cho phép tất cả các phương thức (GET, POST, PUT, DELETE,...)
         config.addAllowedHeader("*"); // Cho phép tất cả các header
         config.setAllowCredentials(true); // Cho phép gửi cookie
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
