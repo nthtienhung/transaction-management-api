@@ -51,7 +51,7 @@ public class UserController {
             @RequestBody CreateProfileRequest updateRequest) {
         return userService.updateProfile(request, updateRequest);
     }
-    @CrossOrigin(origins = "http://localhost:3000")
+
     @GetMapping("/getUser")
     public ResponseEntity<User> getUser(HttpServletRequest request) {
         return this.userService.findUser(request);
