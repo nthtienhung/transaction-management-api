@@ -26,6 +26,9 @@ public class Wallet extends AuditTable {
     @Column(name = "wallet_id")
     private String id;
 
+    @Column(name = "wallet_code")
+    private String walletCode;
+
     @Column(name = "balance")
     private Long balance;
 

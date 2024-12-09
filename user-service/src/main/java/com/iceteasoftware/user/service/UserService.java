@@ -2,6 +2,7 @@ package com.iceteasoftware.user.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
+import com.iceteasoftware.user.dto.response.UserResponse;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
 import com.iceteasoftware.user.entity.Profile;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,4 +20,6 @@ public interface UserService {
     ResponseEntity<ResponseObject<Profile>> updateProfile(
             HttpServletRequest request,
             CreateProfileRequest updateRequest);
+
+    UserResponse getUserById(String userId);
 }

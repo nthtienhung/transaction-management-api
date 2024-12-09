@@ -6,9 +6,9 @@ spring:
   application:
     name: user-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/team2db
+    url: jdbc:postgresql://localhost:1200/team2db
     username: postgres
-    password: root
+    password: quang232003
 
   jpa:
     hibernate:

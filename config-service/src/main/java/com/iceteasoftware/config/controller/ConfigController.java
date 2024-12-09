@@ -1,9 +1,11 @@
 package com.iceteasoftware.config.controller;
 
 
+import com.iceteasoftware.config.configuration.message.Labels;
 import com.iceteasoftware.config.dto.request.ConfigRequest;
 import com.iceteasoftware.config.dto.response.ConfigResponse;
 import com.iceteasoftware.config.dto.response.MessageResponse;
+import com.iceteasoftware.config.enums.MessageCode;
 import com.iceteasoftware.config.enums.Status;
 import com.iceteasoftware.config.service.ConfigService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -264,7 +266,7 @@ public class ConfigController {
             Pageable pageable) {
         Page<ConfigResponse> response = configService.getConfigs(group, type, configKey, status, pageable);
         MessageResponse<Page<ConfigResponse>> messageResponse = MessageResponse.<Page<ConfigResponse>>builder()
-                .message("Success")
+                .message(Labels.getLabels(MessageCode.MSG2003.getKey()))
                 .status((short) 200)
                 .localDateTime(LocalDateTime.now().toString())
                 .data(response)

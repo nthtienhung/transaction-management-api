@@ -164,8 +164,13 @@ public class ConfigServiceImpl implements ConfigService {
                     configRepository.save(existingConfig);
                     return mapToResponse(existingConfig);
                 }
-                else
+                else {
+                    existingConfig.setStatus(request.getStatus());
+                    existingConfig.setUpdate_at(LocalDateTime.now());
+                    existingConfig.setUpdated_by("ADMIN");
+                    configRepository.save(existingConfig);
                     return mapToResponse(existingConfig);
+                }
             }
             else
                 return mapToResponse(existingConfig);
