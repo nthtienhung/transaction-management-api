@@ -1,6 +1,7 @@
 package com.iceteasoftware.wallet.service.impl;
 
 import com.iceteasoftware.wallet.constant.KafkaTopicConstants;
+import com.iceteasoftware.wallet.dto.response.WalletResponse;
 import com.iceteasoftware.wallet.entity.Wallet;
 import com.iceteasoftware.wallet.repository.WalletRepository;
 import com.iceteasoftware.wallet.service.WalletService;
@@ -61,11 +62,30 @@ public class WalletServiceImpl implements WalletService {
                 .userId(userId)
                 .walletCode(generateWalletCode())
                 .build());
-        
+
         ThreadLocalUtil.remove();
     }
 
-    private String generateWalletCode(){
+    @Override
+    public WalletResponse getWalletByCode(String walletCode) {
+        Wallet wallet = walletRepository.findByWalletCode(walletCode);
+
+        return WalletResponse.builder()
+                .walletCode(wallet.getWalletCode())
+                .balance(wallet.getBalance())
+                .userId(wallet.getUserId())
+                .build();
+    }
+
+    @Override
+    public void updateWalletBalance(String walletCode, Long amount) {
+        Wallet wallet = walletRepository.findByWalletCode(walletCode);
+        wallet.setBalance(wallet.getBalance() + amount);
+        System.out.println(wallet.toString());
+        walletRepository.save(wallet);
+    }
+
+    private String generateWalletCode() {
         Random random = new Random();
         StringBuilder randomDigits = new StringBuilder();
         for (int i = 0; i < 9; i++) {
@@ -74,5 +94,6 @@ public class WalletServiceImpl implements WalletService {
 
         return WALLET_CODE_PREFIX + randomDigits.toString();
     }
-
 }
+
+

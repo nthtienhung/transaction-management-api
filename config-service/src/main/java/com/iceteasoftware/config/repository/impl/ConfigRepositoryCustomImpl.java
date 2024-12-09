@@ -1,5 +1,6 @@
 package com.iceteasoftware.config.repository.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import com.iceteasoftware.config.entity.Config;
 import com.iceteasoftware.config.enums.Status;
 import com.iceteasoftware.config.repository.ConfigRepositoryCustom;
@@ -14,16 +15,17 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Repository
 public class ConfigRepositoryCustomImpl implements ConfigRepositoryCustom {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Override
     public Page<Config> findByGroupAndTypeAndKeyAndStatus(String group, String type, String configKey, Status status, Pageable pageable) {
         String baseSelect = "SELECT * FROM config_service.tbl_config";
         String countSelect = "SELECT COUNT(*) FROM config_service.tbl_config";
+
         String whereClause = " WHERE 1=1";
         List<Object> params = new ArrayList<>();
 
@@ -49,7 +51,7 @@ public class ConfigRepositoryCustomImpl implements ConfigRepositoryCustom {
 
         List<Config> configs = jdbcTemplate.query(baseQuery, params.toArray(), new BeanPropertyRowMapper<>(Config.class));
         long total = jdbcTemplate.queryForObject(countQuery, params.toArray(), Long.class);
-
+        log.info("Total configs and pagable: {}, {}", total, pageable);
         return new PageImpl<>(configs, pageable, total);
     }
 }
