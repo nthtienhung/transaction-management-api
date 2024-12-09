@@ -59,4 +59,5 @@ public interface LabelKey {
     public static final String EROR_FIRST_NAME_IS_EMPTY = "eror.first-name-is-empty";
     public static final String EROR_LAST_NAME_IS_EMPTY = "eror.first-name-is-empty";
     public static final String ERROR_PHONE_NUMBER_IS_USED = "error.phone-number-is-used";
+    public static final String ERROR_USER_IS_REGISTER_BUT_NOT_VERIFIED = "error.user-is-register-but-not-verified";
 }

@@ -38,7 +38,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-
 @Slf4j
 @Service
 @Transactional
@@ -48,6 +47,7 @@ public class LoginServiceImpl implements LoginService {
     private final UserRepository userRepository;
     private final UserLoginFailedRepository userLoginFailedRepository;
     private final PasswordEncoder passwordEncoder;
+    private static final String NOT_VERIFIED = "NOT_VERIFIED";
 
     @Getter
     private final UserProperties userProperties;
@@ -149,14 +149,13 @@ public class LoginServiceImpl implements LoginService {
 
         this.userLoginFailedRepository.save_(userLoginFailed);
     }
-
-    private User findByEmail(String email) {
+     @Override
+    public Optional<User> getUser(String email) {
         Optional<User> user = this.userRepository.findByEmail(email);
         if (user.isEmpty()) {
             throw new BadRequestAlertException(MessageCode.MSG1005);
         }
-
-        return user.orElse(null);
+        return user;
     }
 }
 

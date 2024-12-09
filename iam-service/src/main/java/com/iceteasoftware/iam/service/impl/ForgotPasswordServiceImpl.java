@@ -1,7 +1,9 @@
 package com.iceteasoftware.iam.service.impl;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iceteasoftware.iam.configuration.kafka.KafkaProducer;
+import com.iceteasoftware.iam.configuration.message.Labels;
 import com.iceteasoftware.iam.constant.Constants;
 import com.iceteasoftware.iam.constant.KafkaTopicConstants;
 import com.iceteasoftware.iam.dto.request.EmailRequest;
@@ -9,10 +11,13 @@ import com.iceteasoftware.iam.dto.request.OTPRequest;
 import com.iceteasoftware.iam.dto.request.ResetPasswordRequest;
 import com.iceteasoftware.iam.dto.request.email.EmailDTORequest;
 import com.iceteasoftware.iam.dto.response.OTPResponse;
+import com.iceteasoftware.iam.dto.response.common.ResponseObject;
+import com.iceteasoftware.iam.entity.PasswordHistory;
 import com.iceteasoftware.iam.entity.User;
 import com.iceteasoftware.iam.enums.MessageCode;
 import com.iceteasoftware.iam.exception.handle.BadRequestAlertException;
 import com.iceteasoftware.iam.model.OTPValue;
+import com.iceteasoftware.iam.repository.PasswordHistoryRepository;
 import com.iceteasoftware.iam.repository.UserRepository;
 import com.iceteasoftware.iam.service.ForgotPasswordService;
 import com.iceteasoftware.iam.util.DateUtil;
@@ -22,15 +27,15 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
 import java.time.Instant;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.iceteasoftware.iam.constant.Constants.*;
@@ -47,6 +52,8 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final PasswordHistoryRepository PasswordHistoryRepository;
 
     private static final String OTP_PREFIX = "OTP:";
 
@@ -75,15 +82,13 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
     }
 
     /**
-     *
      * @param request
-     * @return
      */
     @Override
     public void resetPassword(ResetPasswordRequest request) {
-        Optional<User> user = userRepository.findByEmail(request.getEmail());
+        Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
         int passwordLength = request.getNewPassword().length();
-        if (user.isEmpty()) {
+        if (optionalUser.isEmpty()) {
             throw new BadRequestAlertException(MessageCode.MSG1002);
         }else  if (Validator.isBlankOrEmpty(request.getNewPassword())) {
             throw new BadRequestAlertException(MessageCode.MSG1001);
@@ -95,23 +100,65 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
             throw new BadRequestAlertException(MessageCode.MSG1032);
         } else if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             throw new BadRequestAlertException(MessageCode.MSG1031);
-        } else if (passwordEncoder.matches(request.getNewPassword(), user.get().getPassword())) {
+        } else if (passwordEncoder.matches(request.getNewPassword(), optionalUser.get().getPassword())) {
             throw new BadRequestAlertException(MessageCode.MSG1033);
         }
 
-        user.get().setPassword(passwordEncoder.encode(request.getNewPassword()));
+//        user.get().setPassword(passwordEncoder.encode(request.getNewPassword()));
+//
+//        userRepository.save(user.get());
 
-        userRepository.save(user.get());
-        redisTemplate.delete(request.getEmail());
+        // Get a list of password history (the last 5 passwords)
+        List<PasswordHistory> historyPasswords = PasswordHistoryRepository.findTop5ByEmailOrderByCreatedAtDesc(request.getEmail());
+
+        //Check the new password that coincides with the password in history
+        for (PasswordHistory historyPassword : historyPasswords) {
+            if (passwordEncoder.matches(request.getNewPassword(), historyPassword.getPassword())) {
+                throw new BadRequestAlertException(MessageCode.MSG1033);
+            }
+        }
+
+        // Save new passwords to users and password history
+        try {
+            User user = optionalUser.get();
+
+            //New password encryption
+            String encodePassword = passwordEncoder.encode(request.getNewPassword());
+
+            //Update the new password
+            user.setPassword(encodePassword);
+            userRepository.save(user);
+
+            //Save the new password to the password history
+            PasswordHistory passwordHistory = new PasswordHistory();
+            passwordHistory.setEmail(request.getEmail());
+            passwordHistory.setPassword(encodePassword);
+            PasswordHistoryRepository.save(passwordHistory);
+
+            //Returns successful feedback
+            ResponseObject response = new ResponseObject(
+                    Labels.getLabels(MessageCode.MSG1040.getKey()), // Thành công
+                    HttpStatus.OK.value(),
+                    LocalDateTime.now(),
+                    user
+            );
+
+            ResponseEntity.status(HttpStatus.OK).body(response);
+
+        } catch (Exception e) {
+            throw new BadRequestAlertException(MessageCode.MSG1014);
+        }
+
+//        redisTemplate.delete(request.getEmail());
     }
 
     /**
      * Generate OTP and send to user's email.
-     * @param email
+     * @param
      */
     @Override
-    public void generateOtp(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
+    public void generateOtp(EmailRequest request) throws JsonProcessingException {
+        Optional<User> user = userRepository.findByEmail(request.getEmail());
         if (user.isEmpty()) {
             throw new BadRequestAlertException(MessageCode.MSG1016);
         }
@@ -121,9 +168,9 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
         String otp = generateOtpString();
 
         // Lưu OTP vào Redis
-        OTPValue existingValue = getOtpFromRedis(email);
+        OTPValue existingValue = getOtpFromRedis(request.getEmail());
         int count = existingValue != null ? existingValue.getCount() + 1 : 0;
-        setOtpInRedis(email, otp, expirationTime, count);
+        setOtpInRedis(request.getEmail(), otp, expirationTime, count);
 
         // Gửi email OTP
         OTPRequest data = OTPRequest.builder().email(user.get().getEmail()).otp(otp).build();
@@ -132,7 +179,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
         emailDTO.setData(new Gson().toJson(data));
         emailDTO.setTopicName(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_FORGOT_PASSWORD);
 
-        kafkaProducer.sendMessageEmail(emailDTO);
+        kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_FORGOT_PASSWORD,emailDTO);
     }
 
     private String generateOtpString(){
