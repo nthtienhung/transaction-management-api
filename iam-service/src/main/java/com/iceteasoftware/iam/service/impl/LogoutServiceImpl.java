@@ -1,6 +1,7 @@
 package com.iceteasoftware.iam.service.impl;
 
 import com.iceteasoftware.iam.configuration.message.LabelKey;
+import com.iceteasoftware.iam.constant.GatewayCacheConstants;
 import com.iceteasoftware.iam.entity.User;
 import com.iceteasoftware.iam.entity.UserLoginFailed;
 import com.iceteasoftware.iam.enums.MessageCode;
@@ -15,6 +16,8 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,20 +34,47 @@ public class LogoutServiceImpl implements LogoutService {
     private String jwtSecret;
     private final UserLoginFailedRepository loginFailedRepository;
     private final UserRepository userRepository;
+    @Caching(evict = {
+            @CacheEvict(cacheNames = {GatewayCacheConstants.UserLoginFailed.FIND_BY_USER_ID}, key = "#userId")
+    })
     @Override
     public void logout(HttpServletRequest request) {
         // Xóa thông tin trong SecurityContextHolder
         SecurityContextHolder.clearContext();
+
+        // Lấy JWT từ header
         String jwt = getJwtFromHeader(request);
+        if (jwt == null) {
+            throw new IllegalArgumentException("JWT token is missing");
+        }
+
+        // Trích xuất email từ JWT
         String email = extractEmailFromJwt(jwt);
-        Optional<User> user = userRepository.findByEmail(email);
-        UserLoginFailed userLoginFailed = this.loginFailedRepository.findByUserId(user.get().getUserId());
-        loginFailedRepository.delete(userLoginFailed);
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("Email could not be extracted from JWT");
+        }
+
+        // Tìm user theo email
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isEmpty()) {
+            throw new IllegalArgumentException("User not found with email: " + email);
+        }
+
+        User user = optionalUser.get();
+
+        // Xóa thông tin đăng nhập thất bại
+        UserLoginFailed userLoginFailed = loginFailedRepository.findByUserId(user.getUserId());
+        if (userLoginFailed != null) {
+            loginFailedRepository.delete(userLoginFailed);
+        }
+
         // Hủy session hiện tại
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
+
+        // Có thể thêm logic để blacklist JWT hoặc vô hiệu hóa token
     }
     private String getJwtFromHeader(HttpServletRequest request) {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
