@@ -1,11 +1,13 @@
 server:
-  port: 8081
+  port: 8088
   servlet:
-    context-path: /auth
+    context-path: /transaction
 
 spring:
+  application:
+    name: transaction-service
   datasource:
-    url: jdbc:postgres://localhost:5432/team2db
+    url: jdbc:postgresql://localhost:5432/team2db
     username: postgres
     password: root
     driver-class-name: org.postgresql.Driver
@@ -20,22 +22,15 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
-  jackson:
-    serialization:
-      WRITE_DATES_AS_TIMESTAMPS: false
-  application:
-    name: Transaction Service
-
-logging:
-  level:
-    org.springframework: INFO
-    com.example.transaction: DEBUG
-
-    springdoc:
-      api-docs:
-        enabled: true
-      swagger-ui:
-        enabled: true
-        path: /swagger-ui.html
-
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  messages:
+    encoding: 'UTF-8'
+    use-code-as-default-message: true
+    basename: i18n/labels
+    cache-duration: 60
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9094
+      group-id: transaction-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer

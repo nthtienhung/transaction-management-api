@@ -22,10 +22,10 @@ public class Transaction {
     private String transactionCode;
 
     @Column(name = "sender_wallet_id", length = 255, nullable = false)
-    private String senderWalletId;
+    private String senderWalletCode;
 
     @Column(name = "receiver_wallet_id", length = 255, nullable = false)
-    private String receiverWalletId;
+    private String receiverWalletCode;
 
     @Column(name = "amount", nullable = false)
     private Long amount;
