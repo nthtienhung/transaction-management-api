@@ -62,22 +62,12 @@ public class WalletServiceImpl implements WalletService {
                 .userId(userId)
                 .walletCode(generateWalletCode())
                 .build());
-        
+
         ThreadLocalUtil.remove();
     }
 
-    private String generateWalletCode(){
-        Random random = new Random();
-        StringBuilder randomDigits = new StringBuilder();
-        for (int i = 0; i < 9; i++) {
-            randomDigits.append(random.nextInt(10));
-        }
-
-        return WALLET_CODE_PREFIX + randomDigits.toString();
-
     @Override
     public WalletResponse getWalletByCode(String walletCode) {
-
         Wallet wallet = walletRepository.findByWalletCode(walletCode);
 
         return WalletResponse.builder()
@@ -95,4 +85,15 @@ public class WalletServiceImpl implements WalletService {
         walletRepository.save(wallet);
     }
 
+    private String generateWalletCode() {
+        Random random = new Random();
+        StringBuilder randomDigits = new StringBuilder();
+        for (int i = 0; i < 9; i++) {
+            randomDigits.append(random.nextInt(10));
+        }
+
+        return WALLET_CODE_PREFIX + randomDigits.toString();
+    }
 }
+
+

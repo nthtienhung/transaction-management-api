@@ -372,6 +372,7 @@ public class UserServiceImpl implements UserService {
         }
         Optional<User> user = userRepository.findByEmail(email);
         return new ResponseEntity<>(user.get(), HttpStatus.OK);
+    }
 
     public UserResponse getUserById(String userId) {
         System.out.println("User ID: " + userId);
