@@ -4,13 +4,12 @@ package com.iceteasoftware.user.controller;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
 import com.iceteasoftware.user.entity.Profile;
+import com.iceteasoftware.user.entity.User;
 import com.iceteasoftware.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,5 +52,9 @@ public class UserController {
             @RequestBody CreateProfileRequest updateRequest) {
         return userService.updateProfile(request, updateRequest);
     }
-
+    @CrossOrigin(origins = "http://localhost:3000")
+    @GetMapping("/getUser")
+    public ResponseEntity<User> getUser(HttpServletRequest request) {
+        return this.userService.findUser(request);
+    }
 }

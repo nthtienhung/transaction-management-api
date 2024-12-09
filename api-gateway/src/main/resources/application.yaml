@@ -24,36 +24,36 @@ spring:
           - id: iam-service
             uri: http://localhost:8081
             predicates:
-              - Path=${app.api-prefix}/**
+              - Path=${app.api-prefix}/auth/**
             filters:
               - StripPrefix=2
           - id: config-service
             uri: http://localhost:8080
             predicates:
-              - Path=${app.api-prefix}/config/
+              - Path=${app.api-prefix}/config/**
             filters:
               - StripPrefix=2
           - id: notification-service
             uri: http://localhost:8083
             predicates:
-              - Path=${app.api-prefix}/noti/
+              - Path=${app.api-prefix}/noti/**
             filters:
               - StripPrefix=2
           - id: wallet-service
             uri: http://localhost:8085
             predicates:
-              - Path=${app.api-prefix}/wallet/
+              - Path=${app.api-prefix}/wallet/**
             filters:
               - StripPrefix=2
           - id: transaction-service
             uri: http://localhost:8084
             predicates:
-              - Path=${app.api-prefix}/transaction/
+              - Path=${app.api-prefix}/transaction/**
             filters:
               - StripPrefix=2
           - id: user-service
             uri: http://localhost:8082
             predicates:
-              - Path=${app.api-prefix}/**
+              - Path=${app.api-prefix}/user/**
             filters:
               - StripPrefix=2

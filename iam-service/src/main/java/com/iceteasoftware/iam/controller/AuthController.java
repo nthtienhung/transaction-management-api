@@ -8,6 +8,7 @@ import com.iceteasoftware.iam.dto.request.signup.SignUpRequest;
 import com.iceteasoftware.iam.dto.request.signup.VerifyUserRequest;
 import com.iceteasoftware.iam.dto.response.common.ResponseObject;
 import com.iceteasoftware.iam.dto.response.login.TokenResponse;
+import com.iceteasoftware.iam.entity.User;
 import com.iceteasoftware.iam.enums.MessageCode;
 import com.iceteasoftware.iam.service.*;
 import com.iceteasoftware.iam.dto.request.EmailRequest;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,8 +54,8 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password/generate")
-    public ResponseObject<String> generateOTP(@RequestParam String email) throws JsonProcessingException {
-        forgotPasswordService.generateOtp(email);
+    public ResponseObject<String> generateOTP(@RequestBody EmailRequest request) throws JsonProcessingException {
+        forgotPasswordService.generateOtp(request);
         return new ResponseObject<>(HttpStatus.OK.value(),Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now());
     }
 
@@ -64,9 +66,10 @@ public class AuthController {
                 LocalDateTime.now());
     }
 
-    @GetMapping("/test")
-    public String login() {
-        return "hello";
+    @PostMapping("/getUser/{email}")
+    public ResponseEntity<User> getUser(@RequestParam String email) {
+        Optional<User> user = this.loginService.getUser(email);
+        return new ResponseEntity<>(user.get(),HttpStatus.OK);
     }
 
     @PostMapping("/login")

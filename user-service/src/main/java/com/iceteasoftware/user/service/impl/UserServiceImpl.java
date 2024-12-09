@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -288,7 +289,7 @@ public class UserServiceImpl implements UserService {
             return ResponseEntity.status(401).body(response);
         }
 
-        try {
+        // try {
             Optional<Profile> optionalProfile = getProfileByEmail(email);
 
             if(optionalProfile.isEmpty()) {
@@ -307,13 +308,7 @@ public class UserServiceImpl implements UserService {
                 throw new BadRequestAlertException(MessageCode.MSG1045);
             } else if(!Validator.isVNPhoneNumber(updateRequest.getPhone())){
                 throw new BadRequestAlertException(MessageCode.MSG1044);
-            } else if(this.isPhoneExists(updateRequest.getPhone())) {
-                throw new BadRequestAlertException(MessageCode.MSG1055);
-            } else if(!Validator.isAddress(updateRequest.getAddress())) {
-                throw new BadRequestAlertException(MessageCode.MSG1050);
-            } else if(!Validator.isBlankOrEmpty(updateRequest.getDob().toString())) {
-                throw new BadRequestAlertException(MessageCode.MSG1011);
-            } else if(updateRequest.getDob().isAfter(LocalDate.now())){
+            }else if(updateRequest.getDob().isAfter(LocalDate.now())){
                 throw new BadRequestAlertException(MessageCode.MSG1019);
             }
 
@@ -337,14 +332,44 @@ public class UserServiceImpl implements UserService {
             );
 
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        // } catch (Exception e) {
+        //     ResponseObject<Profile> response = new ResponseObject<>(
+        //             Labels.getLabels(MessageCode.MSG1060.getKey()),
+        //             500,
+        //             LocalDateTime.now(),
+        //             null
+        //     );
+        //     return ResponseEntity.status(500).body(response);
+        // }
+    }
+
+    @Override
+    public ResponseEntity<User> findUser(HttpServletRequest request) {
+        String jwt = getJwtFromHeader(request);
+
+        if (jwt == null || jwt.isEmpty()) {
             ResponseObject<Profile> response = new ResponseObject<>(
-                    Labels.getLabels(MessageCode.MSG1060.getKey()),
-                    500,
+                    "Token không tồn tại trong header Authorization",
+                    401,
                     LocalDateTime.now(),
                     null
             );
-            return ResponseEntity.status(500).body(response);
+            return null;
         }
+
+        // Giải mã JWT và lấy email
+        String email = this.extractEmailFromJwt(jwt);
+
+        if (email == null) {
+            ResponseObject<Profile> response = new ResponseObject<>(
+                    "Không thể giải mã email từ token",
+                    401,
+                    LocalDateTime.now(),
+                    null
+            );
+            return null;
+        }
+        Optional<User> user = userRepository.findByEmail(email);
+        return new ResponseEntity<>(user.get(), HttpStatus.OK);
     }
 }

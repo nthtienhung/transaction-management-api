@@ -14,5 +14,5 @@ public interface ForgotPasswordService {
     OTPResponse verifyOTP(OTPRequest request);
     void resetPassword(ResetPasswordRequest request);
 
-    void generateOtp(String email) throws JsonProcessingException;
+    void generateOtp(EmailRequest request) throws JsonProcessingException;
 }

@@ -1,6 +1,5 @@
 package com.iceteasoftware.config.repository.impl;
 
-
 import com.iceteasoftware.config.entity.Config;
 import com.iceteasoftware.config.enums.Status;
 import com.iceteasoftware.config.repository.ConfigRepositoryCustom;
@@ -23,30 +22,33 @@ public class ConfigRepositoryCustomImpl implements ConfigRepositoryCustom {
 
     @Override
     public Page<Config> findByGroupAndTypeAndKeyAndStatus(String group, String type, String configKey, Status status, Pageable pageable) {
-        String baseQuery = "SELECT * FROM config_service.tbl_config WHERE 1=1";
+        String baseSelect = "SELECT * FROM config_service.tbl_config";
+        String countSelect = "SELECT COUNT(*) FROM config_service.tbl_config";
+        String whereClause = " WHERE 1=1";
         List<Object> params = new ArrayList<>();
 
         if (group != null && !group.isEmpty()) {
-            baseQuery += " AND \"group\" = ?";
+            whereClause += " AND \"group\" = ?";
             params.add(group);
         }
         if (type != null && !type.isEmpty()) {
-            baseQuery += " AND \"type\" = ?";
+            whereClause += " AND \"type\" = ?";
             params.add(type);
         }
         if (configKey != null && !configKey.isEmpty()) {
-            baseQuery += " AND \"key\" = ?";
+            whereClause += " AND \"key\" = ?";
             params.add(configKey);
         }
         if (status != null) {
-            baseQuery += " AND status = ?";
+            whereClause += " AND status = ?";
             params.add(status.name());
         }
 
-        baseQuery += " LIMIT " + pageable.getPageSize() + " OFFSET " + pageable.getOffset();
+        String baseQuery = baseSelect + whereClause + " LIMIT " + pageable.getPageSize() + " OFFSET " + pageable.getOffset();
+        String countQuery = countSelect + whereClause;
 
         List<Config> configs = jdbcTemplate.query(baseQuery, params.toArray(), new BeanPropertyRowMapper<>(Config.class));
-        long total = jdbcTemplate.queryForObject("SELECT count(*) FROM config_service.tbl_config WHERE 1=1", Long.class);
+        long total = jdbcTemplate.queryForObject(countQuery, params.toArray(), Long.class);
 
         return new PageImpl<>(configs, pageable, total);
     }
