@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
+
 /**
  * Author: thinhtd
  * Date: 12/4/2024
@@ -27,6 +29,7 @@ public class WalletServiceImpl implements WalletService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final WalletRepository walletRepository;
+    private static final String WALLET_CODE_PREFIX = "OLTP";
 
     /**
      * Listens for wallet creation messages from a Kafka topic and creates a wallet for the specified user.
@@ -56,9 +59,20 @@ public class WalletServiceImpl implements WalletService {
         walletRepository.save(Wallet.builder()
                 .balance(balance)
                 .userId(userId)
+                .walletCode(generateWalletCode())
                 .build());
         
         ThreadLocalUtil.remove();
+    }
+
+    private String generateWalletCode(){
+        Random random = new Random();
+        StringBuilder randomDigits = new StringBuilder();
+        for (int i = 0; i < 9; i++) {
+            randomDigits.append(random.nextInt(10));
+        }
+
+        return WALLET_CODE_PREFIX + randomDigits.toString();
     }
 
 }

@@ -44,6 +44,8 @@ public class SignUpServiceImpl implements SignUpService {
     private final PasswordEncoder passwordEncoder;
     private final PasswordHistoryRepository passwordHistoryRepository;
     private final KafkaProducer kafkaProducer;
+    private static final String IS_VERIFIED = "VERIFIED";
+    private static final String NOT_VERIFIED = "NOT_VERIFIED";
 
     /**
      * Handles the user sign-up process by validating inputs, creating a user record,
@@ -111,14 +113,23 @@ public class SignUpServiceImpl implements SignUpService {
             throw new BadRequestAlertException(MessageCode.MSG1044);
         }
 
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new BadRequestAlertException(MessageCode.MSG1012);
+        Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
+
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+
+            if (user.getIsVerified().equals(IS_VERIFIED)) {
+                throw new BadRequestAlertException(MessageCode.MSG1012);
+            }
+
+            if (user.getIsVerified().equals(NOT_VERIFIED)) {
+                throw new BadRequestAlertException(MessageCode.MSG1056);
+            }
         }
 
         if (userClient.checkPhoneExists(request.getPhone())) {
             throw new BadRequestAlertException(MessageCode.MSG1055);
         }
-
         User user = userRepository.save(User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -179,7 +190,7 @@ public class SignUpServiceImpl implements SignUpService {
         emailDTO.setData(new Gson().toJson(data));
         emailDTO.setTopicName(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SIGN_UP);
 
-        kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SIGN_UP,emailDTO);
+        kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SIGN_UP, emailDTO);
     }
 
     /**

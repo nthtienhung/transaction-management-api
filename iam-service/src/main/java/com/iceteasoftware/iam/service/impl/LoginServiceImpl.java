@@ -48,6 +48,7 @@ public class LoginServiceImpl implements LoginService {
     private final UserRepository userRepository;
     private final UserLoginFailedRepository userLoginFailedRepository;
     private final PasswordEncoder passwordEncoder;
+    private static final String NOT_VERIFIED = "NOT_VERIFIED";
 
     @Getter
     private final UserProperties userProperties;

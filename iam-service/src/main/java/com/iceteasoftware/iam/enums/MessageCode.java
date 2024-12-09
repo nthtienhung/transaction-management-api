@@ -170,7 +170,7 @@ public enum MessageCode {
     MSG1054(LabelKey.EROR_LAST_NAME_IS_EMPTY),
 
     MSG1055(LabelKey.ERROR_PHONE_NUMBER_IS_USED),
-    ;
+    MSG1056(LabelKey.ERROR_USER_IS_REGISTER_BUT_NOT_VERIFIED);
 
     private String key;
 }
