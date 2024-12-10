@@ -1,7 +1,5 @@
 package com.iceteasoftware.user.configuration.security;
 
-
-
 import com.iceteasoftware.user.configuration.security.jwt.JWTCookieFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

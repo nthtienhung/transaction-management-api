@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iceteasoftware.user.constant.KafkaTopicConstants;
 import com.iceteasoftware.user.configuration.message.Labels;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
+import com.iceteasoftware.user.dto.response.UserResponse;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
 import com.iceteasoftware.user.entity.Profile;
 import com.iceteasoftware.user.entity.User;
@@ -377,5 +378,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Profile> getAllProfiles() {
         return userProfileRepository.findAll();
+    }
+
+    public UserResponse getUserById(String userId) {
+        System.out.println("User ID: " + userId);
+        Profile profile = userProfileRepository.findByUserId(userId).orElse(null);
+
+        System.out.println("Profile: " + profile);
+
+        return UserResponse.builder()
+                .firstName(profile.getFirstName())
+                .lastName(profile.getLastName())
+                .email(profile.getEmail())
+                .address(profile.getAddress())
+                .build();
     }
 }

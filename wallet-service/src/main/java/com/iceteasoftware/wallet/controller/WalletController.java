@@ -1,8 +1,9 @@
 package com.iceteasoftware.wallet.controller;
 
+import com.iceteasoftware.wallet.dto.response.WalletResponse;
 import com.iceteasoftware.wallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Author: thinhtd
@@ -21,4 +22,16 @@ public class WalletController {
 //        walletService.createWallet(request);
 //        return new ResponseObject<>(HttpStatus.CREATED.value(), Constants.DEFAULT_MESSAGE_CREATE_SUCCESS, LocalDateTime.now());
 //    }
+
+    @GetMapping("/{walletCode}")
+    WalletResponse getWalletByWalletCode(@PathVariable("walletCode") String walletCode){
+        System.out.println("Wallet Code: " + walletCode);
+        return walletService.getWalletByCode(walletCode);
+    }
+
+    @PutMapping("/{walletCode}/balance")
+    void updateWalletBalance(@PathVariable("walletCode") String walletCode, @RequestBody Long amount){
+        System.out.println("Wallet Code: " + walletCode);
+        walletService.updateWalletBalance(walletCode, amount);
+    }
 }

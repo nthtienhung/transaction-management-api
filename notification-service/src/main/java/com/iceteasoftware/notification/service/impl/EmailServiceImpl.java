@@ -27,6 +27,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -149,4 +150,76 @@ public class EmailServiceImpl implements EmailService {
         ThreadLocalUtil.remove();
         log.info("Password reset email has been sent to: {}", email);
     }
+
+    @Override
+    @Transactional
+    @KafkaListener(
+            topics = KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SUCCESSFUL_TRANSACTION,
+            groupId = "send-email-successful-transaction-group")
+    public void sendSuccessfulTransactionEmail(String message) throws JsonProcessingException, MessagingException {
+        try {
+            JsonNode jsonNode = objectMapper.readTree(message);
+            String data = Optional.ofNullable(jsonNode.get("data"))
+                    .map(JsonNode::asText)
+                    .orElseThrow(() -> new IllegalArgumentException("Missing 'data' field"));
+
+            JsonNode dataNode = objectMapper.readTree(data);
+
+            String userId = Optional.ofNullable(jsonNode.get("userId"))
+                    .map(JsonNode::asText)
+                    .orElseThrow(() -> new IllegalArgumentException("Missing 'userId' field"));
+            ThreadLocalUtil.setCurrentUser(userId);
+
+            // Lấy thông tin từ dataNode
+            String senderEmail = dataNode.get("senderMail").asText();
+            String recipientEmail = dataNode.get("recipientMail").asText();
+            String transactionCode = dataNode.get("transactionCode").asText();
+            String amount = dataNode.get("amount").asText();
+            String description = dataNode.get("description").asText();
+
+            // Gửi email
+            sendTransactionEmail(senderEmail, transactionCode, amount, recipientEmail, description,
+                    "Transaction Successful Notification", "successful-transaction-email");
+            sendTransactionEmail(recipientEmail, transactionCode, amount, senderEmail, description,
+                    "You Have Received a Transaction", "receive-transaction-email");
+
+            ThreadLocalUtil.remove();
+
+        } catch (Exception e) {
+            log.error("Error processing Kafka message", e);
+            throw e; // Rethrow để Kafka xử lý lại nếu cần
+        }
+    }
+
+    private void sendTransactionEmail(String email, String transactionCode, String amount, String walletCode, String description, String subject, String templateName) throws MessagingException {
+        // 1. Tạo email MIME
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(
+                mimeMessage,
+                MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                StandardCharsets.UTF_8.name()
+        );
+
+        // 2. Tạo thông tin cho email template
+        Context context = new Context();
+        Map<String, Object> props = new HashMap<>();
+        props.put("email", email);
+        props.put("transactionCode", transactionCode);
+        props.put("amount", amount);
+        props.put("walletCode", walletCode);
+        props.put("description", description);
+
+        // 3. Render email từ template
+        context.setVariables(props);
+        mimeMessageHelper.setFrom(emailFrom);
+        mimeMessageHelper.setTo(email);
+        mimeMessageHelper.setSubject(subject);
+        String html = templateEngine.process(templateName, context);
+        mimeMessageHelper.setText(html, true);
+
+        // 4. Gửi email
+        mailSender.send(mimeMessage);
+        log.info("Email has been sent to: {}", email);
+    }
+
 }

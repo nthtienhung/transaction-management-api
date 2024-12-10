@@ -2,12 +2,14 @@ package com.iceteasoftware.user.controller;
 
 
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
+import com.iceteasoftware.user.dto.response.UserResponse;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
 import com.iceteasoftware.user.entity.Profile;
 import com.iceteasoftware.user.entity.User;
 import com.iceteasoftware.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +29,7 @@ public class UserController {
      *
      * @param request the HTTP request containing the JWT in the Authorization header.
      * @return a {@link ResponseEntity} containing the user's profile if found,
-     *         or an error message if the JWT is invalid or the user is not found.
+     * or an error message if the JWT is invalid or the user is not found.
      */
     @GetMapping("/profile")
     public ResponseEntity<ResponseObject<Profile>> getProfile(HttpServletRequest request) {
@@ -35,7 +37,7 @@ public class UserController {
     }
 
     @GetMapping("/check-phone-exists")
-    public Boolean isPhoneExists(@RequestParam String phone){
+    public Boolean isPhoneExists(@RequestParam String phone) {
         return userService.isPhoneExists(phone);
     }
 
@@ -48,7 +50,7 @@ public class UserController {
      * @param updateRequest the {@link CreateProfileRequest} containing the updated profile details.
      *                      Note: The email field in the request will be ignored.
      * @return a {@link ResponseEntity} containing a {@link ResponseObject} with the updated profile if successful,
-     *         or an appropriate error message if the update fails.
+     * or an appropriate error message if the update fails.
      */
     @PutMapping("/profile")
     public ResponseEntity<ResponseObject<Profile>> updateProfile(
@@ -77,5 +79,14 @@ public class UserController {
             LocalDateTime.now(),
             profiles
         ));
+    }
+
+    @GetMapping("/{userId}")
+    UserResponse getUserById(@PathVariable("userId") String userId) {
+        System.out.println("User ID: " + userId);
+        UserResponse userResponse = userService.getUserById(userId);
+        System.out.println("User Response: " + userResponse);
+//        return new ResponseObject<UserResponse>(HttpStatus.OK.value(), "Success", LocalDateTime.now(), userResponse);
+        return userResponse;
     }
 }
