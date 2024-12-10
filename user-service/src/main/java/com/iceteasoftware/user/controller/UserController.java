@@ -67,4 +67,9 @@ public class UserController {
 //        return new ResponseObject<UserResponse>(HttpStatus.OK.value(), "Success", LocalDateTime.now(), userResponse);
         return userResponse;
     }
+
+    @GetMapping("/check-email-exists")
+    Boolean isEmailExists(@RequestParam String email) {
+        return userService.isEmailExists(email);
+    }
 }

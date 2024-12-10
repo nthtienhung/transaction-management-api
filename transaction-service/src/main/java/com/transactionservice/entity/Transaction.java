@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Table(name = "transaction", schema = "transaction_service")
+@Table(name = "tbl_transaction", schema = "transaction_service")
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,6 +33,7 @@ public class Transaction extends AuditTable {
     @Column(name = "amount")
     private Long amount;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private Status status;
 

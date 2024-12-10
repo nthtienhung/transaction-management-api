@@ -387,4 +387,10 @@ public class UserServiceImpl implements UserService {
                 .address(profile.getAddress())
                 .build();
     }
+
+    @Override
+    public Boolean isEmailExists(String email) {
+        Optional<Profile> profile = userProfileRepository.findByEmail(email);
+        return profile.isEmpty();
+    }
 }

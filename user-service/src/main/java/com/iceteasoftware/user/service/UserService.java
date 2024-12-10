@@ -25,4 +25,6 @@ public interface UserService {
     ResponseEntity<User> findUser(HttpServletRequest request);
 
     UserResponse getUserById(String userId);
+
+    Boolean isEmailExists(String email);
 }

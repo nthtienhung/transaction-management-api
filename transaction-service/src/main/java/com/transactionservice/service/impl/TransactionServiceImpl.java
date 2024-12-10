@@ -7,7 +7,10 @@ import com.transactionservice.client.WalletClient;
 import com.transactionservice.configuration.auditing.AuditorAwareConfig;
 import com.transactionservice.configuration.kafka.KafkaProducer;
 import com.transactionservice.constant.KafkaTopicConstants;
+import com.transactionservice.dto.request.ConfirmTransactionRequest;
+import com.transactionservice.dto.request.OTPRequest;
 import com.transactionservice.dto.request.TransactionRequest;
+import com.transactionservice.dto.request.email.EmailRequest;
 import com.transactionservice.dto.request.email.EmailTransactionRequest;
 import com.transactionservice.dto.response.UserResponse;
 import com.transactionservice.dto.response.WalletResponse;
@@ -19,14 +22,18 @@ import com.transactionservice.exception.handler.BadRequestAlertException;
 import com.transactionservice.exception.handler.NotFoundAlertException;
 import com.transactionservice.repository.TransactionRepository;
 import com.transactionservice.service.TransactionService;
+import com.transactionservice.util.ThreadLocalUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
- * Author: thinhtd
+ * Author: thinhtd, minh quang
  * Date: 12/9/2024
  * Time: 3:27 PM
  */
@@ -36,6 +43,7 @@ import java.util.UUID;
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
+    private final RedisTemplate<String, String> redisTemplate;
     private final UserClient userClient;
     private final WalletClient walletClient;
     private final KafkaProducer kafkaProducer;
@@ -77,13 +85,15 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setStatus(Status.SUCCESS);
         transaction.setDescription(transactionRequest.getDescription());
 
-        walletClient.updateWalletBalance(senderWallet.getWalletCode(), transactionRequest.getAmount());
+        walletClient.updateWalletBalance(senderWallet.getWalletCode(), -transactionRequest.getAmount());
         walletClient.updateWalletBalance(receiverWallet.getWalletCode(), transactionRequest.getAmount());
+
+        ThreadLocalUtil.setCurrentUser(senderWallet.getUserId());
 
         // Save Transaction to Database
         transactionRepository.save(transaction);
 
-        com.transactionservice.dto.response.TransactionResponse result = com.transactionservice.dto.response.TransactionResponse.builder()
+        TransactionResponse result = TransactionResponse.builder()
                 .transactionCode(transaction.getTransactionCode())
                 .senderWalletCode(transactionRequest.getSenderWalletCode())
                 .senderMail(senderUser.getEmail())
@@ -94,12 +104,12 @@ public class TransactionServiceImpl implements TransactionService {
                 .description(transactionRequest.getDescription())
                 .build();
 
+        ThreadLocalUtil.remove();
+
         System.out.println("Transaction Result: " + result);
 
-        String userId = new AuditorAwareConfig().getCurrentAuditor().get();
-
         EmailTransactionRequest emailTransactionRequest = new EmailTransactionRequest();
-        emailTransactionRequest.setUserId(userId);
+        emailTransactionRequest.setUserId(senderWallet.getUserId());
         emailTransactionRequest.setTopicName(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SUCCESSFUL_TRANSACTION);
         emailTransactionRequest.setData(new Gson().toJson(result));
 
@@ -112,6 +122,63 @@ public class TransactionServiceImpl implements TransactionService {
         return result;
     }
 
+    @Override
+    public void generateOtp(EmailRequest request) throws JsonProcessingException {
+        WalletResponse wallet = walletClient.getWalletByWalletCode(request.getWalletCode());
+        UserResponse user = userClient.getUserById(wallet.getUserId());
+
+        if (userClient.isEmailExists(user.getEmail())) {
+            throw new BadRequestAlertException(MessageCode.MSG4100);
+        }
+
+        String otp = generateOtpString();
+        redisTemplate.opsForValue().set(user.getEmail(), otp, 2, TimeUnit.MINUTES);
+
+        OTPRequest data = OTPRequest.builder()
+                .email(user.getEmail())
+                .otp(otp)
+                .amount(request.getAmount())
+                .build();
+        EmailTransactionRequest emailDTO = new EmailTransactionRequest();
+        emailDTO.setUserId(wallet.getUserId());
+        emailDTO.setData(new Gson().toJson(data));
+        emailDTO.setTopicName(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_OTP);
+
+        System.out.println("Email DTO: " + emailDTO);
+
+        kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_OTP, emailDTO);
+    }
+
+    @Override
+    public TransactionResponse confirmTransactionWithOTP(ConfirmTransactionRequest confirmTransactionRequest) throws JsonProcessingException {
+        WalletResponse senderWallet = walletClient.getWalletByWalletCode(confirmTransactionRequest.getSenderWalletCode());
+        UserResponse senderUser = userClient.getUserById(senderWallet.getUserId());
+        String storedOtp = redisTemplate.opsForValue().get(senderUser.getEmail());
+        System.out.println("Stored OTP: " + storedOtp);
+        // 1. Kiểm tra OTP
+        if (confirmTransactionRequest.getOtp() == null) {
+            throw new BadRequestAlertException(MessageCode.MSG4114);
+        }
+        if (storedOtp == null) {
+            throw new BadRequestAlertException(MessageCode.MSG4113);
+        }
+        if (!storedOtp.equals(confirmTransactionRequest.getOtp())) {
+            throw new BadRequestAlertException(MessageCode.MSG4112);
+        }
+
+        redisTemplate.delete(senderUser.getEmail());
+
+        TransactionRequest transactionRequest = new TransactionRequest();
+        transactionRequest.setSenderWalletCode(confirmTransactionRequest.getSenderWalletCode());
+        transactionRequest.setRecipientWalletCode(confirmTransactionRequest.getRecipientWalletCode());
+        transactionRequest.setAmount(confirmTransactionRequest.getAmount());
+        transactionRequest.setDescription(confirmTransactionRequest.getDescription());
+
+        // 2. Hoàn tất giao dịch
+        return createTransaction(transactionRequest);
+    }
+
+
     public Transaction getTransactionById(String transactionId) {
         return transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new NotFoundAlertException(MessageCode.MSG4111));
@@ -120,5 +187,12 @@ public class TransactionServiceImpl implements TransactionService {
     private String generateTransactionCode() {
         // Generate unique transaction code
         return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
+
+    private String generateOtpString() {
+        Random rand = new Random();
+        int otp = 100000 + rand.nextInt(900000);
+
+        return String.valueOf(otp);
     }
 }
