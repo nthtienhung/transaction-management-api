@@ -35,18 +35,10 @@ public abstract class AuditTable {
     @Column(name = "user_create", updatable = false)
     private String userCreate;
 
-    @LastModifiedBy
-    @Column(name = "user_update", updatable = false)
-    private String userUpdate;
-
     @CreatedDate
     @Column(name = "create_date", updatable = false)
     @JsonIgnore
     private Instant createdDate = Instant.now();
 
-    @LastModifiedDate
-    @Column(name = "update_date", updatable = false)
-    @JsonIgnore
-    private Instant updatedDate = Instant.now();
 
 }

@@ -27,13 +27,13 @@ public class TransactionController {
     @GetMapping("/recent-received-transaction-list-by-user")
     public MessageResponse<List<TransactionResponse>> getRecentReceivedTransactionList() {
         List<TransactionResponse> data = transactionService.getRecentReceivedTransactionListByUser();
-        return new MessageResponse<>((short)HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
+        return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
     @GetMapping("/recent-sent-transaction-list-by-user")
     public MessageResponse<List<TransactionResponse>> getRecentSentTransactionList() {
         List<TransactionResponse> data = transactionService.getRecentSentTransactionListByUser();
-        return new MessageResponse<>((short)HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
+        return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
     @PostMapping("/create-transaction")

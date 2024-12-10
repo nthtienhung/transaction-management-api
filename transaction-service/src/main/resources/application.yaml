@@ -6,9 +6,9 @@ spring:
   application:
     name: transaction-service
   datasource:
-    url: jdbc:postgresql://localhost:1200/team2db
+    url: jdbc:postgresql://localhost:5432/team2db
     username: postgres
-    password: quang232003
+    password: 123
   jpa:
     hibernate:
       ddl-auto: update
@@ -17,10 +17,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   messages:
-    encoding: 'UTF-8'   # ??m b?o mã hóa ?úng
-    use-code-as-default-message: true  # S? d?ng code làm thông ?i?p m?c ??nh n?u không tìm th?y thông ?i?p
-    basename: i18n/labels  # ??m b?o ?úng tên file (không c?n ?uôi .properties trong basename)
-    cache-duration: 560   # Th?i gian cache (60 giây)
+    encoding: 'UTF-8'   # ??m b?o mï¿½ hï¿½a ?ï¿½ng
+    use-code-as-default-message: true  # S? d?ng code lï¿½m thï¿½ng ?i?p m?c ??nh n?u khï¿½ng tï¿½m th?y thï¿½ng ?i?p
+    basename: i18n/labels  # ??m b?o ?ï¿½ng tï¿½n file (khï¿½ng c?n ?uï¿½i .properties trong basename)
+    cache-duration: 560   # Th?i gian cache (60 giï¿½y)
   kafka:
     producer:
       bootstrap-servers: localhost:9094
