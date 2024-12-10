@@ -1,75 +1,125 @@
 package com.transactionservice.service.impl;
 
-import com.transactionservice.dto.request.TransactionListRequest;
-import com.transactionservice.dto.response.TransactionListResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.Gson;
+import com.transactionservice.client.UserClient;
+import com.transactionservice.client.WalletClient;
+import com.transactionservice.configuration.auditing.AuditorAwareConfig;
+import com.transactionservice.configuration.kafka.KafkaProducer;
+import com.transactionservice.constant.KafkaTopicConstants;
+import com.transactionservice.dto.request.TransactionRequest;
+import com.transactionservice.dto.request.email.EmailTransactionRequest;
+import com.transactionservice.dto.response.UserResponse;
+import com.transactionservice.dto.response.WalletResponse;
+import com.transactionservice.dto.response.TransactionResponse;
 import com.transactionservice.entity.Transaction;
-import com.transactionservice.repository.TransactionRepositoryCustom;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import com.transactionservice.enums.MessageCode;
+import com.transactionservice.enums.Status;
+import com.transactionservice.exception.handler.BadRequestAlertException;
+import com.transactionservice.exception.handler.NotFoundAlertException;
+import com.transactionservice.repository.TransactionRepository;
+import com.transactionservice.service.TransactionService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
+
+/**
+ * Author: thinhtd
+ * Date: 12/9/2024
+ * Time: 3:27 PM
+ */
 
 @Service
-public class TransactionServiceImpl implements TransactionRepositoryCustom {
+@RequiredArgsConstructor
+public class TransactionServiceImpl implements TransactionService {
 
-    private final EntityManager entityManager;
+    private final TransactionRepository transactionRepository;
+    private final UserClient userClient;
+    private final WalletClient walletClient;
+    private final KafkaProducer kafkaProducer;
 
-    public TransactionServiceImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
+
+    @Override
+    public List<TransactionResponse> getRecentReceivedTransactionListByUser() {
+        return List.of();
     }
 
     @Override
-    public List<TransactionListResponse> findFilteredTransactions(TransactionListRequest filterRequest) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Transaction> cq = cb.createQuery(Transaction.class);
-        Root<Transaction> root = cq.from(Transaction.class);
+    public List<TransactionResponse> getRecentSentTransactionListByUser() {
+        return List.of();
+    }
 
-        List<Predicate> predicates = new java.util.ArrayList<>();
+    @Override
+    public TransactionResponse createTransaction(TransactionRequest transactionRequest) throws JsonProcessingException {
+        System.out.println("Transaction Request: " + transactionRequest);
+        WalletResponse senderWallet = walletClient.getWalletByWalletCode(transactionRequest.getSenderWalletCode());
+        WalletResponse receiverWallet = walletClient.getWalletByWalletCode(transactionRequest.getRecipientWalletCode());
 
-        // Filter logic for wallet
-        Predicate walletPredicate = cb.or(
-                cb.equal(root.get("senderWalletCode"), filterRequest.getWalletCode()),
-                cb.equal(root.get("receiverWalletCode"), filterRequest.getWalletCode())
-        );
-        predicates.add(walletPredicate);
+        System.out.println("Sender Wallet: " + senderWallet);
+        System.out.println("Receiver Wallet: " + receiverWallet);
+        UserResponse senderUser = userClient.getUserById(senderWallet.getUserId());
+        UserResponse receiverUser = userClient.getUserById(receiverWallet.getUserId());
 
-        // Additional filters
-        if (filterRequest.getTransactionCode() != null && !filterRequest.getTransactionCode().isEmpty()) {
-            predicates.add(cb.equal(root.get("transactionCode"), filterRequest.getTransactionCode()));
+        System.out.println(senderUser.toString());
+
+        if (senderWallet.getBalance().compareTo(transactionRequest.getAmount()) < 0) {
+            throw new BadRequestAlertException(MessageCode.MSG4103);
         }
 
-        if (filterRequest.getStatus() != null && !filterRequest.getStatus().isEmpty()) {
-            predicates.add(cb.equal(root.get("status"), filterRequest.getStatus()));
-        }
+        Transaction transaction = new Transaction();
+        transaction.setTransactionId(UUID.randomUUID().toString());
+        transaction.setTransactionCode(generateTransactionCode());
+        transaction.setSenderWalletCode(senderWallet.getWalletCode());
+        transaction.setRecipientWalletCode(receiverWallet.getWalletCode());
+        transaction.setAmount(transactionRequest.getAmount());
+        transaction.setStatus(Status.SUCCESS);
+        transaction.setDescription(transactionRequest.getDescription());
 
-        if (filterRequest.getFromDate() != null) {
-            predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), filterRequest.getFromDate()));
-        }
+        walletClient.updateWalletBalance(senderWallet.getWalletCode(), transactionRequest.getAmount());
+        walletClient.updateWalletBalance(receiverWallet.getWalletCode(), transactionRequest.getAmount());
 
-        if (filterRequest.getToDate() != null) {
-            predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), filterRequest.getToDate()));
-        }
+        // Save Transaction to Database
+        transactionRepository.save(transaction);
 
-        cq.where(cb.and(predicates.toArray(new Predicate[0])));
-        cq.orderBy(cb.desc(root.get("createdAt")));
+        com.transactionservice.dto.response.TransactionResponse result = com.transactionservice.dto.response.TransactionResponse.builder()
+                .transactionCode(transaction.getTransactionCode())
+                .senderWalletCode(transactionRequest.getSenderWalletCode())
+                .senderMail(senderUser.getEmail())
+                .recipientWalletCode(transactionRequest.getRecipientWalletCode())
+                .recipientMail(receiverUser.getEmail())
+                .amount(transactionRequest.getAmount())
+                .status(String.valueOf(Status.SUCCESS))
+                .description(transactionRequest.getDescription())
+                .build();
 
-        List<Transaction> transactions = entityManager.createQuery(cq).getResultList();
+        System.out.println("Transaction Result: " + result);
 
-        return transactions.stream()
-                .map(t -> new TransactionListResponse(
-                        t.getTransactionCode(),
-                        t.getSenderWalletCode(),
-                        t.getReceiverWalletCode(),
-                        t.getAmount(),
-                        t.getStatus(),
-                        t.getDescription(),
-                        t.getCreatedAt()
-                ))
-                .collect(Collectors.toList());
+        String userId = new AuditorAwareConfig().getCurrentAuditor().get();
+
+        EmailTransactionRequest emailTransactionRequest = new EmailTransactionRequest();
+        emailTransactionRequest.setUserId(userId);
+        emailTransactionRequest.setTopicName(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SUCCESSFUL_TRANSACTION);
+        emailTransactionRequest.setData(new Gson().toJson(result));
+
+        System.out.println("Email Transaction Request: " + emailTransactionRequest);
+
+        // Send Notification via Kafka
+        kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SUCCESSFUL_TRANSACTION, emailTransactionRequest);
+
+        // Build Response Object
+        return result;
+    }
+
+    public Transaction getTransactionById(String transactionId) {
+        return transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new NotFoundAlertException(MessageCode.MSG4111));
+    }
+
+    private String generateTransactionCode() {
+        // Generate unique transaction code
+        return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+
     }
 }
