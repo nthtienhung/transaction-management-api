@@ -8,8 +8,13 @@ import com.iceteasoftware.user.entity.User;
 import com.iceteasoftware.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,5 +60,22 @@ public class UserController {
     @GetMapping("/getUser")
     public ResponseEntity<User> getUser(HttpServletRequest request) {
         return this.userService.findUser(request);
+    }
+    
+    /**
+     * Gets all user profiles for admin dashboard
+     * 
+     * @return List of all user profiles
+     */
+    @GetMapping("/profiles")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ResponseObject<List<Profile>>> getAllProfiles() {
+        List<Profile> profiles = userService.getAllProfiles();
+        return ResponseEntity.ok(new ResponseObject<>(
+            "Retrieved all user profiles successfully",
+            HttpStatus.OK.value(),
+            LocalDateTime.now(),
+            profiles
+        ));
     }
 }

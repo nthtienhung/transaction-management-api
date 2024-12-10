@@ -8,6 +8,8 @@ import com.iceteasoftware.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 public interface UserService {
     ResponseEntity<ResponseObject<Profile>> getProfile(HttpServletRequest request);
 
@@ -21,4 +23,6 @@ public interface UserService {
             HttpServletRequest request,
             CreateProfileRequest updateRequest);
     ResponseEntity<User> findUser(HttpServletRequest request);
+
+    List<Profile> getAllProfiles();
 }
