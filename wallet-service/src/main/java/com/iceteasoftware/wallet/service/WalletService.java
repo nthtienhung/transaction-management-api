@@ -1,6 +1,7 @@
 package com.iceteasoftware.wallet.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.iceteasoftware.wallet.dto.response.WalletResponse;
 
 /**
  * Author: thinhtd
@@ -11,4 +12,7 @@ public interface WalletService {
 
     void createWallet(String createWalletMessage) throws JsonProcessingException;
 
+    WalletResponse getWalletByCode(String walletCode);
+
+    void updateWalletBalance(String walletCode, Long amount);
 }

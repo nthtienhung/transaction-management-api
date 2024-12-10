@@ -6,12 +6,10 @@ server:
 spring:
     application:
         name: iam-service
-
     datasource:
         url: jdbc:postgresql://localhost:5431/team2db
         username: postgres
         password: 12345
-
         driver-class-name: org.postgresql.Driver
         hikari:
             maximum-pool-size: 10

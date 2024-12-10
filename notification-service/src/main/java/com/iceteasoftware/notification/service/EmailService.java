@@ -9,4 +9,5 @@ public interface EmailService {
 
     void sendOTPForgotPassword(String message) throws JsonProcessingException, MessagingException;
 
+    void sendSuccessfulTransactionEmail(String message) throws JsonProcessingException, MessagingException;
 }
