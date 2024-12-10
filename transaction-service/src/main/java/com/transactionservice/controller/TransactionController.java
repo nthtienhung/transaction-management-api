@@ -1,9 +1,13 @@
 package com.transactionservice.controller;
 
+import com.transactionservice.dto.request.TransactionListRequest;
+import com.transactionservice.dto.response.TransactionListResponse;
 import com.transactionservice.dto.response.common.ResponseObject;
 import com.transactionservice.dto.response.TransactionResponse;
 import com.transactionservice.service.TransactionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,5 +50,31 @@ public class TransactionController {
                 .localDateTime(String.valueOf(Instant.now()))
                 .build();
     }
+
+    @GetMapping("/transaction-list-by-user")
+    public MessageResponse<Page<TransactionListResponse>> getTransactionListByUser(
+            @RequestParam String walletCodeByUserLogIn,
+            @RequestParam(required = false) String walletCodeByUserSearch,
+            @RequestParam(required = false) String transactionCode,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate,
+            Pageable pageable
+    ) {
+        Instant fromInstant = fromDate != null ? Instant.parse(fromDate) : null;
+        Instant toInstant = toDate != null ? Instant.parse(toDate) : null;
+
+        Page<TransactionListResponse> data = transactionService.getTransactionListByUser(
+                walletCodeByUserLogIn,
+                walletCodeByUserSearch,
+                transactionCode,
+                status,
+                fromInstant,
+                toInstant,
+                pageable
+        );
+        return new MessageResponse<>((short)HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
+    }
+
 }
 

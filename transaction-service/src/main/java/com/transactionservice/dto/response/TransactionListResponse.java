@@ -1,10 +1,14 @@
 package com.transactionservice.dto.response;
 
+
+import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+
+import java.time.Instant;
 
 @Data
+@Builder
 public class TransactionListResponse {
     private String transactionCode;
     private String senderWalletCode;
@@ -12,7 +16,7 @@ public class TransactionListResponse {
     private Long amount;
     private String status;
     private String description;
-
-    public TransactionListResponse(String transactionCode, String senderWalletCode, String receiverWalletCode, Long amount, String status, String description, LocalDateTime createdAt) {
-    }
+    private String FirstName;
+    private String LastName;
+    private Instant createdAt;
 }

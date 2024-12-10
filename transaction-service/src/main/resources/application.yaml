@@ -42,6 +42,7 @@ feign:
       wallet-service:
         name: 'wallet-service'
         url: http://localhost:8086/wallet
+
 eureka:
   client:
     server-url:

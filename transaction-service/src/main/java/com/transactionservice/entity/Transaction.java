@@ -33,6 +33,7 @@ public class Transaction extends AuditTable {
     @Column(name = "amount")
     private Long amount;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private Status status;
 

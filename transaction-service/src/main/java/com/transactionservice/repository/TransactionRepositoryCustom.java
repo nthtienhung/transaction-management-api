@@ -1,17 +1,20 @@
 package com.transactionservice.repository;
 
 import com.transactionservice.entity.Transaction;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.Instant;
 
 public interface TransactionRepositoryCustom {
 
-    List<Transaction> findFilteredTransactions(
-            String walletCode,
+    Page<Transaction> findFilteredTransactions(
+            String walletCodeByUserLogIn,
+            String walletCodeByUserSearch,
             String transactionCode,
             String status,
-            LocalDateTime fromDate,
-            LocalDateTime toDate
+            Instant fromDate,
+            Instant toDate,
+            Pageable pageable
     );
 }

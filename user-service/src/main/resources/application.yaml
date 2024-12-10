@@ -8,12 +8,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/team2db
     username: postgres
-<<<<<<< HEAD
     password: root
-
-=======
-    password: 12345
->>>>>>> 16e02a7d82452898e074994921e73590b9d3f1fc
   jpa:
     hibernate:
       ddl-auto: update
@@ -25,7 +20,7 @@ spring:
     encoding: 'UTF-8'   # ??m b?o m� h�a ?�ng
     use-code-as-default-message: true  # S? d?ng code l�m th�ng ?i?p m?c ??nh n?u kh�ng t�m th?y th�ng ?i?p
     basename: i18n/labels  # ??m b?o ?�ng t�n file (kh�ng c?n ?u�i .properties trong basename)
-    cache-duration: 60   # Th?i gian cache (60 gi�y)
+    cache-duration: 60    # Th?i gian cache (60 gi�y)
   kafka:
     consumer:
       bootstrap-servers: localhost:9094

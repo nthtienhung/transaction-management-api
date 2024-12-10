@@ -2,13 +2,17 @@ package com.transactionservice.dto.request;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.io.Serializable;
+import java.time.Instant;
 
 @Data
-public class TransactionListRequest {
-    private String walletCode;
+public class TransactionListRequest implements Serializable {
+    private String walletCodeByUserLogIn;
+    private String walletCodeByUserSearch;
     private String transactionCode;
     private String status;
-    private LocalDateTime fromDate;
-    private LocalDateTime toDate;
+    private Instant fromDate;
+    private Instant toDate;
+    private Integer page;
+    private Integer size;
 }
