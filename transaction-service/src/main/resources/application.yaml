@@ -1,8 +1,7 @@
 server:
-  port: 8088
+  port: 8084
   servlet:
     context-path: /transaction
-
 spring:
   application:
     name: transaction-service
@@ -24,13 +23,33 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   messages:
-    encoding: 'UTF-8'
-    use-code-as-default-message: true
-    basename: i18n/labels
-    cache-duration: 60
+    encoding: 'UTF-8'   # ??m b?o m� h�a ?�ng
+    use-code-as-default-message: true  # S? d?ng code l�m th�ng ?i?p m?c ??nh n?u kh�ng t�m th?y th�ng ?i?p
+    basename: i18n/labels  # ??m b?o ?�ng t�n file (kh�ng c?n ?u�i .properties trong basename)
+    cache-duration: 560   # Th?i gian cache (60 gi�y)
   kafka:
-    consumer:
+    producer:
       bootstrap-servers: localhost:9094
-      group-id: transaction-service-group
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+feign:
+  client:
+    config:
+      user-service:
+        name: 'user-service'
+        url: http://localhost:8082/user
+      wallet-service:
+        name: 'wallet-service'
+        url: http://localhost:8086/wallet
+eureka:
+  client:
+    server-url:
+      defaultZone: http://localhost:8761/eureka/
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html

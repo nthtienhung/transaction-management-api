@@ -1,7 +1,7 @@
 package com.transactionservice.configuration.message;
 
 import com.transactionservice.constant.Constants;
-import com.transactionservice.util.GetterUtils;
+import com.transactionservice.util.GetterUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-@Slf4j
 @Component
+@Slf4j
 public class Labels {
+
     public interface Language {
         public static final String EN = "en";
 
@@ -34,7 +35,8 @@ public class Labels {
     /**
      * The Constant US.
      */
-    public static final Locale US = Locale.US;
+    public static final Locale US = new Locale(Language.EN, Country.US);
+
 
     /**
      * The Constant VN.
@@ -82,7 +84,7 @@ public class Labels {
      * @return the default locale
      */
     public static Locale getDefaultLocale() {
-        return VN;
+        return US;
     }
 
     /**
@@ -220,7 +222,7 @@ public class Labels {
             case Language.EN:
                 return US;
             default:
-                return VN;
+                return US;
         }
     }
 
@@ -234,10 +236,9 @@ public class Labels {
         }
 
         if (request == null) {
-            return Language.VI;
+            return Language.EN;
         }
-
-        return GetterUtils.getString(request.getHeader(Constants.DEFAULT_LOCALE), Language.VI);
+        return GetterUtil.getString(request.getHeader(Constants.DEFAULT_LOCALE), Language.EN);
 
     }
 
@@ -291,4 +292,5 @@ public class Labels {
         return availableLocaleList().contains(locale);
 
     }
+
 }

@@ -1,41 +1,42 @@
 package com.transactionservice.entity;
 
+import com.transactionservice.entity.common.AuditTable;
+import com.transactionservice.enums.Status;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
-@Getter
-@Setter
-@Builder
-@Table(name = "tbl_transaction", schema = "transaction_service")
+@Data
+@Table(name = "transaction", schema = "transaction_service")
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-public class Transaction {
+@Builder
+public class Transaction extends AuditTable {
+
     @Id
-    @Column(name = "transaction_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "transaction_id")
     private String transactionId;
 
-    @Column(name = "transaction_code", length = 255, nullable = false, unique = true)
+    @Column(name = "transaction_code")
     private String transactionCode;
 
-    @Column(name = "sender_wallet_id", length = 255, nullable = false)
+    @Column(name ="sender_wallet_code")
     private String senderWalletCode;
 
-    @Column(name = "receiver_wallet_id", length = 255, nullable = false)
-    private String receiverWalletCode;
+    @Column(name ="recipient_wallet_code")
+    private String recipientWalletCode;
 
-    @Column(name = "amount", nullable = false)
+    @Column(name = "amount")
     private Long amount;
 
-    @Column(name = "status", length = 255, nullable = false)
-    private String status;
+    @Column(name = "status")
+    private Status status;
 
-    @Column(name = "description", length = 255, nullable = false)
+    @Column(name = "description")
     private String description;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
 }

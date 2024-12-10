@@ -127,21 +127,53 @@ public class ConfigServiceImpl implements ConfigService {
         Config existingConfig = configRepository.findById(configId)
                 .orElseThrow(() -> new NotFoundAlertException(MessageCode.MSG2109));
 
-        if (existingConfig.getStatus() != request.getStatus()) {
-            existingConfig.setStatus(request.getStatus());
-            existingConfig.setUpdate_at(LocalDateTime.now());
-            existingConfig.setUpdated_by("ADMIN");
-            configRepository.save(existingConfig);
-            return mapToResponse(existingConfig);
-        }
-
         // Kiểm tra nếu không có gì thay đổi
-//        if (isConfigUnchanged(existingConfig, request))
         if (existingConfig.getGroup().equals(request.getGroup()) &&
                 existingConfig.getType().equals(request.getType()) &&
                 existingConfig.getKey().equals(request.getConfigKey()) &&
                 existingConfig.getValue().equals(request.getConfigValue())) {
-            return mapToResponse(existingConfig);
+
+            if (existingConfig.getStatus() != request.getStatus()) {
+
+                if(request.getStatus() == Status.ACTIVE){
+
+                    // Kiểm tra config có tồn tại với 3 giá trị đầu (group, type, key)
+                    Optional<Config> existingWithThreeValues = configRepository.findByGroupAndTypeAndKeyAndActiveStatus(
+                            request.getGroup(),
+                            request.getType(),
+                            request.getConfigKey()
+                    );
+
+                    if (existingWithThreeValues.isPresent()){
+                        Config oldConfig = existingWithThreeValues.get();
+                        oldConfig.setStatus(Status.INACTIVE);
+                        oldConfig.setUpdate_at(LocalDateTime.now());
+                        oldConfig.setUpdated_by("ADMIN");
+                        configRepository.save(oldConfig);
+
+                        existingConfig.setStatus(request.getStatus());
+                        existingConfig.setUpdate_at(LocalDateTime.now());
+                        existingConfig.setUpdated_by("ADMIN");
+                        configRepository.save(existingConfig);
+                        return mapToResponse(existingConfig);
+                    }
+
+                    existingConfig.setStatus(request.getStatus());
+                    existingConfig.setUpdate_at(LocalDateTime.now());
+                    existingConfig.setUpdated_by("ADMIN");
+                    configRepository.save(existingConfig);
+                    return mapToResponse(existingConfig);
+                }
+                else {
+                    existingConfig.setStatus(request.getStatus());
+                    existingConfig.setUpdate_at(LocalDateTime.now());
+                    existingConfig.setUpdated_by("ADMIN");
+                    configRepository.save(existingConfig);
+                    return mapToResponse(existingConfig);
+                }
+            }
+            else
+                return mapToResponse(existingConfig);
         }
 
         if (existingConfig.getStatus() == Status.ACTIVE) {
@@ -161,8 +193,6 @@ public class ConfigServiceImpl implements ConfigService {
                     .status(Status.ACTIVE)
                     .create_at(existingConfig.getCreate_at())
                     .created_by(existingConfig.getCreated_by())
-//                    .update_at(LocalDateTime.now())
-//                    .updated_by("ADMIN")
                     .build();
             return mapToResponse(configRepository.save(newConfig));
 
