@@ -1,17 +1,19 @@
-package com.iceteasoftware.user.dto.response;
+package com.transactionservice.dto.response.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Setter
+/**
+ * Author: thinhtd
+ * Date: 12/9/2024
+ * Time: 3:21 PM
+ */
+
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@Setter
 public class ResponseObject<T> {
 
     private String message;
@@ -20,6 +22,7 @@ public class ResponseObject<T> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T data;
 
+    // GET
     public ResponseObject(int status, String message, LocalDateTime localDateTime, T data) {
         this.status = status;
         this.message = message;
@@ -27,9 +30,11 @@ public class ResponseObject<T> {
         this.data = data;
     }
 
+    // UPDATE, DELETE, CREATE
     public ResponseObject(int status, String message, LocalDateTime localDateTime) {
         this.message = message;
         this.status = status;
         this.localDateTime = localDateTime;
     }
+
 }

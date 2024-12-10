@@ -1,4 +1,4 @@
-package com.transactionservice.service.TransactionServiceImpl;
+package com.transactionservice.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
@@ -9,9 +9,9 @@ import com.transactionservice.configuration.kafka.KafkaProducer;
 import com.transactionservice.constant.KafkaTopicConstants;
 import com.transactionservice.dto.request.TransactionRequest;
 import com.transactionservice.dto.request.email.EmailTransactionRequest;
-import com.transactionservice.dto.response.TransactionResponse;
 import com.transactionservice.dto.response.UserResponse;
 import com.transactionservice.dto.response.WalletResponse;
+import com.transactionservice.dto.response.TransactionResponse;
 import com.transactionservice.entity.Transaction;
 import com.transactionservice.enums.MessageCode;
 import com.transactionservice.enums.Status;
@@ -20,14 +20,19 @@ import com.transactionservice.exception.handler.NotFoundAlertException;
 import com.transactionservice.repository.TransactionRepository;
 import com.transactionservice.service.TransactionService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
+
+/**
+ * Author: thinhtd
+ * Date: 12/9/2024
+ * Time: 3:27 PM
+ */
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
@@ -36,7 +41,17 @@ public class TransactionServiceImpl implements TransactionService {
     private final KafkaProducer kafkaProducer;
 
 
+    @Override
+    public List<TransactionResponse> getRecentReceivedTransactionListByUser() {
+        return List.of();
+    }
 
+    @Override
+    public List<TransactionResponse> getRecentSentTransactionListByUser() {
+        return List.of();
+    }
+
+    @Override
     public TransactionResponse createTransaction(TransactionRequest transactionRequest) throws JsonProcessingException {
         System.out.println("Transaction Request: " + transactionRequest);
         WalletResponse senderWallet = walletClient.getWalletByWalletCode(transactionRequest.getSenderWalletCode());
@@ -68,7 +83,7 @@ public class TransactionServiceImpl implements TransactionService {
         // Save Transaction to Database
         transactionRepository.save(transaction);
 
-        TransactionResponse result = TransactionResponse.builder()
+        com.transactionservice.dto.response.TransactionResponse result = com.transactionservice.dto.response.TransactionResponse.builder()
                 .transactionCode(transaction.getTransactionCode())
                 .senderWalletCode(transactionRequest.getSenderWalletCode())
                 .senderMail(senderUser.getEmail())
@@ -106,5 +121,4 @@ public class TransactionServiceImpl implements TransactionService {
         // Generate unique transaction code
         return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
-
 }
