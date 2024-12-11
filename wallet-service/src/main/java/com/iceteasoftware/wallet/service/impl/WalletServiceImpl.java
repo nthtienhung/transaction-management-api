@@ -99,6 +99,7 @@ public class WalletServiceImpl implements WalletService {
                 .userId(wallet.getUserId())
                 .build();
     }
+
     private String generateWalletCode() {
         Random random = new Random();
         StringBuilder randomDigits = new StringBuilder();

@@ -154,6 +154,63 @@ public class EmailServiceImpl implements EmailService {
     @Override
     @Transactional
     @KafkaListener(
+            topics = KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_OTP,
+            groupId = "send-email-transaction-otp-group")
+    public void sendTransactionOTP(String message) throws JsonProcessingException, MessagingException {
+        JsonNode jsonNode = objectMapper.readTree(message);
+        String data = jsonNode.get("data").asText();
+        JsonNode dataNode = objectMapper.readTree(data);
+
+        String userId = jsonNode.get("userId").asText();
+
+        ThreadLocalUtil.setCurrentUser(userId);
+
+        String email = dataNode.get("email").asText();
+        String otp = dataNode.get("otp").asText();
+        String amount = dataNode.get("amount").asText();
+
+        // Gửi email OTP
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(
+                mimeMessage,
+                MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                StandardCharsets.UTF_8.name()
+        );
+
+        Context context = new Context();
+        Map<String, Object> props = new HashMap<>();
+        props.put("email", email);
+        props.put("otp", otp);
+        props.put("amount", amount);
+
+        String jsonString = objectMapper.writeValueAsString(props);
+        Map<String, Object> parameterMap = objectMapper.readValue(jsonString, new TypeReference<>() {
+        });
+        templateRepository.save(Template.builder()
+                .type("SEND_TRANSACTION_OTP")
+                .parameter(parameterMap)
+                .build());
+
+        notificationRepository.save(Notification.builder()
+                .work("OTP_TRANSACTION")
+                .status("SUCCESS")
+                .build());
+
+        context.setVariables(props);
+        mimeMessageHelper.setFrom(emailFrom);
+        mimeMessageHelper.setTo(email);
+        mimeMessageHelper.setSubject("Transaction OTP Verification");
+        String html = templateEngine.process("transaction-otp-email", context);
+        mimeMessageHelper.setText(html, true);
+
+        mailSender.send(mimeMessage);
+        ThreadLocalUtil.remove();
+        log.info("Transaction OTP email sent to: {}", email);
+    }
+
+    @Override
+    @Transactional
+    @KafkaListener(
             topics = KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SUCCESSFUL_TRANSACTION,
             groupId = "send-email-successful-transaction-group")
     public void sendSuccessfulTransactionEmail(String message) throws JsonProcessingException, MessagingException {
@@ -191,7 +248,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    private void sendTransactionEmail(String email, String transactionCode, String amount, String walletCode, String description, String subject, String templateName) throws MessagingException {
+    private void sendTransactionEmail(String email, String transactionCode, String amount, String walletCode, String description, String subject, String templateName) throws MessagingException, JsonProcessingException {
         // 1. Tạo email MIME
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(
@@ -199,6 +256,9 @@ public class EmailServiceImpl implements EmailService {
                 MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
                 StandardCharsets.UTF_8.name()
         );
+
+        String type = templateName.equalsIgnoreCase("successful-transaction-email") ? "SEND_EMAIL_TRANSACTION" : "RECEIVE_EMAIL_TRANSACTION";
+        String work = templateName.equalsIgnoreCase("successful-transaction-email") ? "SEND_TRANSACTION" : "RECEIVE_TRANSACTION";
 
         // 2. Tạo thông tin cho email template
         Context context = new Context();
@@ -208,6 +268,19 @@ public class EmailServiceImpl implements EmailService {
         props.put("amount", amount);
         props.put("walletCode", walletCode);
         props.put("description", description);
+
+        String jsonString = objectMapper.writeValueAsString(props);
+        Map<String, Object> parameterMap = objectMapper.readValue(jsonString, new TypeReference<>() {
+        });
+        templateRepository.save(Template.builder()
+                .type(type)
+                .parameter(parameterMap)
+                .build());
+
+        notificationRepository.save(Notification.builder()
+                .work(work)
+                .status("SUCCESS")
+                .build());
 
         // 3. Render email từ template
         context.setVariables(props);

@@ -1,6 +1,10 @@
 package com.transactionservice.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.transactionservice.dto.request.ConfirmTransactionRequest;
+import com.transactionservice.dto.request.TransactionRequest;
+import com.transactionservice.dto.request.email.EmailRequest;
+import com.transactionservice.dto.response.TransactionResponse;
 import com.transactionservice.dto.request.TransactionListRequest;
 import com.transactionservice.dto.request.TransactionRequest;
 import com.transactionservice.dto.response.TransactionDashboardResponse;
@@ -31,5 +35,10 @@ public interface TransactionService {
     Integer getTotalSentTransactionByUserInWeek();
 
     Integer getTotalReceivedTransactionByUserInWeek();
+
+    void generateOtp(EmailRequest request) throws JsonProcessingException;
+
+    TransactionResponse confirmTransactionWithOTP(ConfirmTransactionRequest confirmTransactionRequest) throws JsonProcessingException;
+
 }
 

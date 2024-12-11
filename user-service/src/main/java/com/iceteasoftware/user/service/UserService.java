@@ -27,5 +27,7 @@ public interface UserService {
 
     UserResponse getUserById(String userId);
 
+    Boolean isEmailExists(String email);
+
     FullNameResponse getFullNameByUserId(String userId);
 }

@@ -390,6 +390,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Boolean isEmailExists(String email) {
+        Optional<Profile> profile = userProfileRepository.findByEmail(email);
+        return profile.isEmpty();
+    }
+
     public FullNameResponse getFullNameByUserId(String userId) {
         Optional<FullNameResponse> user = userProfileRepository.findUserById(userId);
 

@@ -22,9 +22,14 @@ public interface LabelKey {
     public static final String ERROR_TRANSACTION_NOT_EXIST = "error.transaction-not-exist";
     public static final String SUCCESS_CREATE_TRANSACTION = "success.create-transaction";
     public static final String SUCCESS_SEND_OTP = "success.send-otp";
+
+    public static final String ERROR_ACCOUNT_NOT_EXITS = "error.account-not-exits";
     public static final String ERROR_RECIPIENT_REQUIRED = "error.recipient-required";
     public static final String ERROR_AMOUNT_REQUIRED = "error.amount-required";
     public static final String ERROR_INSUFFICIENT_BALANCE = "error.insufficient-balance";
     public static final String ERROR_NOT_FOUND = "error.not-found";
 
+    public static final String OTP_INVALID = "otp.invalid";
+    public static final String OTP_EXPIRED = "otp.expired";
+    public static final String OTP_EMPTY = "otp.empty";
 }

@@ -69,6 +69,12 @@ public class UserController {
         return userResponse;
     }
 
+
+    @GetMapping("/check-email-exists")
+    Boolean isEmailExists(@RequestParam String email) {
+        return userService.isEmailExists(email);
+    }
+
     @GetMapping("/{userId}/full-name")
     public FullNameResponse getFullNameByUserId(@PathVariable("userId") String userId){
         return userService.getFullNameByUserId(userId);
