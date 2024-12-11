@@ -34,4 +34,16 @@ public class WalletController {
         System.out.println("Wallet Code: " + walletCode);
         walletService.updateWalletBalance(walletCode, amount);
     }
+
+    @GetMapping("/{walletCode}/user-id")
+    public String getUserIdByWalletCode(@PathVariable("walletCode") String walletCode){
+        return walletService.getUserIdByWalletCode(walletCode);
+    }
+
+    @GetMapping("/code/{userId}")
+    WalletResponse getWalletByUserId(@PathVariable("userId") String userId){
+        System.out.println("User Id: " + userId);
+        return walletService.getWalletByUserId(userId);
+    }
+
 }

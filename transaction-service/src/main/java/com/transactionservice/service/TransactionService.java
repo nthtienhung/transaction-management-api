@@ -17,13 +17,7 @@ public interface TransactionService {
 
     List<TransactionResponse> getRecentSentTransactionListByUser();
     
-    Page<TransactionListResponse> getTransactionListByUser(String walletCodeByUserLogIn,
-                                                           String walletCodeByUserSearch,
-                                                           String transactionCode,
-                                                           String status,
-                                                           Instant fromDate,
-                                                           Instant toDate,
-                                                           Pageable pageable);
+    Page<TransactionListResponse> getTransactionListByUser(TransactionListRequest request);
 
     TransactionResponse createTransaction(TransactionRequest transactionRequest) throws JsonProcessingException;
 }

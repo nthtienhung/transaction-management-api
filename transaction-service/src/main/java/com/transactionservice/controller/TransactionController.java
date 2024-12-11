@@ -52,27 +52,8 @@ public class TransactionController {
     }
 
     @GetMapping("/transaction-list-by-user")
-    public MessageResponse<Page<TransactionListResponse>> getTransactionListByUser(
-            @RequestParam String walletCodeByUserLogIn,
-            @RequestParam(required = false) String walletCodeByUserSearch,
-            @RequestParam(required = false) String transactionCode,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String fromDate,
-            @RequestParam(required = false) String toDate,
-            Pageable pageable
-    ) {
-        Instant fromInstant = fromDate != null ? Instant.parse(fromDate) : null;
-        Instant toInstant = toDate != null ? Instant.parse(toDate) : null;
-
-        Page<TransactionListResponse> data = transactionService.getTransactionListByUser(
-                walletCodeByUserLogIn,
-                walletCodeByUserSearch,
-                transactionCode,
-                status,
-                fromInstant,
-                toInstant,
-                pageable
-        );
+    public MessageResponse<Page<TransactionListResponse>> getTransactionListByUser(@ModelAttribute TransactionListRequest request) {
+        Page<TransactionListResponse> data = transactionService.getTransactionListByUser(request);
         return new MessageResponse<>((short)HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 

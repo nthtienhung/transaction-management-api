@@ -19,10 +19,8 @@ import com.transactionservice.exception.handler.NotFoundAlertException;
 import com.transactionservice.repository.TransactionRepository;
 import com.transactionservice.repository.TransactionRepositoryCustom;
 import com.transactionservice.service.TransactionService;
-import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -62,24 +60,20 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Page<TransactionListResponse> getTransactionListByUser(
-            String walletCodeByUserLogIn,
-            String walletCodeByUserSearch,
-            String transactionCode,
-            String status,
-            Instant fromDate,
-            Instant toDate,
-            Pageable pageable) {
+    public Page<TransactionListResponse> getTransactionListByUser(TransactionListRequest request) {
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
         Page<Transaction> transactionsPage = transactionRepositoryCustom.findFilteredTransactions(
-                walletCodeByUserLogIn,
-                walletCodeByUserSearch,
-                transactionCode,
-                status,
-                fromDate,
-                toDate,
+                request.getWalletCodeByUserLogIn(),
+                request.getWalletCodeByUserSearch(),
+                request.getTransactionCode(),
+                request.getStatus(),
+                request.getFromDate(),
+                request.getToDate(),
                 pageable
         );
         log.info("Transactions Page: {}", transactionsPage);
+
+
         // Map `Transaction` entities to `TransactionListResponse`
         List<TransactionListResponse> responseList = transactionsPage.stream()
                 .map(this::mapToDto)
@@ -94,6 +88,14 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private TransactionListResponse mapToDto(Transaction transaction) {
+        String recipientWalletCode = transaction.getRecipientWalletCode();
+
+        // Lấy userId từ recipientWalletCode
+        String userId = walletClient.getUserIdByWalletCode(recipientWalletCode);
+
+        // Lấy thông tin user (firstName, lastName) từ userId
+        FullNameResponse fullNameResponse = userClient.getFullNameByUserId(userId);
+
         return TransactionListResponse.builder()
                 .transactionCode(transaction.getTransactionCode())
                 .senderWalletCode(transaction.getSenderWalletCode())
@@ -101,8 +103,8 @@ public class TransactionServiceImpl implements TransactionService {
                 .amount(transaction.getAmount())
                 .status(String.valueOf(transaction.getStatus()))
                 .description(transaction.getDescription())
-                .FirstName("Hieu")
-                .LastName("Hoang")
+                .FirstName(fullNameResponse.getFirstName())
+                .LastName(fullNameResponse.getLastName())
                 .createdAt(transaction.getCreatedDate())
                 .build();
     }

@@ -16,6 +16,8 @@ import org.springframework.data.domain.PageImpl;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiFunction;
 
 @Repository
 @RequiredArgsConstructor
@@ -35,90 +37,73 @@ public class TransactionRepositoryCustomImpl implements TransactionRepositoryCus
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-        // Truy vấn chính (Main Query)
+        // Logic lọc chung
+        BiFunction<CriteriaBuilder, Root<Transaction>, Predicate> buildFilters = (builder, root) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (walletCodeByUserSearch != null) {
+                predicates.add(cb.or(
+                        cb.and(
+                                cb.equal(root.get("senderWalletCode"), walletCodeByUserLogIn),
+                                cb.equal(root.get("recipientWalletCode"), walletCodeByUserSearch)
+                        ),
+                        cb.and(
+                                cb.equal(root.get("recipientWalletCode"), walletCodeByUserLogIn),
+                                cb.equal(root.get("senderWalletCode"), walletCodeByUserSearch)
+                        )
+                ));
+            } else {
+                predicates.add(cb.or(
+                        cb.equal(root.get("senderWalletCode"), walletCodeByUserLogIn),
+                        cb.equal(root.get("recipientWalletCode"), walletCodeByUserLogIn)
+                ));
+            }
+
+            Optional.ofNullable(transactionCode).ifPresent(code ->
+                    predicates.add(cb.equal(root.get("transactionCode"), code))
+            );
+
+            Optional.ofNullable(status).ifPresent(st ->
+                    predicates.add(cb.equal(root.get("status"), st))
+            );
+
+            Optional.ofNullable(fromDate).ifPresent(from ->
+                    predicates.add(cb.greaterThanOrEqualTo(root.get("createdDate"), from))
+            );
+
+            Optional.ofNullable(toDate).ifPresent(to ->
+                    predicates.add(cb.lessThanOrEqualTo(root.get("createdDate"), to))
+            );
+
+            return builder.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // Main Query
         CriteriaQuery<Transaction> mainQuery = cb.createQuery(Transaction.class);
         Root<Transaction> mainRoot = mainQuery.from(Transaction.class);
-
-        List<Predicate> mainPredicates = new ArrayList<>();
-
-        // Logic lọc ví (wallet filtering logic)
-        if (walletCodeByUserSearch != null) {
-            Predicate walletFilter = cb.or(
-                    cb.and(cb.equal(mainRoot.get("senderWalletCode"), walletCodeByUserLogIn),
-                            cb.equal(mainRoot.get("recipientWalletCode"), walletCodeByUserSearch)),
-                    cb.and(cb.equal(mainRoot.get("recipientWalletCode"), walletCodeByUserSearch),
-                            cb.equal(mainRoot.get("senderWalletCode"), walletCodeByUserLogIn))
-            );
-            mainPredicates.add(walletFilter);
-        }
-
-        // Lọc theo transactionCode
-        if (transactionCode != null) {
-            mainPredicates.add(cb.equal(mainRoot.get("transactionCode"), transactionCode));
-        }
-
-        // Lọc theo trạng thái (status)
-        if (status != null) {
-            mainPredicates.add(cb.equal(mainRoot.get("status"), status));
-        }
-
-        // Lọc theo khoảng thời gian (fromDate, toDate)
-        if (fromDate != null) {
-            mainPredicates.add(cb.greaterThanOrEqualTo(mainRoot.get("createdDate"), fromDate));
-        }
-
-        if (toDate != null) {
-            mainPredicates.add(cb.lessThanOrEqualTo(mainRoot.get("createdDate"), toDate));
-        }
-
-        mainQuery.where(cb.and(mainPredicates.toArray(new Predicate[0])));
+        mainQuery.where(buildFilters.apply(cb, mainRoot));
         mainQuery.orderBy(cb.desc(mainRoot.get("createdDate")));
 
-        // Thực thi câu lệnh chính
         var query = entityManager.createQuery(mainQuery);
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
         List<Transaction> transactions = query.getResultList();
 
-        // Câu lệnh đếm (Count Query)
-        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-        Root<Transaction> countRoot = countQuery.from(Transaction.class);
-
-        List<Predicate> countPredicates = new ArrayList<>();
-
-        // Áp dụng logic lọc tương tự cho câu lệnh đếm
-        if (walletCodeByUserSearch != null) {
-            Predicate walletFilter = cb.or(
-                    cb.and(cb.equal(countRoot.get("senderWalletCode"), walletCodeByUserLogIn),
-                            cb.equal(countRoot.get("recipientWalletCode"), walletCodeByUserSearch)),
-                    cb.and(cb.equal(countRoot.get("recipientWalletCode"), walletCodeByUserSearch),
-                            cb.equal(countRoot.get("senderWalletCode"), walletCodeByUserLogIn))
-            );
-            countPredicates.add(walletFilter);
-        }
-
-        if (transactionCode != null) {
-            countPredicates.add(cb.equal(countRoot.get("transactionCode"), transactionCode));
-        }
-
-        if (status != null) {
-            countPredicates.add(cb.equal(countRoot.get("status"), status));
-        }
-
-        if (fromDate != null) {
-            countPredicates.add(cb.greaterThanOrEqualTo(countRoot.get("createdDate"), fromDate));
-        }
-
-        if (toDate != null) {
-            countPredicates.add(cb.lessThanOrEqualTo(countRoot.get("createdDate"), toDate));
-        }
-
-        countQuery.select(cb.count(countRoot));
-        countQuery.where(cb.and(countPredicates.toArray(new Predicate[0])));
-
-        var countResult = entityManager.createQuery(countQuery).getSingleResult();
+        // Count Query
+        long countResult = pageable.isUnpaged() ? transactions.size() : calculateTotalCount(cb, buildFilters, walletCodeByUserLogIn, walletCodeByUserSearch);
 
         return new PageImpl<>(transactions, pageable, countResult);
     }
+    private long calculateTotalCount(CriteriaBuilder cb,
+                                     BiFunction<CriteriaBuilder, Root<Transaction>, Predicate> buildFilters,
+                                     String walletCodeByUserLogIn,
+                                     String walletCodeByUserSearch) {
 
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+        Root<Transaction> countRoot = countQuery.from(Transaction.class);
+        countQuery.select(cb.count(countRoot));
+        countQuery.where(buildFilters.apply(cb, countRoot));
+
+        return entityManager.createQuery(countQuery).getSingleResult();
+    }
 }
