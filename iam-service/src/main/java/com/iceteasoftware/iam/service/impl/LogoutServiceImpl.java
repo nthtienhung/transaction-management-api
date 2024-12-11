@@ -25,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -35,7 +36,7 @@ public class LogoutServiceImpl implements LogoutService {
     private final UserLoginFailedRepository loginFailedRepository;
     private final UserRepository userRepository;
     @Caching(evict = {
-            @CacheEvict(cacheNames = {GatewayCacheConstants.UserLoginFailed.FIND_BY_USER_ID}, key = "#userId")
+            @CacheEvict(cacheNames = {GatewayCacheConstants.UserLoginFailed.FIND_BY_USER_ID}, key = "'userId_' + #userId")
     })
     @Override
     public void logout(HttpServletRequest request) {
@@ -62,8 +63,11 @@ public class LogoutServiceImpl implements LogoutService {
 
         User user = optionalUser.get();
 
+        // Truyền userId vào key của CacheEvict
+        String userId = user.getUserId();
+
         // Xóa thông tin đăng nhập thất bại
-        UserLoginFailed userLoginFailed = loginFailedRepository.findByUserId(user.getUserId());
+        UserLoginFailed userLoginFailed = loginFailedRepository.findByUserId(userId);
         if (userLoginFailed != null) {
             loginFailedRepository.delete(userLoginFailed);
         }
