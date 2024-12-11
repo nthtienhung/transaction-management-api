@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -57,18 +58,36 @@ public class TransactionServiceImpl implements TransactionService {
     private final UserClient userClient;
     private final WalletClient walletClient;
     private final KafkaProducer kafkaProducer;
-
+    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_NUMBER = 0;
 
     @Override
-    public List<TransactionResponse> getRecentReceivedTransactionListByUser() {
-        return List.of();
+    public Page<TransactionDashboardResponse> getRecentReceivedTransactionListByUser(String walletCodeByUserLogIn) {
+        return mapTransactionsToDashboardResponse(
+                transactionRepository.findRecentReceivedTransaction(walletCodeByUserLogIn, createPageable())
+        );
     }
 
     @Override
-    public List<TransactionResponse> getRecentSentTransactionListByUser() {
-        return List.of();
+    public Page<TransactionDashboardResponse> getRecentSentTransactionListByUser(String walletCodeByUserLogIn) {
+        return mapTransactionsToDashboardResponse(
+                transactionRepository.findRecentSentTransaction(walletCodeByUserLogIn, createPageable())
+        );
     }
 
+    private Page<TransactionDashboardResponse> mapTransactionsToDashboardResponse(Page<Object[]> transactionsPage) {
+        return transactionsPage.map(objects -> {
+            TransactionDashboardResponse response = new TransactionDashboardResponse();
+            response.setAmount((Long) objects[0]); // Mapping the amount
+            response.setCreatedDate((Instant) objects[1]); // Mapping the createdDate
+            response.setTransactionCode((String) objects[2]); // Mapping the transactionCode
+            return response;
+        });
+    }
+
+    private Pageable createPageable() {
+        return PageRequest.of(PAGE_NUMBER, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdDate"));
+    }
     @Override
     public Page<TransactionListResponse> getTransactionListByUser(TransactionListRequest request) {
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
@@ -196,6 +215,16 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
         return transactionResponseList;
+    }
+
+    @Override
+    public Integer getTotalSentTransactionByUserInWeek() {
+        return 0;
+    }
+
+    @Override
+    public Integer getTotalReceivedTransactionByUserInWeek() {
+        return 0;
     }
 
     public Transaction getTransactionById(String transactionId) {
