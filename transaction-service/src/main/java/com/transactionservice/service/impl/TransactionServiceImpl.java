@@ -8,7 +8,9 @@ import com.transactionservice.configuration.auditing.AuditorAwareConfig;
 import com.transactionservice.configuration.kafka.KafkaProducer;
 import com.transactionservice.constant.KafkaTopicConstants;
 import com.transactionservice.dto.request.TransactionRequest;
+import com.transactionservice.dto.request.TransactionSearch;
 import com.transactionservice.dto.request.email.EmailTransactionRequest;
+import com.transactionservice.dto.response.TransactionSearchResponse;
 import com.transactionservice.dto.response.UserResponse;
 import com.transactionservice.dto.response.WalletResponse;
 import com.transactionservice.dto.response.TransactionResponse;
@@ -20,8 +22,10 @@ import com.transactionservice.exception.handler.NotFoundAlertException;
 import com.transactionservice.repository.TransactionRepository;
 import com.transactionservice.service.TransactionService;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,8 +40,8 @@ import java.util.UUID;
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
-    private final UserClient userClient;
-    private final WalletClient walletClient;
+    private UserClient userClient;
+    private WalletClient walletClient;
     private final KafkaProducer kafkaProducer;
 
 
@@ -110,6 +114,23 @@ public class TransactionServiceImpl implements TransactionService {
 
         // Build Response Object
         return result;
+    }
+
+    @Override
+    public List<TransactionSearchResponse> getTransactionByInformation(TransactionSearch transactionSearch) {
+        List<Transaction> transactionList = this.transactionRepository.findByTransactionIdOrRecipientWalletCodeOrSenderWalletCodeOrStatus(transactionSearch.getTransactionId(),transactionSearch.getWalletCode(),transactionSearch.getWalletCode(),transactionSearch.getStatus());
+        List<TransactionSearchResponse> transactionResponseList = new ArrayList<>();
+        for (Transaction transaction : transactionList) {
+            if (transaction.getCreatedDate().isBefore(transactionSearch.getToDate().toInstant()) &&
+                    transaction.getCreatedDate().isAfter(transactionSearch.getFromDate().toInstant())) {
+               WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getRecipientWalletCode());
+               UserResponse userResponse = userClient.getUserById(walletResponse.getWalletCode());
+               String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
+                TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(),transaction.getSenderWalletCode(),fullName,transaction.getRecipientWalletCode(),transaction.getAmount(),transaction.getDescription(),transaction.getStatus());
+               transactionResponseList.add(transactionSearchResponse);
+            }
+        }
+        return transactionResponseList;
     }
 
     public Transaction getTransactionById(String transactionId) {
