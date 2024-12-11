@@ -1,5 +1,6 @@
 package com.transactionservice.client;
 
+import com.transactionservice.dto.response.FullNameResponse;
 import com.transactionservice.dto.response.UserResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,4 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface UserClient {
     @GetMapping("/{userId}")
     UserResponse getUserById(@PathVariable("userId") String userId);
+
+    @GetMapping("/{userId}/full-name")
+    FullNameResponse getFullNameByUserId(@PathVariable("userId") String userId);
 }

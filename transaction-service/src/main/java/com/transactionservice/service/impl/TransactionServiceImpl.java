@@ -7,9 +7,11 @@ import com.transactionservice.client.WalletClient;
 import com.transactionservice.configuration.auditing.AuditorAwareConfig;
 import com.transactionservice.configuration.kafka.KafkaProducer;
 import com.transactionservice.constant.KafkaTopicConstants;
+import com.transactionservice.dto.request.TransactionListRequest;
 import com.transactionservice.dto.request.TransactionRequest;
 import com.transactionservice.dto.request.TransactionSearch;
 import com.transactionservice.dto.request.email.EmailTransactionRequest;
+import com.transactionservice.dto.response.*;
 import com.transactionservice.dto.response.TransactionSearchResponse;
 import com.transactionservice.dto.response.UserResponse;
 import com.transactionservice.dto.response.WalletResponse;
@@ -20,14 +22,24 @@ import com.transactionservice.enums.Status;
 import com.transactionservice.exception.handler.BadRequestAlertException;
 import com.transactionservice.exception.handler.NotFoundAlertException;
 import com.transactionservice.repository.TransactionRepository;
+import com.transactionservice.repository.TransactionRepositoryCustom;
 import com.transactionservice.service.TransactionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+
 import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Author: thinhtd
@@ -37,11 +49,13 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TransactionServiceImpl implements TransactionService {
 
+    private final TransactionRepositoryCustom transactionRepositoryCustom;
     private final TransactionRepository transactionRepository;
-    private UserClient userClient;
-    private WalletClient walletClient;
+    private final UserClient userClient;
+    private final WalletClient walletClient;
     private final KafkaProducer kafkaProducer;
 
 
@@ -54,6 +68,57 @@ public class TransactionServiceImpl implements TransactionService {
     public List<TransactionResponse> getRecentSentTransactionListByUser() {
         return List.of();
     }
+
+    @Override
+    public Page<TransactionListResponse> getTransactionListByUser(TransactionListRequest request) {
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+        Page<Transaction> transactionsPage = transactionRepositoryCustom.findFilteredTransactions(
+                request.getWalletCodeByUserLogIn(),
+                request.getWalletCodeByUserSearch(),
+                request.getTransactionCode(),
+                request.getStatus(),
+                request.getFromDate(),
+                request.getToDate(),
+                pageable
+        );
+        log.info("Transactions Page: {}", transactionsPage);
+
+
+        // Map `Transaction` entities to `TransactionListResponse`
+        List<TransactionListResponse> responseList = transactionsPage.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+
+        // Return mapped results as Page<TransactionListResponse>
+        return new org.springframework.data.domain.PageImpl<>(
+                responseList,
+                pageable,
+                transactionsPage.getTotalElements()
+        );
+    }
+
+    private TransactionListResponse mapToDto(Transaction transaction) {
+        String recipientWalletCode = transaction.getRecipientWalletCode();
+
+        // Lấy userId từ recipientWalletCode
+        String userId = walletClient.getUserIdByWalletCode(recipientWalletCode);
+
+        // Lấy thông tin user (firstName, lastName) từ userId
+        FullNameResponse fullNameResponse = userClient.getFullNameByUserId(userId);
+
+        return TransactionListResponse.builder()
+                .transactionCode(transaction.getTransactionCode())
+                .senderWalletCode(transaction.getSenderWalletCode())
+                .receiverWalletCode(transaction.getRecipientWalletCode())
+                .amount(transaction.getAmount())
+                .status(String.valueOf(transaction.getStatus()))
+                .description(transaction.getDescription())
+                .FirstName(fullNameResponse.getFirstName())
+                .LastName(fullNameResponse.getLastName())
+                .createdAt(transaction.getCreatedDate())
+                .build();
+    }
+
 
     @Override
     public TransactionResponse createTransaction(TransactionRequest transactionRequest) throws JsonProcessingException {
@@ -141,5 +206,6 @@ public class TransactionServiceImpl implements TransactionService {
     private String generateTransactionCode() {
         // Generate unique transaction code
         return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+
     }
 }
