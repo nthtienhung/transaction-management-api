@@ -88,10 +88,11 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseObject<Page<UserProfileResponse>> getUserList(
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(required = false) String searchTerm
     ) {
         // Change from java.awt.print.Pageable to org.springframework.data.domain.Pageable
-        Page<UserProfileResponse> data = userService.getAllUserProfile(PageRequest.of(page, size));
+        Page<UserProfileResponse> data = userService.getAllUserProfile(PageRequest.of(page, size), searchTerm);
         return new ResponseObject<>(
             HttpStatus.OK.value(), 
             Constants.DEFAULT_MESSAGE_SUCCESS, 

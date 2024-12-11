@@ -406,10 +406,19 @@ public class UserServiceImpl implements UserService {
     // }
 
     @Override
-    public Page<UserProfileResponse> getAllUserProfile(Pageable pageable) {
+    public Page<UserProfileResponse> getAllUserProfile(Pageable pageable, String searchTerm) {
         // Use Spring's Pageable directly
         Page<Profile> profilePage = userProfileRepository.findAll(pageable);
-        
+
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            profilePage = userProfileRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+                searchTerm, 
+                searchTerm, 
+                pageable);
+        } else {
+            profilePage = userProfileRepository.findAll(pageable);
+        }
+
         return profilePage.map(profile -> {
             StatusRoleUserResponse statusRoleUserResponse = iamClient.getRoleStatus(profile.getUserId());
             return UserProfileResponse.builder()

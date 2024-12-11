@@ -31,7 +31,7 @@ public interface UserService {
     ResponseEntity<User> findUser(HttpServletRequest request);
 
     // List<UserProfileResponse> getAllUserProfile();
-    Page<UserProfileResponse> getAllUserProfile(Pageable pageable);
+    Page<UserProfileResponse> getAllUserProfile(Pageable pageable, String searchTerm);
 
     UserResponse getUserById(String userId);
 }
