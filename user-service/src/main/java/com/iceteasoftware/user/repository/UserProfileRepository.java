@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.util.Lazy;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -17,4 +18,5 @@ public interface UserProfileRepository extends JpaRepository<Profile, String> {
     Optional<Profile> findByPhone(String phone);
 
     Optional<Profile> findByUserId(String userId);
+
 }

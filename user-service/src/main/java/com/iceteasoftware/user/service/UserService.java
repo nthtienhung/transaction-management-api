@@ -1,6 +1,7 @@
 package com.iceteasoftware.user.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.iceteasoftware.user.dto.UserProfileResponse;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
 import com.iceteasoftware.user.dto.response.UserResponse;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
@@ -26,7 +27,7 @@ public interface UserService {
 
     ResponseEntity<User> findUser(HttpServletRequest request);
 
-    List<Profile> getAllProfiles();
+    List<UserProfileResponse> getAllUserProfile();
 
     UserResponse getUserById(String userId);
 }

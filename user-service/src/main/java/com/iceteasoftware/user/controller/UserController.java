@@ -1,11 +1,14 @@
 package com.iceteasoftware.user.controller;
 
 
+import com.iceteasoftware.user.constant.Constants;
+import com.iceteasoftware.user.dto.UserProfileResponse;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
 import com.iceteasoftware.user.dto.response.UserResponse;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
 import com.iceteasoftware.user.entity.Profile;
 import com.iceteasoftware.user.entity.User;
+import com.iceteasoftware.user.enums.MessageCode;
 import com.iceteasoftware.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -69,16 +73,13 @@ public class UserController {
      * 
      * @return List of all user profiles
      */
-    @GetMapping("/profiles")
+    @GetMapping("/user-list")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ResponseObject<List<Profile>>> getAllProfiles() {
-        List<Profile> profiles = userService.getAllProfiles();
-        return ResponseEntity.ok(new ResponseObject<>(
-            "Retrieved all user profiles successfully",
-            HttpStatus.OK.value(),
-            LocalDateTime.now(),
-            profiles
-        ));
+    public ResponseObject<List<UserProfileResponse>> getUserList() {
+        List<UserProfileResponse> data = userService.getAllUserProfile();
+        return new ResponseObject<>(
+                HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data
+        );
     }
 
     @GetMapping("/{userId}")

@@ -3,9 +3,12 @@ package com.iceteasoftware.user.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iceteasoftware.user.client.IamClient;
 import com.iceteasoftware.user.constant.KafkaTopicConstants;
 import com.iceteasoftware.user.configuration.message.Labels;
+import com.iceteasoftware.user.dto.UserProfileResponse;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
+import com.iceteasoftware.user.dto.response.StatusRoleUserResponse;
 import com.iceteasoftware.user.dto.response.UserResponse;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
 import com.iceteasoftware.user.entity.Profile;
@@ -34,6 +37,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,6 +50,7 @@ public class UserServiceImpl implements UserService {
     private final UserProfileRepository userProfileRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final UserRepository userRepository;
+    private final IamClient iamClient;
     @Value("${security.authentication.jwt.base64-secret}")
     private String jwtSecret;
 
@@ -376,8 +381,25 @@ public class UserServiceImpl implements UserService {
     }
     
     @Override
-    public List<Profile> getAllProfiles() {
-        return userProfileRepository.findAll();
+    public List<UserProfileResponse> getAllUserProfile() {
+        List<Profile> profileList = userProfileRepository.findAll();
+
+        List<UserProfileResponse> userProfileResponseList = new ArrayList<>();
+        for (Profile profile : profileList) {
+            StatusRoleUserResponse statusRoleUserResponse = iamClient.getRoleStatus(profile.getUserId());
+            UserProfileResponse response = UserProfileResponse.builder()
+                    .firstName(profile.getFirstName())
+                    .lastName(profile.getLastName())
+                    .email(profile.getEmail())
+                    .phone(profile.getPhone())
+                    .dob(profile.getDob())
+                    .address(profile.getAddress())
+                    .role(statusRoleUserResponse.getRole())
+                    .status(statusRoleUserResponse.getStatus())
+                    .build();
+            userProfileResponseList.add(response);
+        }
+        return userProfileResponseList;
     }
 
     public UserResponse getUserById(String userId) {
