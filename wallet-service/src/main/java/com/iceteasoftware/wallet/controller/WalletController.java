@@ -3,6 +3,8 @@ package com.iceteasoftware.wallet.controller;
 import com.iceteasoftware.wallet.dto.response.WalletResponse;
 import com.iceteasoftware.wallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -33,5 +35,11 @@ public class WalletController {
     void updateWalletBalance(@PathVariable("walletCode") String walletCode, @RequestBody Long amount){
         System.out.println("Wallet Code: " + walletCode);
         walletService.updateWalletBalance(walletCode, amount);
+    }
+    @GetMapping("/getWallet/{userId}")
+    public ResponseEntity<WalletResponse> getWallet(@PathVariable("userId") String userId){
+        System.out.println("User ID: " + userId);
+        WalletResponse walletResponse = walletService.getWalletByUserId(userId);
+        return new ResponseEntity<>(walletResponse, HttpStatus.OK);
     }
 }

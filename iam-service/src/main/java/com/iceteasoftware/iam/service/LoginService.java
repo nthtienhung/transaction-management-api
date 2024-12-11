@@ -14,6 +14,8 @@ public interface LoginService {
     ResponseEntity<ResponseObject<TokenResponse>> authorize(HttpServletRequest request,
                                                             LoginRequest loginRequest);
     Optional<User> getUser(String email);
+
+    ResponseEntity<ResponseObject<TokenResponse>> refreshToken(HttpServletRequest request);
 }
 
 
