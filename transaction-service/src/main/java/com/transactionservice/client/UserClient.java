@@ -1,5 +1,6 @@
 package com.transactionservice.client;
 
+import com.transactionservice.dto.response.FullNameResponse;
 import com.transactionservice.dto.response.UserResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,4 +14,8 @@ public interface UserClient {
 
     @GetMapping("/check-email-exists")
     Boolean isEmailExists(@RequestParam String email);
+
+    @GetMapping("/{userId}/full-name")
+    FullNameResponse getFullNameByUserId(@PathVariable("userId") String userId);
+
 }

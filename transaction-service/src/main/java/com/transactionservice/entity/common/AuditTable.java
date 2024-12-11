@@ -39,5 +39,4 @@ public abstract class AuditTable {
     @Column(name = "create_date", updatable = false)
     @JsonIgnore
     private Instant createdDate = Instant.now();
-
 }
