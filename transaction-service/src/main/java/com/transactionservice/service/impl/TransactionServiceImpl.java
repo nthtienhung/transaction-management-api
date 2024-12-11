@@ -54,8 +54,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepositoryCustom transactionRepositoryCustom;
     private final TransactionRepository transactionRepository;
-    private UserClient userClient;
-    private WalletClient walletClient;
+    private final UserClient userClient;
+    private final WalletClient walletClient;
     private final KafkaProducer kafkaProducer;
 
 
