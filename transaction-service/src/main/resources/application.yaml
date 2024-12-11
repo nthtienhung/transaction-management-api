@@ -66,10 +66,12 @@ feign:
     config:
       user-service:
         name: 'user-service'
-        url: http://localhost:8082/user
+#        url: http://localhost:8082/user
+        url: http://localhost:8888/api/v1/user
       wallet-service:
         name: 'wallet-service'
-        url: http://localhost:8086/wallet
+#        url: http://localhost:8086/wallet
+        url: http://localhost:8888/api/v1/wallet
 eureka:
   client:
     server-url:

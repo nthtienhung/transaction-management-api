@@ -85,6 +85,16 @@ public class WalletServiceImpl implements WalletService {
         walletRepository.save(wallet);
     }
 
+    @Override
+    public WalletResponse getWalletByUserId(String userId) {
+        Wallet wallet = walletRepository.findByUserId(userId);
+        return WalletResponse.builder()
+                .walletCode(wallet.getWalletCode())
+                .balance(wallet.getBalance())
+                .userId(wallet.getUserId())
+                .build();
+    }
+
     private String generateWalletCode() {
         Random random = new Random();
         StringBuilder randomDigits = new StringBuilder();

@@ -24,8 +24,10 @@ import com.transactionservice.repository.TransactionRepository;
 import com.transactionservice.service.TransactionService;
 import com.transactionservice.util.ThreadLocalUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Random;
@@ -40,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
@@ -47,6 +50,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final UserClient userClient;
     private final WalletClient walletClient;
     private final KafkaProducer kafkaProducer;
+    private final Gson gson;
 
 
     @Override
@@ -59,69 +63,57 @@ public class TransactionServiceImpl implements TransactionService {
         return List.of();
     }
 
+    /**
+     * Creates a new money transfer transaction.
+     *
+     * @param transactionRequest Transaction details
+     * @return Created transaction information
+     * @throws JsonProcessingException JSON processing error
+     */
     @Override
+    @Transactional
     public TransactionResponse createTransaction(TransactionRequest transactionRequest) throws JsonProcessingException {
-        System.out.println("Transaction Request: " + transactionRequest);
+        log.info("Creating transaction: {}", transactionRequest);
+
+        // Fetch sender and receiver wallet information
         WalletResponse senderWallet = walletClient.getWalletByWalletCode(transactionRequest.getSenderWalletCode());
         WalletResponse receiverWallet = walletClient.getWalletByWalletCode(transactionRequest.getRecipientWalletCode());
 
-        System.out.println("Sender Wallet: " + senderWallet);
-        System.out.println("Receiver Wallet: " + receiverWallet);
+        // Fetch user information
         UserResponse senderUser = userClient.getUserById(senderWallet.getUserId());
         UserResponse receiverUser = userClient.getUserById(receiverWallet.getUserId());
 
-        System.out.println(senderUser.toString());
-
+        // Check wallet balance
         if (senderWallet.getBalance().compareTo(transactionRequest.getAmount()) < 0) {
             throw new BadRequestAlertException(MessageCode.MSG4103);
         }
 
-        Transaction transaction = new Transaction();
-        transaction.setTransactionId(UUID.randomUUID().toString());
-        transaction.setTransactionCode(generateTransactionCode());
-        transaction.setSenderWalletCode(senderWallet.getWalletCode());
-        transaction.setRecipientWalletCode(receiverWallet.getWalletCode());
-        transaction.setAmount(transactionRequest.getAmount());
-        transaction.setStatus(Status.SUCCESS);
-        transaction.setDescription(transactionRequest.getDescription());
+        // Create transaction object
+        Transaction transaction = buildTransaction(transactionRequest, senderWallet, receiverWallet);
 
-        walletClient.updateWalletBalance(senderWallet.getWalletCode(), -transactionRequest.getAmount());
-        walletClient.updateWalletBalance(receiverWallet.getWalletCode(), transactionRequest.getAmount());
+        // Update wallet balances
+        updateWalletBalances(senderWallet, receiverWallet, transactionRequest.getAmount());
 
+        // Save transaction
         ThreadLocalUtil.setCurrentUser(senderWallet.getUserId());
-
-        // Save Transaction to Database
         transactionRepository.save(transaction);
 
-        TransactionResponse result = TransactionResponse.builder()
-                .transactionCode(transaction.getTransactionCode())
-                .senderWalletCode(transactionRequest.getSenderWalletCode())
-                .senderMail(senderUser.getEmail())
-                .recipientWalletCode(transactionRequest.getRecipientWalletCode())
-                .recipientMail(receiverUser.getEmail())
-                .amount(transactionRequest.getAmount())
-                .status(String.valueOf(Status.SUCCESS))
-                .description(transactionRequest.getDescription())
-                .build();
-
+        // Create response
+        TransactionResponse result = buildTransactionResponse(transaction, senderUser, receiverUser);
         ThreadLocalUtil.remove();
 
-        System.out.println("Transaction Result: " + result);
+        // Send notification via Kafka
+        sendTransactionNotification(senderWallet, result);
 
-        EmailTransactionRequest emailTransactionRequest = new EmailTransactionRequest();
-        emailTransactionRequest.setUserId(senderWallet.getUserId());
-        emailTransactionRequest.setTopicName(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SUCCESSFUL_TRANSACTION);
-        emailTransactionRequest.setData(new Gson().toJson(result));
-
-        System.out.println("Email Transaction Request: " + emailTransactionRequest);
-
-        // Send Notification via Kafka
-        kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SUCCESSFUL_TRANSACTION, emailTransactionRequest);
-
-        // Build Response Object
         return result;
     }
 
+    /**
+     * Generates and sends an OTP for a transaction.
+     *
+     * @param request Email information to send OTP
+     * @throws JsonProcessingException JSON processing error
+     */
     @Override
     public void generateOtp(EmailRequest request) throws JsonProcessingException {
         WalletResponse wallet = walletClient.getWalletByWalletCode(request.getWalletCode());
@@ -134,65 +126,200 @@ public class TransactionServiceImpl implements TransactionService {
         String otp = generateOtpString();
         redisTemplate.opsForValue().set(user.getEmail(), otp, 2, TimeUnit.MINUTES);
 
-        OTPRequest data = OTPRequest.builder()
+        OTPRequest otpData = OTPRequest.builder()
                 .email(user.getEmail())
                 .otp(otp)
                 .amount(request.getAmount())
                 .build();
-        EmailTransactionRequest emailDTO = new EmailTransactionRequest();
-        emailDTO.setUserId(wallet.getUserId());
-        emailDTO.setData(new Gson().toJson(data));
-        emailDTO.setTopicName(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_OTP);
 
-        System.out.println("Email DTO: " + emailDTO);
+        EmailTransactionRequest emailDTO = buildEmailTransactionRequest(
+                wallet.getUserId(),
+                otpData,
+                KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_OTP
+        );
 
+        log.info("Sending OTP email: {}", emailDTO);
         kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_OTP, emailDTO);
     }
 
+    /**
+     * Confirms a transaction using OTP.
+     *
+     * @param confirmTransactionRequest Transaction confirmation request
+     * @return Confirmed transaction information
+     * @throws JsonProcessingException JSON processing error
+     */
     @Override
+    @Transactional
     public TransactionResponse confirmTransactionWithOTP(ConfirmTransactionRequest confirmTransactionRequest) throws JsonProcessingException {
+        // Fetch wallet and user information
         WalletResponse senderWallet = walletClient.getWalletByWalletCode(confirmTransactionRequest.getSenderWalletCode());
         UserResponse senderUser = userClient.getUserById(senderWallet.getUserId());
-        String storedOtp = redisTemplate.opsForValue().get(senderUser.getEmail());
-        System.out.println("Stored OTP: " + storedOtp);
-        // 1. Kiểm tra OTP
-        if (confirmTransactionRequest.getOtp() == null) {
-            throw new BadRequestAlertException(MessageCode.MSG4114);
-        }
-        if (storedOtp == null) {
-            throw new BadRequestAlertException(MessageCode.MSG4113);
-        }
-        if (!storedOtp.equals(confirmTransactionRequest.getOtp())) {
-            throw new BadRequestAlertException(MessageCode.MSG4112);
-        }
 
+        // Validate OTP
+        validateOTP(senderUser.getEmail(), confirmTransactionRequest.getOtp());
+
+        // Remove OTP from Redis after validation
         redisTemplate.delete(senderUser.getEmail());
 
-        TransactionRequest transactionRequest = new TransactionRequest();
-        transactionRequest.setSenderWalletCode(confirmTransactionRequest.getSenderWalletCode());
-        transactionRequest.setRecipientWalletCode(confirmTransactionRequest.getRecipientWalletCode());
-        transactionRequest.setAmount(confirmTransactionRequest.getAmount());
-        transactionRequest.setDescription(confirmTransactionRequest.getDescription());
+        // Create transaction request from confirmation details
+        TransactionRequest transactionRequest = TransactionRequest.builder()
+                .senderWalletCode(confirmTransactionRequest.getSenderWalletCode())
+                .recipientWalletCode(confirmTransactionRequest.getRecipientWalletCode())
+                .amount(confirmTransactionRequest.getAmount())
+                .description(confirmTransactionRequest.getDescription())
+                .build();
 
-        // 2. Hoàn tất giao dịch
+        // Complete transaction
         return createTransaction(transactionRequest);
     }
 
-
+    /**
+     * Retrieves a transaction by its ID.
+     *
+     * @param transactionId Transaction identifier
+     * @return Transaction information
+     * @throws NotFoundAlertException If transaction is not found
+     */
     public Transaction getTransactionById(String transactionId) {
         return transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new NotFoundAlertException(MessageCode.MSG4111));
     }
 
+    /**
+     * Generates a random transaction code.
+     *
+     * @return Unique transaction code
+     */
     private String generateTransactionCode() {
-        // Generate unique transaction code
         return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
+    /**
+     * Generates a random OTP.
+     *
+     * @return 6-digit OTP
+     */
     private String generateOtpString() {
         Random rand = new Random();
-        int otp = 100000 + rand.nextInt(900000);
+        return String.format("%06d", 100000 + rand.nextInt(900000));
+    }
 
-        return String.valueOf(otp);
+    /**
+     * Builds a transaction object from the transaction request.
+     *
+     * @param transactionRequest Transaction request details
+     * @param senderWallet Sender's wallet information
+     * @param receiverWallet Receiver's wallet information
+     * @return Constructed Transaction entity
+     */
+    private Transaction buildTransaction(TransactionRequest transactionRequest,
+                                         WalletResponse senderWallet,
+                                         WalletResponse receiverWallet) {
+        Transaction transaction = new Transaction();
+        transaction.setTransactionId(UUID.randomUUID().toString());
+        transaction.setTransactionCode(generateTransactionCode());
+        transaction.setSenderWalletCode(senderWallet.getWalletCode());
+        transaction.setRecipientWalletCode(receiverWallet.getWalletCode());
+        transaction.setAmount(transactionRequest.getAmount());
+        transaction.setStatus(Status.SUCCESS);
+        transaction.setDescription(transactionRequest.getDescription());
+        return transaction;
+    }
+
+    /**
+     * Updates the balances of sender and receiver wallets.
+     *
+     * @param senderWallet Wallet of the sender
+     * @param receiverWallet Wallet of the receiver
+     * @param amount Transaction amount
+     */
+    private void updateWalletBalances(WalletResponse senderWallet,
+                                      WalletResponse receiverWallet,
+                                      Long amount) {
+        walletClient.updateWalletBalance(senderWallet.getWalletCode(), -amount);
+        walletClient.updateWalletBalance(receiverWallet.getWalletCode(), amount);
+    }
+
+    /**
+     * Builds a transaction response object.
+     *
+     * @param transaction Completed transaction
+     * @param senderUser Sender's user information
+     * @param receiverUser Receiver's user information
+     * @return Detailed transaction response
+     */
+    private TransactionResponse buildTransactionResponse(Transaction transaction,
+                                                         UserResponse senderUser,
+                                                         UserResponse receiverUser) {
+        return TransactionResponse.builder()
+                .transactionCode(transaction.getTransactionCode())
+                .senderWalletCode(transaction.getSenderWalletCode())
+                .senderMail(senderUser.getEmail())
+                .recipientWalletCode(transaction.getRecipientWalletCode())
+                .recipientMail(receiverUser.getEmail())
+                .amount(transaction.getAmount())
+                .status(String.valueOf(Status.SUCCESS))
+                .description(transaction.getDescription())
+                .build();
+    }
+
+    /**
+     * Sends transaction notification via Kafka.
+     *
+     * @param senderWallet Wallet of the sender
+     * @param result Transaction response details
+     */
+    private void sendTransactionNotification(WalletResponse senderWallet, TransactionResponse result) throws JsonProcessingException {
+        EmailTransactionRequest emailTransactionRequest = buildEmailTransactionRequest(
+                senderWallet.getUserId(),
+                result,
+                KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SUCCESSFUL_TRANSACTION
+        );
+
+        log.info("Sending transaction notification: {}", emailTransactionRequest);
+        kafkaProducer.sendMessage(
+                KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SUCCESSFUL_TRANSACTION,
+                emailTransactionRequest
+        );
+    }
+
+    /**
+     * Builds an email transaction request.
+     *
+     * @param userId User identifier
+     * @param data Transaction or OTP data
+     * @param topicName Kafka topic name
+     * @return Constructed EmailTransactionRequest
+     */
+    private EmailTransactionRequest buildEmailTransactionRequest(String userId, Object data, String topicName) {
+        EmailTransactionRequest emailDTO = new EmailTransactionRequest();
+        emailDTO.setUserId(userId);
+        emailDTO.setData(gson.toJson(data));
+        emailDTO.setTopicName(topicName);
+        return emailDTO;
+    }
+
+    /**
+     * Validates the One-Time Password (OTP).
+     *
+     * @param email User's email address
+     * @param otpInput OTP input by the user
+     * @throws BadRequestAlertException If OTP is invalid
+     */
+    private void validateOTP(String email, String otpInput) {
+        String storedOtp = redisTemplate.opsForValue().get(email);
+
+        if (otpInput == null) {
+            throw new BadRequestAlertException(MessageCode.MSG4114);
+        }
+
+        if (storedOtp == null) {
+            throw new BadRequestAlertException(MessageCode.MSG4113);
+        }
+
+        if (!storedOtp.equals(otpInput)) {
+            throw new BadRequestAlertException(MessageCode.MSG4112);
+        }
     }
 }

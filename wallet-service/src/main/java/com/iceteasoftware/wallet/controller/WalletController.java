@@ -23,6 +23,12 @@ public class WalletController {
 //        return new ResponseObject<>(HttpStatus.CREATED.value(), Constants.DEFAULT_MESSAGE_CREATE_SUCCESS, LocalDateTime.now());
 //    }
 
+    @GetMapping("/code/{userId}")
+    WalletResponse getWalletByUserId(@PathVariable("userId") String userId){
+        System.out.println("User Id: " + userId);
+        return walletService.getWalletByUserId(userId);
+    }
+
     @GetMapping("/{walletCode}")
     WalletResponse getWalletByWalletCode(@PathVariable("walletCode") String walletCode){
         System.out.println("Wallet Code: " + walletCode);

@@ -15,4 +15,6 @@ public interface WalletService {
     WalletResponse getWalletByCode(String walletCode);
 
     void updateWalletBalance(String walletCode, Long amount);
+
+    WalletResponse getWalletByUserId(String userId);
 }
