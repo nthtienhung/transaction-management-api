@@ -28,12 +28,15 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -380,14 +383,36 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<>(user.get(), HttpStatus.OK);
     }
     
-    @Override
-    public List<UserProfileResponse> getAllUserProfile() {
-        List<Profile> profileList = userProfileRepository.findAll();
+    // @Override
+    // public List<UserProfileResponse> getAllUserProfile() {
+    //     List<Profile> profileList = userProfileRepository.findAll();
 
-        List<UserProfileResponse> userProfileResponseList = new ArrayList<>();
-        for (Profile profile : profileList) {
+    //     List<UserProfileResponse> userProfileResponseList = new ArrayList<>();
+    //     for (Profile profile : profileList) {
+    //         StatusRoleUserResponse statusRoleUserResponse = iamClient.getRoleStatus(profile.getUserId());
+    //         UserProfileResponse response = UserProfileResponse.builder()
+    //                 .firstName(profile.getFirstName())
+    //                 .lastName(profile.getLastName())
+    //                 .email(profile.getEmail())
+    //                 .phone(profile.getPhone())
+    //                 .dob(profile.getDob())
+    //                 .address(profile.getAddress())
+    //                 .role(statusRoleUserResponse.getRole())
+    //                 .status(statusRoleUserResponse.getStatus())
+    //                 .build();
+    //         userProfileResponseList.add(response);
+    //     }
+    //     return userProfileResponseList;
+    // }
+
+    @Override
+    public Page<UserProfileResponse> getAllUserProfile(Pageable pageable) {
+        // Use Spring's Pageable directly
+        Page<Profile> profilePage = userProfileRepository.findAll(pageable);
+        
+        return profilePage.map(profile -> {
             StatusRoleUserResponse statusRoleUserResponse = iamClient.getRoleStatus(profile.getUserId());
-            UserProfileResponse response = UserProfileResponse.builder()
+            return UserProfileResponse.builder()
                     .firstName(profile.getFirstName())
                     .lastName(profile.getLastName())
                     .email(profile.getEmail())
@@ -397,9 +422,7 @@ public class UserServiceImpl implements UserService {
                     .role(statusRoleUserResponse.getRole())
                     .status(statusRoleUserResponse.getStatus())
                     .build();
-            userProfileResponseList.add(response);
-        }
-        return userProfileResponseList;
+        });
     }
 
     public UserResponse getUserById(String userId) {

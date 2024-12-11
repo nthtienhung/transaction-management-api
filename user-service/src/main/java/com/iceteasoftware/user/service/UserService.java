@@ -8,8 +8,11 @@ import com.iceteasoftware.user.dto.response.common.ResponseObject;
 import com.iceteasoftware.user.entity.Profile;
 import com.iceteasoftware.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 
+// import java.awt.print.Pageable;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface UserService {
@@ -27,7 +30,8 @@ public interface UserService {
 
     ResponseEntity<User> findUser(HttpServletRequest request);
 
-    List<UserProfileResponse> getAllUserProfile();
+    // List<UserProfileResponse> getAllUserProfile();
+    Page<UserProfileResponse> getAllUserProfile(Pageable pageable);
 
     UserResponse getUserById(String userId);
 }

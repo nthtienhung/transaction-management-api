@@ -12,12 +12,15 @@ import com.iceteasoftware.user.enums.MessageCode;
 import com.iceteasoftware.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.print.Pageable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -73,12 +76,27 @@ public class UserController {
      * 
      * @return List of all user profiles
      */
+    // @GetMapping("/user-list")
+    // @PreAuthorize("hasRole('ADMIN')")
+    // public ResponseObject<List<UserProfileResponse>> getUserList() {
+    //     List<UserProfileResponse> data = userService.getAllUserProfile();
+    //     return new ResponseObject<>(
+    //             HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data
+    //     );
+    // }
     @GetMapping("/user-list")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseObject<List<UserProfileResponse>> getUserList() {
-        List<UserProfileResponse> data = userService.getAllUserProfile();
+    public ResponseObject<Page<UserProfileResponse>> getUserList(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        // Change from java.awt.print.Pageable to org.springframework.data.domain.Pageable
+        Page<UserProfileResponse> data = userService.getAllUserProfile(PageRequest.of(page, size));
         return new ResponseObject<>(
-                HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data
+            HttpStatus.OK.value(), 
+            Constants.DEFAULT_MESSAGE_SUCCESS, 
+            LocalDateTime.now(), 
+            data
         );
     }
 
