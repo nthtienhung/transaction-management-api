@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -89,10 +90,14 @@ public class UserController {
     public ResponseObject<Page<UserProfileResponse>> getUserList(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
-        @RequestParam(required = false) String searchTerm
+        @RequestParam(required = false) String searchTerm,
+        @RequestParam(defaultValue = "createDate") String sortBy,
+        @RequestParam(defaultValue = "desc") String sortDirection
     ) {
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortBy));
         // Change from java.awt.print.Pageable to org.springframework.data.domain.Pageable
-        Page<UserProfileResponse> data = userService.getAllUserProfile(PageRequest.of(page, size), searchTerm);
+        Page<UserProfileResponse> data = userService.getAllUserProfile(pageRequest, searchTerm);
         return new ResponseObject<>(
             HttpStatus.OK.value(), 
             Constants.DEFAULT_MESSAGE_SUCCESS, 
