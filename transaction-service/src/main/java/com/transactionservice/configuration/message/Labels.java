@@ -37,6 +37,7 @@ public class Labels {
      */
     public static final Locale US = new Locale(Language.EN, Country.US);
 
+
     /**
      * The Constant VN.
      */
@@ -237,7 +238,6 @@ public class Labels {
         if (request == null) {
             return Language.EN;
         }
-
         return GetterUtil.getString(request.getHeader(Constants.DEFAULT_LOCALE), Language.EN);
 
     }

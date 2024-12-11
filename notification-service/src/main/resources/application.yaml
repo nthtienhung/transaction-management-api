@@ -6,6 +6,7 @@ spring:
     name: notification-service
   datasource:
     url: jdbc:postgresql://localhost:5432/team2db
+
     username: postgres
     password: 123
 

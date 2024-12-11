@@ -9,6 +9,12 @@ spring:
     url: jdbc:postgresql://localhost:5432/team2db
     username: postgres
     password: 123
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      max-lifetime: 1800000
   jpa:
     hibernate:
       ddl-auto: update
@@ -26,16 +32,52 @@ spring:
       bootstrap-servers: localhost:9094
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
-
+  data:
+    redis:
+      host: localhost
+      port: 6379
+cache:
+  config-type: 'redisson'
+  redisson:
+    mode: single
+    single:
+      address: 'redis://localhost:6379'
+      password: ''
+      clientName: 'my-redis-client'
+      connectionMinimumIdleSize: 24
+      connectionPoolSize: 64
+      subscriptionConnectionPoolSize: 50
+      subscriptionConnectionMinimumIdleSize: 1
+    retryAttempts: 3
+    retryInterval: 1500 # Đặt giá trị khác 0
+    idleConnectionTimeout: 10000 # Đặt giá trị khác 0
+    connectTimeout: 10000
+    timeout: 3000
+  time-to-lives:
+    default: -1
+    token: 300
+    remember-me-token: 7200
+    refresh-token: 86400
+    otp: 180
+    otp-verify: 3600
+    temp-file: 3600
+    login-failed: 86400
+    captcha: 300
+    password-verify: 300
+    customer_draft_password: 300
+    apiGee_getToken: 300
+    customer_verify_password_failed: 3600
 feign:
   client:
     config:
       user-service:
         name: 'user-service'
-        url: http://localhost:8082/user
+#        url: http://localhost:8082/user
+        url: http://localhost:8888/api/v1/user
       wallet-service:
         name: 'wallet-service'
-        url: http://localhost:8086/wallet
+#        url: http://localhost:8086/wallet
+        url: http://localhost:8888/api/v1/wallet
 eureka:
   client:
     server-url:

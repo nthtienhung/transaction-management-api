@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableDiscoveryClient
 @SpringBootApplication
-@EnableFeignClients(basePackages = "com.transactionservice")
+@EnableFeignClients
 public class TransactionServiceApplication {
 
     public static void main(String[] args) {

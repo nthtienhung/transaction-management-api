@@ -77,6 +77,10 @@ public class AuthController {
                                                                    @RequestBody LoginRequest loginRequest) {
         return this.loginService.authorize(request, loginRequest);
     }
+    @GetMapping("/refreshTokenUser")
+    public ResponseEntity<ResponseObject<TokenResponse>> refreshToken(HttpServletRequest request){
+        return this.loginService.refreshToken(request);
+    }
     @GetMapping("/logoutAccount")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         logoutService.logout(request);
