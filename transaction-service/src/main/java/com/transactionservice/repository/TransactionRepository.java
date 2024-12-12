@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
+
 
 @Repository
 @Transactional
@@ -25,11 +27,26 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
             Pageable pageable);
 
 
-    @Query("select t.amount, t.createdDate, t.transactionCode from Transaction t " +
-            "where t.recipientWalletCode = :recipientWalletCode")
+    @Query("SELECT t.amount, t.createdDate, t.transactionCode FROM Transaction t " +
+            "WHERE t.recipientWalletCode = :recipientWalletCode")
     Page<Object[]> findRecentReceivedTransaction(String recipientWalletCode, Pageable pageable);
 
-    @Query("select t.amount, t.createdDate, t.transactionCode from Transaction t " +
-            "where t.senderWalletCode = :senderWalletCode")
+    @Query("SELECT t.amount, t.createdDate, t.transactionCode FROM Transaction t " +
+            "WHERE t.senderWalletCode = :senderWalletCode")
     Page<Object[]> findRecentSentTransaction(String senderWalletCode, Pageable pageable);
+
+
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
+            "WHERE t.recipientWalletCode = :recipientWalletCode " +
+            "AND t.createdDate BETWEEN :startDate AND :endDate")
+    Double sumRecentReceivedTransactions(String recipientWalletCode, Instant startDate, Instant endDate);
+
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
+            "WHERE t.senderWalletCode = :senderWalletCode " +
+            "AND t.createdDate BETWEEN :startDate AND :endDate")
+    Double sumRecentSentTransactions(String senderWalletCode, Instant startDate, Instant endDate);
+
+    @Query("SELECT COUNT(t) FROM Transaction t WHERE t.senderWalletCode = :walletCode OR t.recipientWalletCode = :walletCode")
+    Integer countBySenderWalletCodeOrRecipientWalletCode(String walletCode);
+
 }

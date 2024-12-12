@@ -32,7 +32,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -250,6 +254,11 @@ public class TransactionServiceImpl implements TransactionService {
         return createTransaction(transactionRequest);
     }
 
+    @Override
+    public Integer getTotalTransactionByUser(String walletCode) {
+        return transactionRepository.countBySenderWalletCodeOrRecipientWalletCode(walletCode);
+    }
+
     /**
      * Retrieves a transaction by its ID.
      *
@@ -446,13 +455,27 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     @Override
-    public Integer getTotalSentTransactionByUserInWeek() {
-        return 0;
+    public double getTotalSentTransactionByUserInWeek(String senderWalletCode) {
+        Instant[] weekRange = getCurrentWeekRange();
+        return transactionRepository.sumRecentSentTransactions(senderWalletCode, weekRange[0], weekRange[1]);
     }
 
     @Override
-    public Integer getTotalReceivedTransactionByUserInWeek() {
-        return 0;
+    public double getTotalReceivedTransactionByUserInWeek(String recipientWalletCode) {
+        Instant[] weekRange = getCurrentWeekRange();
+        return transactionRepository.sumRecentReceivedTransactions(recipientWalletCode, weekRange[0], weekRange[1]);
+    }
+
+
+    private Instant[] getCurrentWeekRange() {
+        LocalDate now = LocalDate.now();
+        LocalDate startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate endOfWeek = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        Instant startDate = startOfWeek.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant endDate = endOfWeek.atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+        return new Instant[]{startDate, endDate};
     }
 
 }
