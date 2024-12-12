@@ -29,7 +29,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TransactionController {
 
-
     private final TransactionService transactionService;
 
     @GetMapping("/recent-received-transaction-list-by-user")
@@ -44,18 +43,23 @@ public class TransactionController {
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
-    @GetMapping("/total-sent-transaction-by-user-in-week")
-    public MessageResponse<Integer> getTotalSentTransactionByUser() {
-        Integer data = transactionService.getTotalSentTransactionByUserInWeek();
+    @GetMapping("/total-amount-sent-transaction-by-user-in-week")
+    public MessageResponse<Double> getTotalAmountSentTransactionByUser(@RequestParam String senderWalletCode) {
+        Double data = transactionService.getTotalSentTransactionByUserInWeek(senderWalletCode);
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
-    @GetMapping("/total-received-transaction-by-user-in-week")
-    public MessageResponse<Integer> getTotalReceivedTransactionByUser() {
-        Integer data = transactionService.getTotalReceivedTransactionByUserInWeek();
+    @GetMapping("/total-amount-received-transaction-by-user-in-week")
+    public MessageResponse<Double> getTotalAmountReceivedTransactionByUser(@RequestParam String recipientWalletCode) {
+        Double data = transactionService.getTotalReceivedTransactionByUserInWeek(recipientWalletCode);
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
+    @GetMapping("/total-transaction-by-user")
+    public MessageResponse<Integer> getTotalTransactionByUser(@RequestParam String walletCode) {
+        Integer data = transactionService.getTotalTransactionByUser(walletCode);
+        return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
+    }
 
     @PostMapping("/create-transaction")
     public MessageResponse<TransactionResponse> createTransaction(@RequestBody TransactionRequest transactionRequest) throws JsonProcessingException {

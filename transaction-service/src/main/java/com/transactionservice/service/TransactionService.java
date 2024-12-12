@@ -6,17 +6,11 @@ import com.transactionservice.dto.request.TransactionRequest;
 import com.transactionservice.dto.request.email.EmailRequest;
 import com.transactionservice.dto.response.TransactionResponse;
 import com.transactionservice.dto.request.TransactionListRequest;
-import com.transactionservice.dto.request.TransactionRequest;
 import com.transactionservice.dto.response.TransactionDashboardResponse;
 import com.transactionservice.dto.response.TransactionListResponse;
-import com.transactionservice.dto.response.TransactionResponse;
 import org.springframework.data.domain.Page;
-
 import com.transactionservice.dto.request.TransactionSearch;
-
 import com.transactionservice.dto.response.TransactionSearchResponse;
-
-
 
 import java.util.List;
 
@@ -32,13 +26,14 @@ public interface TransactionService {
 
     List<TransactionSearchResponse> getTransactionByInformation(TransactionSearch transactionSearch);
 
-    Integer getTotalSentTransactionByUserInWeek();
+    double getTotalSentTransactionByUserInWeek(String senderWalletCode);
 
-    Integer getTotalReceivedTransactionByUserInWeek();
+    double getTotalReceivedTransactionByUserInWeek(String recipientWalletCode);
 
     void generateOtp(EmailRequest request) throws JsonProcessingException;
 
     TransactionResponse confirmTransactionWithOTP(ConfirmTransactionRequest confirmTransactionRequest) throws JsonProcessingException;
 
+    Integer getTotalTransactionByUser(String walletCode);
 }
 
