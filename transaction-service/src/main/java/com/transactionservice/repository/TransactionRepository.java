@@ -25,12 +25,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
             "WHERE t.senderWalletCode = :senderWalletCode")
     Page<Object[]> findRecentSentTransaction(String senderWalletCode, Pageable pageable);
 
-    @Query("SELECT SUM(t.amount) FROM Transaction t " +
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
             "WHERE t.recipientWalletCode = :recipientWalletCode " +
             "AND t.createdDate BETWEEN :startDate AND :endDate")
     Double sumRecentReceivedTransactions(String recipientWalletCode, Instant startDate, Instant endDate);
 
-    @Query("SELECT SUM(t.amount) FROM Transaction t " +
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
             "WHERE t.senderWalletCode = :senderWalletCode " +
             "AND t.createdDate BETWEEN :startDate AND :endDate")
     Double sumRecentSentTransactions(String senderWalletCode, Instant startDate, Instant endDate);
