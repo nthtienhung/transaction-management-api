@@ -8,6 +8,7 @@ import com.iceteasoftware.user.configuration.message.Labels;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
 import com.iceteasoftware.user.dto.response.UserResponse;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
+import com.iceteasoftware.user.dto.response.profile.FullNameResponse;
 import com.iceteasoftware.user.entity.Profile;
 import com.iceteasoftware.user.entity.User;
 import com.iceteasoftware.user.enums.MessageCode;
@@ -386,5 +387,24 @@ public class UserServiceImpl implements UserService {
                 .email(profile.getEmail())
                 .address(profile.getAddress())
                 .build();
+    }
+
+    @Override
+    public Boolean isEmailExists(String email) {
+        Optional<Profile> profile = userProfileRepository.findByEmail(email);
+        return profile.isEmpty();
+    }
+
+    public FullNameResponse getFullNameByUserId(String userId) {
+        Optional<FullNameResponse> user = userProfileRepository.findUserById(userId);
+
+        if (user.isPresent()) {
+            FullNameResponse response = new FullNameResponse();
+            response.setFirstName(user.get().getFirstName());
+            response.setLastName(user.get().getLastName());
+            return response;
+        } else {
+            return null;
+        }
     }
 }

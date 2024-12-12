@@ -25,6 +25,12 @@ public class WalletController {
 //        return new ResponseObject<>(HttpStatus.CREATED.value(), Constants.DEFAULT_MESSAGE_CREATE_SUCCESS, LocalDateTime.now());
 //    }
 
+    @GetMapping("/code/{userId}")
+    WalletResponse getWalletByUserId(@PathVariable("userId") String userId){
+        System.out.println("User Id: " + userId);
+        return walletService.getWalletByUserId(userId);
+    }
+
     @GetMapping("/{walletCode}")
     WalletResponse getWalletByWalletCode(@PathVariable("walletCode") String walletCode){
         System.out.println("Wallet Code: " + walletCode);
@@ -36,6 +42,12 @@ public class WalletController {
         System.out.println("Wallet Code: " + walletCode);
         walletService.updateWalletBalance(walletCode, amount);
     }
+
+    @GetMapping("/{walletCode}/user-id")
+    public String getUserIdByWalletCode(@PathVariable("walletCode") String walletCode){
+        return walletService.getUserIdByWalletCode(walletCode);
+    }
+
     @GetMapping("/getWallet/{userId}")
     public ResponseEntity<WalletResponse> getWallet(@PathVariable("userId") String userId){
         System.out.println("User ID: " + userId);

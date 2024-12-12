@@ -4,6 +4,7 @@ package com.iceteasoftware.user.controller;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
 import com.iceteasoftware.user.dto.response.UserResponse;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
+import com.iceteasoftware.user.dto.response.profile.FullNameResponse;
 import com.iceteasoftware.user.entity.Profile;
 import com.iceteasoftware.user.entity.User;
 import com.iceteasoftware.user.service.UserService;
@@ -66,5 +67,16 @@ public class UserController {
         System.out.println("User Response: " + userResponse);
 //        return new ResponseObject<UserResponse>(HttpStatus.OK.value(), "Success", LocalDateTime.now(), userResponse);
         return userResponse;
+    }
+
+
+    @GetMapping("/check-email-exists")
+    Boolean isEmailExists(@RequestParam String email) {
+        return userService.isEmailExists(email);
+    }
+
+    @GetMapping("/{userId}/full-name")
+    public FullNameResponse getFullNameByUserId(@PathVariable("userId") String userId){
+        return userService.getFullNameByUserId(userId);
     }
 }

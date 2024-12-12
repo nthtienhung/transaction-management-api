@@ -14,4 +14,7 @@ public interface WalletClient {
 
     @PutMapping("/{walletCode}/balance")
     void updateWalletBalance(@PathVariable("walletCode") String walletCode, @RequestBody Long amount);
+
+    @GetMapping("/{walletCode}/user-id")
+    String getUserIdByWalletCode(@PathVariable("walletCode") String walletCode);
 }

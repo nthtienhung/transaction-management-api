@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
 import com.iceteasoftware.user.dto.response.UserResponse;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
+import com.iceteasoftware.user.dto.response.profile.FullNameResponse;
 import com.iceteasoftware.user.entity.Profile;
 import com.iceteasoftware.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,4 +26,8 @@ public interface UserService {
     ResponseEntity<User> findUser(HttpServletRequest request);
 
     UserResponse getUserById(String userId);
+
+    Boolean isEmailExists(String email);
+
+    FullNameResponse getFullNameByUserId(String userId);
 }

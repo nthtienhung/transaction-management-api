@@ -86,9 +86,18 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    public String getUserIdByWalletCode(String walletCode) {
+        return walletRepository.findUserIdByWalletCode(walletCode);
+    }
+
+    @Override
     public WalletResponse getWalletByUserId(String userId) {
         Wallet wallet = walletRepository.findByUserId(userId);
-        return WalletResponse.builder().walletCode(wallet.getWalletCode()).balance(wallet.getBalance()).userId(wallet.getUserId()).build();
+        return WalletResponse.builder()
+                .walletCode(wallet.getWalletCode())
+                .balance(wallet.getBalance())
+                .userId(wallet.getUserId())
+                .build();
     }
 
     private String generateWalletCode() {
