@@ -5,6 +5,8 @@ import com.transactionservice.dto.request.TransactionRequest;
 import com.transactionservice.dto.request.TransactionSearch;
 import com.transactionservice.dto.response.TransactionResponse;
 import com.transactionservice.dto.response.TransactionSearchResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -15,6 +17,6 @@ public interface TransactionService {
     List<TransactionResponse> getRecentSentTransactionListByUser();
     
     TransactionResponse createTransaction(TransactionRequest transactionRequest) throws JsonProcessingException;
-    List<TransactionSearchResponse> getTransactionByInformation(TransactionSearch transactionSearch);
+    Page<TransactionSearchResponse> getTransactionByInformation(TransactionSearch transactionSearch, Pageable pageable);
 
 }

@@ -7,6 +7,7 @@ import com.transactionservice.client.WalletClient;
 import com.transactionservice.configuration.auditing.AuditorAwareConfig;
 import com.transactionservice.configuration.kafka.KafkaProducer;
 import com.transactionservice.constant.KafkaTopicConstants;
+import com.transactionservice.dto.request.TransactionRequestRepository;
 import com.transactionservice.dto.request.TransactionRequest;
 import com.transactionservice.dto.request.TransactionSearch;
 import com.transactionservice.dto.request.email.EmailTransactionRequest;
@@ -22,7 +23,9 @@ import com.transactionservice.exception.handler.NotFoundAlertException;
 import com.transactionservice.repository.TransactionRepository;
 import com.transactionservice.service.TransactionService;
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.common.protocol.types.Field;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -40,8 +43,8 @@ import java.util.UUID;
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
-    private UserClient userClient;
-    private WalletClient walletClient;
+    private final UserClient userClient;
+    private final WalletClient walletClient;
     private final KafkaProducer kafkaProducer;
 
 
@@ -117,20 +120,37 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionSearchResponse> getTransactionByInformation(TransactionSearch transactionSearch) {
-        List<Transaction> transactionList = this.transactionRepository.findByTransactionIdOrRecipientWalletCodeOrSenderWalletCodeOrStatus(transactionSearch.getTransactionId(),transactionSearch.getWalletCode(),transactionSearch.getWalletCode(),transactionSearch.getStatus());
+    public Page<TransactionSearchResponse> getTransactionByInformation(TransactionSearch transactionSearch, Pageable pageable) {
+        String transactionId = (transactionSearch.getTransactionId() != null && !transactionSearch.getTransactionId().isEmpty())
+                ? transactionSearch.getTransactionId()
+                : null;
+
+        String walletCode = (transactionSearch.getWalletCode() != null && !transactionSearch.getWalletCode().isEmpty())
+                ? transactionSearch.getWalletCode()
+                : null;
+        Page<Transaction> transactionList = transactionRepository.findTransactions(transactionId,walletCode,walletCode,pageable);
         List<TransactionSearchResponse> transactionResponseList = new ArrayList<>();
         for (Transaction transaction : transactionList) {
-            if (transaction.getCreatedDate().isBefore(transactionSearch.getToDate().toInstant()) &&
-                    transaction.getCreatedDate().isAfter(transactionSearch.getFromDate().toInstant())) {
-               WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getRecipientWalletCode());
-               UserResponse userResponse = userClient.getUserById(walletResponse.getWalletCode());
-               String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
-                TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(),transaction.getSenderWalletCode(),fullName,transaction.getRecipientWalletCode(),transaction.getAmount(),transaction.getDescription(),transaction.getStatus());
-               transactionResponseList.add(transactionSearchResponse);
+            if(transactionSearch.getFromDate() == null || transactionSearch.getToDate() == null) {
+                if (transaction.getStatus() == transactionSearch.getStatus()) {
+                    WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getSenderWalletCode());
+                    UserResponse userResponse = userClient.getUserById(walletResponse.getUserId());
+                    String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
+                    TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(),transaction.getSenderWalletCode(),fullName,transaction.getRecipientWalletCode(),transaction.getAmount(),transaction.getDescription(),transaction.getStatus());
+                    transactionResponseList.add(transactionSearchResponse);
+                }
+            }else if (transaction.getCreatedDate().isBefore(transactionSearch.getToDate()) &&
+                    transaction.getCreatedDate().isAfter(transactionSearch.getFromDate())) {
+                if (transaction.getStatus() == transactionSearch.getStatus()) {
+                    WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getRecipientWalletCode());
+                    UserResponse userResponse = userClient.getUserById(walletResponse.getWalletCode());
+                    String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
+                    TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(),transaction.getSenderWalletCode(),fullName,transaction.getRecipientWalletCode(),transaction.getAmount(),transaction.getDescription(),transaction.getStatus());
+                    transactionResponseList.add(transactionSearchResponse);
+                }
             }
         }
-        return transactionResponseList;
+        return new PageImpl<>(transactionResponseList);
     }
 
     public Transaction getTransactionById(String transactionId) {

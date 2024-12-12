@@ -4,8 +4,13 @@ import com.transactionservice.dto.request.TransactionSearch;
 import com.transactionservice.dto.response.TransactionSearchResponse;
 import com.transactionservice.dto.response.common.ResponseObject;
 import com.transactionservice.dto.response.TransactionResponse;
+import com.transactionservice.enums.Status;
 import com.transactionservice.service.TransactionService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,10 +56,22 @@ public class TransactionController {
                 .build();
     }
     @PostMapping("/getAllTransaction")
-    public ResponseEntity<List<TransactionSearchResponse>> getAllTransaction(@RequestBody TransactionSearch transactionSearch) {
-        List<TransactionSearchResponse> transactionSearchResponses = transactionService.getTransactionByInformation(transactionSearch);
-        Collections.reverse(transactionSearchResponses);
+    public ResponseEntity<Page<TransactionSearchResponse>> getAllTransaction(
+            @RequestParam(required = false) String transactionId,
+            @RequestParam(required = false) String walletCode,
+            @RequestParam(required = false) Status status,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate,
+            @RequestParam int page,
+            @RequestParam int size) {
+        Instant fromInstant = fromDate != null ? Instant.parse(fromDate) : null;
+        Instant toInstant = toDate != null ? Instant.parse(toDate) : null;
+        TransactionSearch transactionSearch = new TransactionSearch(transactionId, walletCode, status, fromInstant, toInstant);
+        Pageable pageable = PageRequest.of(page, size); // Tạo Pageable từ tham số
+        Page<TransactionSearchResponse> transactionSearchResponses =
+                transactionService.getTransactionByInformation(transactionSearch, pageable);
         return new ResponseEntity<>(transactionSearchResponses, HttpStatus.OK);
     }
+
 }
 
