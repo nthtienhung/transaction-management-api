@@ -2,16 +2,16 @@ package com.transactionservice.dto.request;
 
 import com.transactionservice.enums.Status;
 
-import java.util.Date;
+import java.time.Instant;
 
 public class TransactionSearch {
     private String transactionId;
     private String walletCode;
     private Status status;
-    private Date fromDate;
-    private Date toDate;
+    private Instant fromDate;
+    private Instant toDate;
 
-    public TransactionSearch(String transactionId, String walletCode, Status status, Date fromDate, Date toDate) {
+    public TransactionSearch(String transactionId, String walletCode, Status status, Instant fromDate, Instant toDate) {
         this.transactionId = transactionId;
         this.walletCode = walletCode;
         this.status = status;
@@ -46,20 +46,20 @@ public class TransactionSearch {
         return this;
     }
 
-    public Date getFromDate() {
+    public Instant getFromDate() {
         return fromDate;
     }
 
-    public TransactionSearch setFromDate(Date fromDate) {
+    public TransactionSearch setFromDate(Instant fromDate) {
         this.fromDate = fromDate;
         return this;
     }
 
-    public Date getToDate() {
+    public Instant getToDate() {
         return toDate;
     }
 
-    public TransactionSearch setToDate(Date toDate) {
+    public TransactionSearch setToDate(Instant toDate) {
         this.toDate = toDate;
         return this;
     }
