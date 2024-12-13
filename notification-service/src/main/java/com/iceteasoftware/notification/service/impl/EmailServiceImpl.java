@@ -229,15 +229,17 @@ public class EmailServiceImpl implements EmailService {
 
             // Lấy thông tin từ dataNode
             String senderEmail = dataNode.get("senderMail").asText();
+            String senderWalletCode = dataNode.get("senderWalletCode").asText();
             String recipientEmail = dataNode.get("recipientMail").asText();
+            String recipientWalletCode = dataNode.get("recipientWalletCode").asText();
             String transactionCode = dataNode.get("transactionCode").asText();
             String amount = dataNode.get("amount").asText();
             String description = dataNode.get("description").asText();
 
             // Gửi email
-            sendTransactionEmail(senderEmail, transactionCode, amount, recipientEmail, description,
+            sendTransactionEmail(senderEmail, transactionCode, amount, recipientWalletCode, description,
                     "Transaction Successful Notification", "successful-transaction-email");
-            sendTransactionEmail(recipientEmail, transactionCode, amount, senderEmail, description,
+            sendTransactionEmail(recipientEmail, transactionCode, amount, senderWalletCode, description,
                     "You Have Received a Transaction", "receive-transaction-email");
 
             ThreadLocalUtil.remove();
