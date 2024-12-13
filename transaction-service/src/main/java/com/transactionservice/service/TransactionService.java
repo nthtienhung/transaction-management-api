@@ -11,6 +11,8 @@ import com.transactionservice.dto.response.TransactionListResponse;
 import org.springframework.data.domain.Page;
 import com.transactionservice.dto.request.TransactionSearch;
 import com.transactionservice.dto.response.TransactionSearchResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -24,7 +26,7 @@ public interface TransactionService {
 
     TransactionResponse createTransaction(TransactionRequest transactionRequest) throws JsonProcessingException;
 
-    List<TransactionSearchResponse> getTransactionByInformation(TransactionSearch transactionSearch);
+    Page<TransactionSearchResponse> getTransactionByInformation(TransactionSearch transactionSearch, Pageable pageable);
 
     double getTotalSentTransactionByUserInWeek(String senderWalletCode);
 
