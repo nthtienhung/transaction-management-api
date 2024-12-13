@@ -384,27 +384,7 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<>(user.get(), HttpStatus.OK);
     }
     
-    // @Override
-    // public List<UserProfileResponse> getAllUserProfile() {
-    //     List<Profile> profileList = userProfileRepository.findAll();
 
-    //     List<UserProfileResponse> userProfileResponseList = new ArrayList<>();
-    //     for (Profile profile : profileList) {
-    //         StatusRoleUserResponse statusRoleUserResponse = iamClient.getRoleStatus(profile.getUserId());
-    //         UserProfileResponse response = UserProfileResponse.builder()
-    //                 .firstName(profile.getFirstName())
-    //                 .lastName(profile.getLastName())
-    //                 .email(profile.getEmail())
-    //                 .phone(profile.getPhone())
-    //                 .dob(profile.getDob())
-    //                 .address(profile.getAddress())
-    //                 .role(statusRoleUserResponse.getRole())
-    //                 .status(statusRoleUserResponse.getStatus())
-    //                 .build();
-    //         userProfileResponseList.add(response);
-    //     }
-    //     return userProfileResponseList;
-    // }
 
     @Override
     public Page<UserProfileResponse> getAllUserProfile(Pageable pageable, String searchTerm) {

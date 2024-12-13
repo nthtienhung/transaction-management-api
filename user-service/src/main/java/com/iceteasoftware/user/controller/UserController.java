@@ -78,14 +78,6 @@ public class UserController {
      * 
      * @return List of all user profiles
      */
-    // @GetMapping("/user-list")
-    // @PreAuthorize("hasRole('ADMIN')")
-    // public ResponseObject<List<UserProfileResponse>> getUserList() {
-    //     List<UserProfileResponse> data = userService.getAllUserProfile();
-    //     return new ResponseObject<>(
-    //             HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data
-    //     );
-    // }
     @GetMapping("/user-list")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseObject<Page<UserProfileResponse>> getUserList(
@@ -97,7 +89,6 @@ public class UserController {
     ) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        // Change from java.awt.print.Pageable to org.springframework.data.domain.Pageable
         Page<UserProfileResponse> data = userService.getAllUserProfile(pageRequest, searchTerm);
         return new ResponseObject<>(
             HttpStatus.OK.value(), 
