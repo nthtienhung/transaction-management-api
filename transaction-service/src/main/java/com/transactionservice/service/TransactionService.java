@@ -6,34 +6,36 @@ import com.transactionservice.dto.request.TransactionRequest;
 import com.transactionservice.dto.request.email.EmailRequest;
 import com.transactionservice.dto.response.TransactionResponse;
 import com.transactionservice.dto.request.TransactionListRequest;
-import com.transactionservice.dto.request.TransactionRequest;
+import com.transactionservice.dto.response.TransactionDashboardResponse;
 import com.transactionservice.dto.response.TransactionListResponse;
-import com.transactionservice.dto.response.TransactionResponse;
+import org.springframework.data.domain.Page;
+import com.transactionservice.dto.request.TransactionSearch;
+import com.transactionservice.dto.response.TransactionSearchResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.transactionservice.dto.request.TransactionSearch;
-import com.transactionservice.dto.response.TransactionResponse;
-import com.transactionservice.dto.response.TransactionSearchResponse;
-
-
-import java.time.Instant;
 import java.util.List;
 
 public interface TransactionService {
 
-    List<TransactionResponse> getRecentReceivedTransactionListByUser();
+    Page<TransactionDashboardResponse> getRecentReceivedTransactionListByUser(String walletByUserLogIn);
 
-    List<TransactionResponse> getRecentSentTransactionListByUser();
-    
+    Page<TransactionDashboardResponse> getRecentSentTransactionListByUser(String walletByUserLogIn);
 
     Page<TransactionListResponse> getTransactionListByUser(TransactionListRequest request);
 
     TransactionResponse createTransaction(TransactionRequest transactionRequest) throws JsonProcessingException;
-    List<TransactionSearchResponse> getTransactionByInformation(TransactionSearch transactionSearch);
+
+    Page<TransactionSearchResponse> getTransactionByInformation(TransactionSearch transactionSearch, Pageable pageable);
+
+    double getTotalSentTransactionByUserInWeek(String senderWalletCode);
+
+    double getTotalReceivedTransactionByUserInWeek(String recipientWalletCode);
 
     void generateOtp(EmailRequest request) throws JsonProcessingException;
 
     TransactionResponse confirmTransactionWithOTP(ConfirmTransactionRequest confirmTransactionRequest) throws JsonProcessingException;
+
+    Integer getTotalTransactionByUser(String walletCode);
 }
 

@@ -4,9 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.transactionservice.client.UserClient;
 import com.transactionservice.client.WalletClient;
-import com.transactionservice.configuration.auditing.AuditorAwareConfig;
 import com.transactionservice.configuration.kafka.KafkaProducer;
 import com.transactionservice.constant.KafkaTopicConstants;
+import com.transactionservice.dto.request.TransactionRequest;
+import com.transactionservice.dto.request.TransactionSearch;
 import com.transactionservice.dto.request.*;
 import com.transactionservice.dto.request.email.EmailRequest;
 import com.transactionservice.dto.request.email.EmailTransactionRequest;
@@ -21,14 +22,21 @@ import com.transactionservice.repository.TransactionRepositoryCustom;
 import com.transactionservice.service.TransactionService;
 import com.transactionservice.util.ThreadLocalUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -53,19 +61,38 @@ public class TransactionServiceImpl implements TransactionService {
     private final UserClient userClient;
     private final WalletClient walletClient;
     private final KafkaProducer kafkaProducer;
+    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_NUMBER = 0;
     private final Gson gson;
 
 
     @Override
-    public List<TransactionResponse> getRecentReceivedTransactionListByUser() {
-        return List.of();
+    public Page<TransactionDashboardResponse> getRecentReceivedTransactionListByUser(String walletCodeByUserLogIn) {
+        return mapTransactionsToDashboardResponse(
+                transactionRepository.findRecentReceivedTransaction(walletCodeByUserLogIn, createPageable())
+        );
     }
 
     @Override
-    public List<TransactionResponse> getRecentSentTransactionListByUser() {
-        return List.of();
+    public Page<TransactionDashboardResponse> getRecentSentTransactionListByUser(String walletCodeByUserLogIn) {
+        return mapTransactionsToDashboardResponse(
+                transactionRepository.findRecentSentTransaction(walletCodeByUserLogIn, createPageable())
+        );
     }
 
+    private Page<TransactionDashboardResponse> mapTransactionsToDashboardResponse(Page<Object[]> transactionsPage) {
+        return transactionsPage.map(objects -> {
+            TransactionDashboardResponse response = new TransactionDashboardResponse();
+            response.setAmount((Long) objects[0]); // Mapping the amount
+            response.setCreatedDate((Instant) objects[1]); // Mapping the createdDate
+            response.setTransactionCode((String) objects[2]); // Mapping the transactionCode
+            return response;
+        });
+    }
+
+    private Pageable createPageable() {
+        return PageRequest.of(PAGE_NUMBER, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdDate"));
+    }
     @Override
     public Page<TransactionListResponse> getTransactionListByUser(TransactionListRequest request) {
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
@@ -227,6 +254,11 @@ public class TransactionServiceImpl implements TransactionService {
         return createTransaction(transactionRequest);
     }
 
+    @Override
+    public Integer getTotalTransactionByUser(String walletCode) {
+        return transactionRepository.countBySenderWalletCodeOrRecipientWalletCode(walletCode);
+    }
+
     /**
      * Retrieves a transaction by its ID.
      *
@@ -376,19 +408,74 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
     @Override
-    public List<TransactionSearchResponse> getTransactionByInformation(TransactionSearch transactionSearch) {
-        List<Transaction> transactionList = this.transactionRepository.findByTransactionIdOrRecipientWalletCodeOrSenderWalletCodeOrStatus(transactionSearch.getTransactionId(),transactionSearch.getWalletCode(),transactionSearch.getWalletCode(),transactionSearch.getStatus());
+    public Page<TransactionSearchResponse> getTransactionByInformation(TransactionSearch transactionSearch, Pageable pageable) {
+        String transactionId = (transactionSearch.getTransactionId() != null && !transactionSearch.getTransactionId().isEmpty())
+                ? transactionSearch.getTransactionId()
+                : null;
+
+        String walletCode = (transactionSearch.getWalletCode() != null && !transactionSearch.getWalletCode().isEmpty())
+                ? transactionSearch.getWalletCode()
+                : null;
+        Page<Transaction> transactionList = transactionRepository.findTransactions(transactionId,walletCode,walletCode,pageable);
         List<TransactionSearchResponse> transactionResponseList = new ArrayList<>();
         for (Transaction transaction : transactionList) {
-            if (transaction.getCreatedDate().isBefore(transactionSearch.getToDate().toInstant()) &&
-                    transaction.getCreatedDate().isAfter(transactionSearch.getFromDate().toInstant())) {
-                WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getRecipientWalletCode());
-                UserResponse userResponse = userClient.getUserById(walletResponse.getWalletCode());
-                String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
-                TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(),transaction.getSenderWalletCode(),fullName,transaction.getRecipientWalletCode(),transaction.getAmount(),transaction.getDescription(),transaction.getStatus());
-                transactionResponseList.add(transactionSearchResponse);
+            if(transactionSearch.getFromDate() == null || transactionSearch.getToDate() == null) {
+                if (transaction.getStatus() == transactionSearch.getStatus()) {
+                    WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getSenderWalletCode());
+                    UserResponse userResponse = userClient.getUserById(walletResponse.getUserId());
+                    String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
+                    TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(),transaction.getSenderWalletCode(),fullName,transaction.getRecipientWalletCode(),transaction.getAmount(),transaction.getDescription(),transaction.getStatus());
+                    transactionResponseList.add(transactionSearchResponse);
+                }else if(transactionSearch.getStatus() == null){
+                    WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getSenderWalletCode());
+                    UserResponse userResponse = userClient.getUserById(walletResponse.getUserId());
+                    String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
+                    TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(),transaction.getSenderWalletCode(),fullName,transaction.getRecipientWalletCode(),transaction.getAmount(),transaction.getDescription(),transaction.getStatus());
+                    transactionResponseList.add(transactionSearchResponse);
+                }
+            }else if (transaction.getCreatedDate().isBefore(transactionSearch.getToDate()) &&
+                    transaction.getCreatedDate().isAfter(transactionSearch.getFromDate())) {
+                if (transaction.getStatus() == transactionSearch.getStatus()) {
+                    WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getRecipientWalletCode());
+                    UserResponse userResponse = userClient.getUserById(walletResponse.getWalletCode());
+                    String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
+                    TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(),transaction.getSenderWalletCode(),fullName,transaction.getRecipientWalletCode(),transaction.getAmount(),transaction.getDescription(),transaction.getStatus());
+                    transactionResponseList.add(transactionSearchResponse);
+                }else if (transactionSearch.getStatus() == null){
+                    WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getSenderWalletCode());
+                    UserResponse userResponse = userClient.getUserById(walletResponse.getUserId());
+                    String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
+                    TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(),transaction.getSenderWalletCode(),fullName,transaction.getRecipientWalletCode(),transaction.getAmount(),transaction.getDescription(),transaction.getStatus());
+                    transactionResponseList.add(transactionSearchResponse);
+                }
             }
         }
-        return transactionResponseList;
+        return new PageImpl<>(transactionResponseList);
     }
+
+
+    @Override
+    public double getTotalSentTransactionByUserInWeek(String senderWalletCode) {
+        Instant[] weekRange = getCurrentWeekRange();
+        return transactionRepository.sumRecentSentTransactions(senderWalletCode, weekRange[0], weekRange[1]);
+    }
+
+    @Override
+    public double getTotalReceivedTransactionByUserInWeek(String recipientWalletCode) {
+        Instant[] weekRange = getCurrentWeekRange();
+        return transactionRepository.sumRecentReceivedTransactions(recipientWalletCode, weekRange[0], weekRange[1]);
+    }
+
+
+    private Instant[] getCurrentWeekRange() {
+        LocalDate now = LocalDate.now();
+        LocalDate startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate endOfWeek = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        Instant startDate = startOfWeek.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant endDate = endOfWeek.atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+        return new Instant[]{startDate, endDate};
+    }
+
 }
