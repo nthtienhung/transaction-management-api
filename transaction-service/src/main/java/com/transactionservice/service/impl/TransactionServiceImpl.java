@@ -416,41 +416,114 @@ public class TransactionServiceImpl implements TransactionService {
         String walletCode = (transactionSearch.getWalletCode() != null && !transactionSearch.getWalletCode().isEmpty())
                 ? transactionSearch.getWalletCode()
                 : null;
-        Page<Transaction> transactionList = transactionRepository.findTransactions(transactionId,walletCode,walletCode,pageable);
+        String sendWallet = walletCode;
+        String receiverWallet = walletCode;
+
+        // Tìm giao dịch từ repository
+        Page<Transaction> transactionList = transactionRepository.findTransactions(transactionId, sendWallet, receiverWallet, pageable);
         List<TransactionSearchResponse> transactionResponseList = new ArrayList<>();
+
+        // Kiểm tra điều kiện theo ngày
         for (Transaction transaction : transactionList) {
-            if(transactionSearch.getFromDate() == null || transactionSearch.getToDate() == null) {
-                if (transaction.getStatus() == transactionSearch.getStatus()) {
-                    WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getSenderWalletCode());
-                    UserResponse userResponse = userClient.getUserById(walletResponse.getUserId());
-                    String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
-                    TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(),transaction.getSenderWalletCode(),fullName,transaction.getRecipientWalletCode(),transaction.getAmount(),transaction.getDescription(),transaction.getStatus());
-                    transactionResponseList.add(transactionSearchResponse);
-                }else if(transactionSearch.getStatus() == null){
-                    WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getSenderWalletCode());
-                    UserResponse userResponse = userClient.getUserById(walletResponse.getUserId());
-                    String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
-                    TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(),transaction.getSenderWalletCode(),fullName,transaction.getRecipientWalletCode(),transaction.getAmount(),transaction.getDescription(),transaction.getStatus());
-                    transactionResponseList.add(transactionSearchResponse);
+            boolean statusMatches = (transactionSearch.getStatus() == null || transactionSearch.getStatus().equals(transaction.getStatus()));
+
+            // Kiểm tra nếu từ ngày hoặc đến ngày là null hoặc rỗng
+            if (transactionSearch.getFromDate() == null || transactionSearch.getToDate() == null) {
+                if (statusMatches) {
+                    checkValueTransaction(transactionSearch, transaction, transactionResponseList);
                 }
-            }else if (transaction.getCreatedDate().isBefore(transactionSearch.getToDate()) &&
-                    transaction.getCreatedDate().isAfter(transactionSearch.getFromDate())) {
-                if (transaction.getStatus() == transactionSearch.getStatus()) {
-                    WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getRecipientWalletCode());
-                    UserResponse userResponse = userClient.getUserById(walletResponse.getWalletCode());
-                    String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
-                    TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(),transaction.getSenderWalletCode(),fullName,transaction.getRecipientWalletCode(),transaction.getAmount(),transaction.getDescription(),transaction.getStatus());
-                    transactionResponseList.add(transactionSearchResponse);
-                }else if (transactionSearch.getStatus() == null){
-                    WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getSenderWalletCode());
-                    UserResponse userResponse = userClient.getUserById(walletResponse.getUserId());
-                    String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
-                    TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(),transaction.getSenderWalletCode(),fullName,transaction.getRecipientWalletCode(),transaction.getAmount(),transaction.getDescription(),transaction.getStatus());
-                    transactionResponseList.add(transactionSearchResponse);
+            } else if (transaction.getCreatedDate().isAfter(transactionSearch.getFromDate()) &&
+                    transaction.getCreatedDate().isBefore(transactionSearch.getToDate())) {
+                if (statusMatches) {
+                    checkValueTransaction(transactionSearch, transaction, transactionResponseList);
                 }
             }
         }
+
         return new PageImpl<>(transactionResponseList);
+    }
+
+    private void checkValueTransaction(TransactionSearch transactionSearch, Transaction transaction, List<TransactionSearchResponse> transactionResponseList) {
+        String transactionId = transactionSearch.getTransactionId();
+        String walletCode = transactionSearch.getWalletCode();
+        Status status = transactionSearch.getStatus();  // Thêm kiểm tra status
+
+        boolean isTransactionIdEmpty = transactionId == null || transactionId.isEmpty();
+        boolean isWalletCodeEmpty = walletCode == null || walletCode.isEmpty();
+        boolean isStatusEmpty = status == null;  // Kiểm tra nếu status là null
+
+        // Trường hợp cả transactionId, walletCode và status đều null hoặc rỗng -> lấy tất cả giao dịch
+        if (isTransactionIdEmpty && isWalletCodeEmpty && isStatusEmpty) {
+            addTransaction(transaction, transactionResponseList);
+            return;
+        }
+
+        // Trường hợp tất cả 3 giá trị đều có giá trị -> Tìm giao dịch thỏa mãn tất cả 3 tiêu chí
+        if (!isTransactionIdEmpty && !isWalletCodeEmpty && !isStatusEmpty) {
+            if (transaction.getTransactionCode().equals(transactionId) &&
+                    (transaction.getRecipientWalletCode().equals(walletCode) || transaction.getSenderWalletCode().equals(walletCode)) &&
+                    transaction.getStatus().equals(status)) {
+                addTransaction(transaction, transactionResponseList);
+            }
+            return;
+        }
+
+        // Trường hợp chỉ có transactionId
+        if (!isTransactionIdEmpty && transaction.getTransactionCode().equals(transactionId)) {
+            // Nếu chỉ có transactionId và không có walletCode và status
+            if (isWalletCodeEmpty && isStatusEmpty) {
+                addTransaction(transaction, transactionResponseList);
+            }
+            // Nếu có walletCode và chỉ khớp với một trong hai (recipient hoặc sender)
+            else if (!isWalletCodeEmpty &&
+                    (transaction.getRecipientWalletCode().equals(walletCode) || transaction.getSenderWalletCode().equals(walletCode))) {
+                addTransaction(transaction, transactionResponseList);
+            }
+            // Nếu có status và khớp với status
+            else if (!isStatusEmpty && transaction.getStatus().equals(status)) {
+                addTransaction(transaction, transactionResponseList);
+            }
+            return;
+        }
+
+        // Trường hợp chỉ có walletCode
+        if (!isWalletCodeEmpty) {
+            // Kiểm tra walletCode có khớp với recipient hoặc sender
+            if (transaction.getRecipientWalletCode().equals(walletCode) || transaction.getSenderWalletCode().equals(walletCode)) {
+                // Nếu không có transactionId và không có status
+                if (isTransactionIdEmpty && isStatusEmpty) {
+                    addTransaction(transaction, transactionResponseList);
+                }
+                // Nếu có status và khớp với status
+                else if (!isStatusEmpty && transaction.getStatus().equals(status)) {
+                    addTransaction(transaction, transactionResponseList);
+                }
+            }
+            return;
+        }
+
+        // Trường hợp chỉ có status
+        if (!isStatusEmpty) {
+            // Nếu status khớp với transaction
+            if (transaction.getStatus().equals(status)) {
+                // Nếu không có transactionId và không có walletCode
+                if (isTransactionIdEmpty && isWalletCodeEmpty) {
+                    addTransaction(transaction, transactionResponseList);
+                }
+                // Nếu có walletCode và khớp với một trong hai (recipient hoặc sender)
+                else if (!isWalletCodeEmpty &&
+                        (transaction.getRecipientWalletCode().equals(walletCode) || transaction.getSenderWalletCode().equals(walletCode))) {
+                    addTransaction(transaction, transactionResponseList);
+                }
+            }
+        }
+    }
+    private void addTransaction(Transaction transaction, List<TransactionSearchResponse> transactionResponseList) {
+        WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getSenderWalletCode());
+        UserResponse userResponse = userClient.getUserById(walletResponse.getUserId());
+        String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
+        TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(), transaction.getSenderWalletCode(),fullName, transaction.getRecipientWalletCode(), transaction.getAmount(), transaction.getDescription(), transaction.getStatus());
+        transactionResponseList.add(transactionSearchResponse);
     }
 
 

@@ -100,20 +100,15 @@ public class TransactionController {
     }
 
     @PostMapping("/getAllTransaction")
-    public ResponseEntity<Page<TransactionSearchResponse>> getAllTransaction(
-            @RequestParam(required = false) String transactionId,
-            @RequestParam(required = false) String walletCode,
-            @RequestParam(required = false) Status status,
-            @RequestParam(required = false) String fromDate,
-            @RequestParam(required = false) String toDate,
+    public ResponseEntity<Page<TransactionSearchResponse>> getAllTransaction(@ModelAttribute TransactionSearch transactionSearch,
             @RequestParam int page,
             @RequestParam int size) {
-        Instant fromInstant = fromDate != null ? Instant.parse(fromDate) : null;
-        Instant toInstant = toDate != null ? Instant.parse(toDate) : null;
-        TransactionSearch transactionSearch = new TransactionSearch(transactionId, walletCode, status, fromInstant, toInstant);
+        Instant fromInstant = transactionSearch.getFromDate() != null ? Instant.parse(transactionSearch.getFromDate().toString()) : null;
+        Instant toInstant = transactionSearch.getToDate() != null ? Instant.parse(transactionSearch.getToDate().toString()) : null;
+        TransactionSearch transactionSearchValue = new TransactionSearch(transactionSearch.getTransactionId(), transactionSearch.getWalletCode(), transactionSearch.getStatus(), fromInstant, toInstant);
         Pageable pageable = PageRequest.of(page, size); // Tạo Pageable từ tham số
         Page<TransactionSearchResponse> transactionSearchResponses =
-                transactionService.getTransactionByInformation(transactionSearch, pageable);
+                transactionService.getTransactionByInformation(transactionSearchValue, pageable);
         return new ResponseEntity<>(transactionSearchResponses, HttpStatus.OK);
     }
 
