@@ -1,7 +1,9 @@
 package com.iceteasoftware.iam.service.impl;
 
 import com.iceteasoftware.iam.dto.response.StatusRoleUserResponse;
+import com.iceteasoftware.iam.entity.User;
 import com.iceteasoftware.iam.enums.MessageCode;
+import com.iceteasoftware.iam.enums.Status;
 import com.iceteasoftware.iam.exception.handle.BadRequestAlertException;
 import com.iceteasoftware.iam.repository.UserRepository;
 import com.iceteasoftware.iam.service.UserService;
@@ -28,4 +30,15 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestAlertException(MessageCode.MSG1101);
         }
     }
+    
+    @Override
+    public void updateUserStatus(String userId, Status status) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new BadRequestAlertException(MessageCode.MSG1101));
+        // user.setStatus(Boolean.valueOf(status.name()));
+        // Fix the status conversion
+        user.setStatus(status == Status.ACTIVE);
+        userRepository.save(user);
+    }
+
 }

@@ -10,6 +10,7 @@ import com.iceteasoftware.user.dto.response.profile.FullNameResponse;
 import com.iceteasoftware.user.entity.Profile;
 import com.iceteasoftware.user.entity.User;
 import com.iceteasoftware.user.enums.MessageCode;
+import com.iceteasoftware.user.enums.Status;
 import com.iceteasoftware.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import java.awt.print.Pageable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -117,4 +119,19 @@ public class UserController {
     public FullNameResponse getFullNameByUserId(@PathVariable("userId") String userId){
         return userService.getFullNameByUserId(userId);
     }
+
+    // @PutMapping("/user-list/{userId}/status")
+    // @PreAuthorize("hasRole('ADMIN')")
+    // public ResponseObject<Void> updateUserStatus(
+    //     @PathVariable String userId,
+    //     @RequestBody Map<String, String> statusMap
+    // ) {
+    //     Status status = Status.valueOf(statusMap.get("status"));
+    //     userService.updateUserStatus(userId, status);
+    //     return new ResponseObject<>(
+    //         HttpStatus.OK.value(),
+    //         Constants.DEFAULT_MESSAGE_SUCCESS,
+    //         LocalDateTime.now()
+    //     );
+    // }
 }

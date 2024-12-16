@@ -8,6 +8,7 @@ import java.time.LocalDate;
 @Data
 @Builder
 public class UserProfileResponse {
+    private String userId;
     private String firstName;
     private String lastName;
     private String email;

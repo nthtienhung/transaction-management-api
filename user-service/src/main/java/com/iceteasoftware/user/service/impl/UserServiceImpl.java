@@ -15,6 +15,7 @@ import com.iceteasoftware.user.dto.response.profile.FullNameResponse;
 import com.iceteasoftware.user.entity.Profile;
 import com.iceteasoftware.user.entity.User;
 import com.iceteasoftware.user.enums.MessageCode;
+import com.iceteasoftware.user.enums.Status;
 import com.iceteasoftware.user.exception.handler.BadRequestAlertException;
 import com.iceteasoftware.user.repository.UserProfileRepository;
 import com.iceteasoftware.user.repository.UserRepository;
@@ -34,6 +35,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 
@@ -41,8 +43,6 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -403,6 +403,7 @@ public class UserServiceImpl implements UserService {
         return profilePage.map(profile -> {
             StatusRoleUserResponse statusRoleUserResponse = iamClient.getRoleStatus(profile.getUserId());
             return UserProfileResponse.builder()
+                    .userId(profile.getUserId())
                     .firstName(profile.getFirstName())
                     .lastName(profile.getLastName())
                     .email(profile.getEmail())
@@ -447,4 +448,23 @@ public class UserServiceImpl implements UserService {
             return null;
         }
     }
+
+    // @Override
+    // public void updateUserStatus(String userId, Status status) {
+    //     if (userId == null || userId.trim().isEmpty()) {
+    //         throw new BadRequestAlertException(MessageCode.MSG1101);
+    //     }
+        
+    //     try {
+    //         String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+    //         iamClient.updateUserStatus(
+    //             userId, 
+    //             status,
+    //             token,
+    //             "ROLE_ADMIN"
+    //         );
+    //     } catch (IllegalArgumentException e) {
+    //         throw new BadRequestAlertException(MessageCode.MSG1101);
+    //     }
+    // }
 }

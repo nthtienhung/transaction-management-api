@@ -8,6 +8,7 @@ import com.iceteasoftware.user.dto.response.common.ResponseObject;
 import com.iceteasoftware.user.dto.response.profile.FullNameResponse;
 import com.iceteasoftware.user.entity.Profile;
 import com.iceteasoftware.user.entity.User;
+import com.iceteasoftware.user.enums.Status;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -39,4 +40,7 @@ public interface UserService {
     Boolean isEmailExists(String email);
 
     FullNameResponse getFullNameByUserId(String userId);
+
+    // void updateUserStatus(String userId, Status status);
+
 }
