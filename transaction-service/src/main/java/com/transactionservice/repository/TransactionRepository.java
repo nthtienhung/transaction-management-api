@@ -18,14 +18,13 @@ import java.time.Instant;
 public interface TransactionRepository extends JpaRepository<Transaction, String> {
     @Query("SELECT t FROM Transaction t WHERE " +
             "(COALESCE(:transactionCode, '') = '' OR t.transactionCode = :transactionCode) AND " +
-            "(COALESCE(:recipientWalletCode, '') = '' OR t.recipientWalletCode = :recipientWalletCode) AND " +
-            "(COALESCE(:senderWalletCode, '') = '' OR t.senderWalletCode = :senderWalletCode)")
+            "(COALESCE(:recipientWalletCode, '') = '' OR t.recipientWalletCode like %:recipientWalletCode%) OR " +
+            "(COALESCE(:senderWalletCode, '') = '' OR t.senderWalletCode like %:senderWalletCode%)")
     Page<Transaction> findTransactions(
             @Param("transactionCode") String transactionCode,
             @Param("recipientWalletCode") String recipientWalletCode,
             @Param("senderWalletCode") String senderWalletCode,
             Pageable pageable);
-
 
     @Query("SELECT t.amount, t.createdDate, t.transactionCode FROM Transaction t " +
             "WHERE t.recipientWalletCode = :recipientWalletCode")

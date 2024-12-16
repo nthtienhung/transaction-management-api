@@ -15,6 +15,7 @@ public class TransactionSearchResponse {
     private String senderWalletCode;
     private String fromUser;
     private String receiverWalletCode;
+    private String toUser;
     private Long amount;
     private String description;
     private Status status;
