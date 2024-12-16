@@ -520,9 +520,12 @@ public class TransactionServiceImpl implements TransactionService {
     }
     private void addTransaction(Transaction transaction, List<TransactionSearchResponse> transactionResponseList) {
         WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getSenderWalletCode());
+        WalletResponse walletResponseToUser = walletClient.getWalletByWalletCode(transaction.getRecipientWalletCode());
         UserResponse userResponse = userClient.getUserById(walletResponse.getUserId());
+        UserResponse userResponseToUser = userClient.getUserById(walletResponseToUser.getUserId());
+        String fullNameToUser = userResponseToUser.getFirstName() + " " + userResponseToUser.getLastName();
         String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
-        TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(), transaction.getSenderWalletCode(),fullName, transaction.getRecipientWalletCode(), transaction.getAmount(), transaction.getDescription(), transaction.getStatus());
+        TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(), transaction.getSenderWalletCode(),fullName, transaction.getRecipientWalletCode(),fullNameToUser, transaction.getAmount(), transaction.getDescription(), transaction.getStatus());
         transactionResponseList.add(transactionSearchResponse);
     }
 
