@@ -14,7 +14,9 @@ import com.transactionservice.dto.response.TransactionSearchResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 public interface TransactionService {
 
@@ -37,5 +39,11 @@ public interface TransactionService {
     TransactionResponse confirmTransactionWithOTP(ConfirmTransactionRequest confirmTransactionRequest) throws JsonProcessingException;
 
     Integer getTotalTransactionByUser(String walletCode);
+
+    Map<String, Object> getGeneralStatistics(Instant startDate, Instant endDate);
+
+    List<Map<String, Object>> getUserStatistics(Instant startDate, Instant endDate);
+
+    List<Map<String, Object>> getTransactionDetails(Instant startDate, Instant endDate);
 }
 

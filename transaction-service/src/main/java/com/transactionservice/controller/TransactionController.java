@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -117,5 +118,28 @@ public class TransactionController {
         return new ResponseEntity<>(transactionSearchResponses, HttpStatus.OK);
     }
 
+    @GetMapping("/general")
+    public ResponseEntity<Map<String, Object>> getGeneralReport(
+            @RequestParam Instant startDate,
+            @RequestParam Instant endDate) {
+        Map<String, Object> report = transactionService.getGeneralStatistics(startDate, endDate);
+        return ResponseEntity.ok(report);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<Map<String, Object>>> getUserReports(
+            @RequestParam Instant startDate,
+            @RequestParam Instant endDate) {
+        List<Map<String, Object>> reports = transactionService.getUserStatistics(startDate, endDate);
+        return ResponseEntity.ok(reports);
+    }
+
+    @GetMapping("/transactions")
+    public ResponseEntity<List<Map<String, Object>>> getTransactionDetails(
+            @RequestParam Instant startDate,
+            @RequestParam Instant endDate) {
+        List<Map<String, Object>> transactions = transactionService.getTransactionDetails(startDate, endDate);
+        return ResponseEntity.ok(transactions);
+    }
 }
 
