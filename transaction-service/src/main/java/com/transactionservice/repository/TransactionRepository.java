@@ -49,4 +49,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.senderWalletCode = :walletCode OR t.recipientWalletCode = :walletCode")
     Integer countBySenderWalletCodeOrRecipientWalletCode(String walletCode);
 
+    Transaction findTransactionByTransactionCode(String transactionCode);
 }

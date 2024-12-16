@@ -4,13 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.transactionservice.dto.request.ConfirmTransactionRequest;
 import com.transactionservice.dto.request.TransactionRequest;
 import com.transactionservice.dto.request.email.EmailRequest;
-import com.transactionservice.dto.response.transaction.TransactionResponse;
+import com.transactionservice.dto.response.transaction.*;
 import com.transactionservice.dto.request.TransactionListRequest;
-import com.transactionservice.dto.response.transaction.TransactionDashboardResponse;
-import com.transactionservice.dto.response.transaction.TransactionListResponse;
 import org.springframework.data.domain.Page;
 import com.transactionservice.dto.request.TransactionSearch;
-import com.transactionservice.dto.response.transaction.TransactionSearchResponse;
 import org.springframework.data.domain.Pageable;
 
 public interface TransactionService {
@@ -34,5 +31,7 @@ public interface TransactionService {
     TransactionResponse confirmTransactionWithOTP(ConfirmTransactionRequest confirmTransactionRequest) throws JsonProcessingException;
 
     Integer getTotalTransactionByUser(String walletCode);
+
+    TransactionDetailResponse getTransactionDetailByTransactionCode(String transactionCode);
 }
 
