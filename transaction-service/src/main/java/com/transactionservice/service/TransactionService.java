@@ -4,17 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.transactionservice.dto.request.ConfirmTransactionRequest;
 import com.transactionservice.dto.request.TransactionRequest;
 import com.transactionservice.dto.request.email.EmailRequest;
-import com.transactionservice.dto.response.TransactionResponse;
+import com.transactionservice.dto.response.transaction.TransactionResponse;
 import com.transactionservice.dto.request.TransactionListRequest;
-import com.transactionservice.dto.response.TransactionDashboardResponse;
-import com.transactionservice.dto.response.TransactionListResponse;
+import com.transactionservice.dto.response.transaction.TransactionDashboardResponse;
+import com.transactionservice.dto.response.transaction.TransactionListResponse;
 import org.springframework.data.domain.Page;
 import com.transactionservice.dto.request.TransactionSearch;
-import com.transactionservice.dto.response.TransactionSearchResponse;
-import org.springframework.data.domain.Page;
+import com.transactionservice.dto.response.transaction.TransactionSearchResponse;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 public interface TransactionService {
 
