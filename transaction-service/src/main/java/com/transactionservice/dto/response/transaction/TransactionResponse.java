@@ -1,6 +1,5 @@
-package com.transactionservice.dto.response;
+package com.transactionservice.dto.response.transaction;
 
-import com.transactionservice.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,12 +9,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TransactionSearchResponse {
+public class TransactionResponse {
+
     private String transactionCode;
     private String senderWalletCode;
-    private String fromUser;
-    private String receiverWalletCode;
+    private String senderMail;
+    private String recipientWalletCode;
+    private String recipientMail;
     private Long amount;
+    private String status;
     private String description;
-    private Status status;
+
 }

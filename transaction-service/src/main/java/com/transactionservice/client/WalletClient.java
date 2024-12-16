@@ -1,6 +1,6 @@
 package com.transactionservice.client;
 
-import com.transactionservice.dto.response.WalletResponse;
+import com.transactionservice.dto.response.wallet.WalletResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
