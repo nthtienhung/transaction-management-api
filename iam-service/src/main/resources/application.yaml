@@ -8,6 +8,7 @@ spring:
         name: iam-service
     datasource:
         url: jdbc:postgresql://localhost:5432/team2db
+        url: jdbc:postgresql://localhost:5432/team2db
         username: postgres
         password: 123
 

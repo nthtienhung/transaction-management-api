@@ -10,7 +10,7 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=yes
 
   # Kafka
-  kafka:
+  kafka: 
     image: 'bitnami/kafka:latest'
     container_name: kafka
     ports:

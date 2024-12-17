@@ -1,6 +1,6 @@
 package com.transactionservice.exception;
 
-import com.transactionservice.dto.response.MessageResponse;
+import com.transactionservice.dto.response.common.MessageResponse;
 import com.transactionservice.exception.handler.BadRequestAlertException;
 import com.transactionservice.exception.handler.InternalServerErrorException;
 import lombok.extern.slf4j.Slf4j;
