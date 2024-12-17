@@ -7,4 +7,5 @@ public interface KafkaTopicConstants {
     public static final String DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SUCCESSFUL_TRANSACTION = "send-email-successful-transaction";
     public static final String DEFAULT_KAFKA_TOPIC_SEND_EMAIL_RECEIVE_TRANSACTION = "send-email-receive-transaction";
     public static final String DEFAULT_KAFKA_TOPIC_CREATE_TRANSACTION = "create-transaction";
+    public static final String DEFAULT_KAFKA_TOPIC_SEND_REPORT = "send-report";
 }

@@ -8,6 +8,7 @@ import com.transactionservice.dto.response.transaction.TransactionDashboardRespo
 import com.transactionservice.dto.response.transaction.TransactionListResponse;
 import com.transactionservice.dto.response.transaction.TransactionResponse;
 import com.transactionservice.dto.response.transaction.TransactionSearchResponse;
+import com.transactionservice.entity.Transaction;
 import com.transactionservice.enums.Status;
 
 import com.transactionservice.dto.request.TransactionListRequest;
@@ -104,20 +105,15 @@ public class TransactionController {
     }
 
     @PostMapping("/getAllTransaction")
-    public ResponseEntity<Page<TransactionSearchResponse>> getAllTransaction(
-            @RequestParam(required = false) String transactionId,
-            @RequestParam(required = false) String walletCode,
-            @RequestParam(required = false) Status status,
-            @RequestParam(required = false) String fromDate,
-            @RequestParam(required = false) String toDate,
-            @RequestParam int page,
-            @RequestParam int size) {
-        Instant fromInstant = fromDate != null ? Instant.parse(fromDate) : null;
-        Instant toInstant = toDate != null ? Instant.parse(toDate) : null;
-        TransactionSearch transactionSearch = new TransactionSearch(transactionId, walletCode, status, fromInstant, toInstant);
+    public ResponseEntity<Page<TransactionSearchResponse>> getAllTransaction(@ModelAttribute TransactionSearch transactionSearch,
+                                                                             @RequestParam int page,
+                                                                             @RequestParam int size) {
+        Instant fromInstant = transactionSearch.getFromDate() != null ? Instant.parse(transactionSearch.getFromDate().toString()) : null;
+        Instant toInstant = transactionSearch.getToDate() != null ? Instant.parse(transactionSearch.getToDate().toString()) : null;
+        TransactionSearch transactionSearchValue = new TransactionSearch(transactionSearch.getTransactionId(), transactionSearch.getWalletCode(), transactionSearch.getStatus(), fromInstant, toInstant);
         Pageable pageable = PageRequest.of(page, size); // Tạo Pageable từ tham số
         Page<TransactionSearchResponse> transactionSearchResponses =
-                transactionService.getTransactionByInformation(transactionSearch, pageable);
+                transactionService.getTransactionByInformation(transactionSearchValue, pageable);
         return new ResponseEntity<>(transactionSearchResponses, HttpStatus.OK);
     }
 
@@ -144,5 +140,14 @@ public class TransactionController {
         List<Map<String, Object>> transactions = transactionService.getTransactionDetails(startDate, endDate);
         return ResponseEntity.ok(transactions);
     }
+
+    @GetMapping("/transactions-detail")
+    public ResponseEntity<List<Transaction>> getTransactions(
+            @RequestParam Instant startDate,
+            @RequestParam Instant endDate) {
+        List<Transaction> transactions = transactionService.getTransactions(startDate, endDate);
+        return ResponseEntity.ok(transactions);
+    }
+
 }
 
