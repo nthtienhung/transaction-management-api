@@ -36,8 +36,13 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new BadRequestAlertException(MessageCode.MSG1101));
         // user.setStatus(Boolean.valueOf(status.name()));
-        // Fix the status conversion
+
+        // // Fix the status conversion
+        // //this is boolean somehow?
+        // //use this if status is boolean type
         user.setStatus(status == Status.ACTIVE);
+
+        // user.setStatus(status);
         userRepository.save(user);
     }
 
