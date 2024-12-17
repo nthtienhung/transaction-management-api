@@ -1,4 +1,4 @@
-package com.transactionservice.dto.response;
+package com.transactionservice.dto.response.wallet;
 
 import lombok.Data;
 

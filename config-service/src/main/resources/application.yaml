@@ -1,5 +1,5 @@
 server:
-  port: 8080  # Port for Config Service
+  port: 8085  # Port for Config Service
 
 jwt:
     secret : 0aPglnnROU/zGjIuvAA32LpDzmqEY2O7J4fgQ4Eh+4KuJaSCXQIFQgBv6a69Pvkt
@@ -18,9 +18,9 @@ spring:
     cache-duration: 60   # Thời gian cache (60 giây)
 
   datasource:
-    url: jdbc:postgresql://localhost:5431/team2db
+    url: jdbc:postgresql://localhost:5432/team2db
     username: postgres
-    password: 12345
+    password: 123
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
