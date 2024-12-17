@@ -83,7 +83,7 @@ cache:
         timeout: 3000
     time-to-lives:
         default: -1
-        token: 300
+        token: 100
         remember-me-token: 7200
         refresh-token: 86400
         otp: 180
