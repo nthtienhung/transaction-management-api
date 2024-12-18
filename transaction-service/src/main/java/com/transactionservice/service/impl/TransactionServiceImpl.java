@@ -11,10 +11,7 @@ import com.transactionservice.dto.request.TransactionSearch;
 import com.transactionservice.dto.request.*;
 import com.transactionservice.dto.request.email.EmailRequest;
 import com.transactionservice.dto.request.email.EmailTransactionRequest;
-import com.transactionservice.dto.response.transaction.TransactionDashboardResponse;
-import com.transactionservice.dto.response.transaction.TransactionListResponse;
-import com.transactionservice.dto.response.transaction.TransactionResponse;
-import com.transactionservice.dto.response.transaction.TransactionSearchResponse;
+import com.transactionservice.dto.response.transaction.*;
 import com.transactionservice.dto.response.user.FullNameResponse;
 import com.transactionservice.dto.response.user.UserResponse;
 import com.transactionservice.dto.response.wallet.WalletResponse;
@@ -602,9 +599,9 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<Transaction> getTransactions(Instant startDate, Instant endDate) {
+    public List<TransactionStatsResponse> getTransactions(Instant startDate, Instant endDate) {
         try {
-            List<Transaction> transactions = transactionRepository.getTransactions(startDate, endDate);
+            List<TransactionStatsResponse> transactions = transactionRepository.getTransactions(startDate, endDate);
             return transactions;
         } catch (Exception e) {
             throw new RuntimeException("Error fetching transaction details: " + e.getMessage());

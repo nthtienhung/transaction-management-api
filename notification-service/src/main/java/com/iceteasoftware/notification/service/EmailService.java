@@ -17,5 +17,5 @@ public interface EmailService {
 
     void sendTransactionOTP(String message) throws JsonProcessingException, MessagingException;
 
-    void sendEmail(String email, List<TransactionStatsResponse> transactionDetails, String subject, String templateName) throws MessagingException, JsonProcessingException, IOException;
+    void sendEmail(String email, List<TransactionStatsResponse> transactionDetails, String subject, String templateName, String timePeriod) throws MessagingException, JsonProcessingException, IOException;
 }

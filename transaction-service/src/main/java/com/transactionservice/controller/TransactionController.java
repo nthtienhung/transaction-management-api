@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.transactionservice.dto.request.ConfirmTransactionRequest;
 import com.transactionservice.dto.request.email.EmailRequest;
 import com.transactionservice.dto.response.common.MessageResponse;
-import com.transactionservice.dto.response.transaction.TransactionDashboardResponse;
-import com.transactionservice.dto.response.transaction.TransactionListResponse;
-import com.transactionservice.dto.response.transaction.TransactionResponse;
-import com.transactionservice.dto.response.transaction.TransactionSearchResponse;
+import com.transactionservice.dto.response.transaction.*;
 import com.transactionservice.entity.Transaction;
 import com.transactionservice.enums.Status;
 
@@ -142,10 +139,10 @@ public class TransactionController {
     }
 
     @GetMapping("/transactions-detail")
-    public ResponseEntity<List<Transaction>> getTransactions(
+    public ResponseEntity<List<TransactionStatsResponse>> getTransactions(
             @RequestParam Instant startDate,
             @RequestParam Instant endDate) {
-        List<Transaction> transactions = transactionService.getTransactions(startDate, endDate);
+        List<TransactionStatsResponse> transactions = transactionService.getTransactions(startDate, endDate);
         return ResponseEntity.ok(transactions);
     }
 
