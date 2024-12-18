@@ -43,7 +43,7 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(emailJobDetail())
                 .withIdentity("emailJobTriggerMonthly")
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 0 1 * ?"))
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 35 17 18 * ?"))
                 .build();
     }
 }
