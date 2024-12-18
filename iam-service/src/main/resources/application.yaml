@@ -7,9 +7,9 @@ spring:
     application:
         name: iam-service
     datasource:
-        url: jdbc:postgresql://localhost:5432/team2db
+        url: jdbc:postgresql://localhost:5431/team2db
         username: postgres
-        password: 123
+        password: 12345
         driver-class-name: org.postgresql.Driver
         hikari:
             maximum-pool-size: 10
@@ -83,7 +83,7 @@ cache:
         timeout: 3000
     time-to-lives:
         default: -1
-        token: 300
+        token: 600
         remember-me-token: 7200
         refresh-token: 86400
         otp: 180
