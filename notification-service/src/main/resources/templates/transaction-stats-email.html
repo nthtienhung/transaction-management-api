@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống kê giao dịch</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --primary-gradient: linear-gradient(135deg, #007bff, #4e8fff);
+            --secondary-color: #f8f9fa;
+            --text-color: #333;
+            --background-color: #f4f4f4;
+            --table-border-color: #ddd;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .email-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .email-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+        }
+
+        .email-header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .email-body {
+            padding: 20px;
+        }
+
+        .email-body h3 {
+            color: var(--primary-color);
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .transaction-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .transaction-table th, .transaction-table td {
+            padding: 12px;
+            border: 1px solid var(--table-border-color);
+            text-align: left;
+        }
+
+        .transaction-table th {
+            background-color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        .transaction-table td {
+            background-color: #fff;
+        }
+
+        .transaction-table td:nth-child(4) {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .transaction-table td:nth-child(5) {
+            text-transform: capitalize;
+            font-weight: bold;
+        }
+
+        .transaction-table td:nth-child(5)[data-status="SUCCESS"] {
+            color: var(--success-color);
+        }
+
+        .transaction-table td:nth-child(5)[data-status="FAILED"] {
+            color: var(--error-color);
+        }
+
+        .no-transaction {
+            text-align: center;
+            color: #888;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #888;
+            font-size: 13px;
+            border-top: 1px solid var(--table-border-color);
+            padding-top: 10px;
+        }
+
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            .email-container {
+                padding: 15px;
+            }
+
+            .transaction-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="email-container">
+    <div class="email-header">
+        <h1>Thống kê Giao dịch</h1>
+    </div>
+
+    <div class="email-body">
+        <h3>Chào bạn,</h3>
+        <p>Đây là báo cáo giao dịch trong 24 giờ qua của hệ thống:</p>
+
+        <!-- Hiển thị bảng giao dịch nếu có -->
+        <div th:if="${!transactions.isEmpty()}">
+            <table class="transaction-table">
+                <thead>
+                <tr>
+                    <th scope="col">Mã giao dịch</th>
+                    <th scope="col">Mã ví gửi</th>
+                    <th scope="col">Mã ví nhận</th>
+                    <th scope="col">Số tiền</th>
+                    <th scope="col">Trạng thái</th>
+                    <th scope="col">Ngày tạo</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="transaction : ${transactions}">
+                    <td th:text="${transaction.transactionCode}"></td>
+                    <td th:text="${transaction.senderWalletCode}"></td>
+                    <td th:text="${transaction.recipientWalletCode}"></td>
+                    <td th:text="${#numbers.formatDecimal(transaction.amount, 0, 2)}"></td>
+                    <td th:text="${transaction.status}" th:attr="data-status=${transaction.status}"></td>
+                    <td th:text="${transaction.createdDate}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Hiển thị nếu không có giao dịch -->
+        <div class="no-transaction" th:if="${transactions.isEmpty()}">
+            <p>Hiện tại không có giao dịch nào trong 24 giờ qua.</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi! Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ qua <a href="OLongTeaPlus@iceteasoftware.com">OLongTeaPlus@iceteasoftware.com</a>.</p>
+    </div>
+</div>
+
+</body>
+</html>

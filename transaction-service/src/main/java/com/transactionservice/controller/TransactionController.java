@@ -9,6 +9,7 @@ import com.transactionservice.dto.response.transaction.TransactionDashboardRespo
 import com.transactionservice.dto.response.transaction.TransactionListResponse;
 import com.transactionservice.dto.response.transaction.TransactionResponse;
 import com.transactionservice.dto.response.transaction.TransactionSearchResponse;
+import com.transactionservice.entity.Transaction;
 import com.transactionservice.enums.Status;
 
 import com.transactionservice.dto.request.TransactionListRequest;
@@ -139,6 +140,14 @@ public class TransactionController {
             @RequestParam Instant startDate,
             @RequestParam Instant endDate) {
         List<Map<String, Object>> transactions = transactionService.getTransactionDetails(startDate, endDate);
+        return ResponseEntity.ok(transactions);
+    }
+
+    @GetMapping("/transactions-detail")
+    public ResponseEntity<List<Transaction>> getTransactions(
+            @RequestParam Instant startDate,
+            @RequestParam Instant endDate) {
+        List<Transaction> transactions = transactionService.getTransactions(startDate, endDate);
         return ResponseEntity.ok(transactions);
     }
 

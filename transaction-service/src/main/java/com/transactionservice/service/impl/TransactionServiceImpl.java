@@ -40,10 +40,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -69,7 +66,6 @@ public class TransactionServiceImpl implements TransactionService {
     private static final int PAGE_SIZE = 10;
     private static final int PAGE_NUMBER = 0;
     private final Gson gson;
-
 
     @Override
     public Page<TransactionDashboardResponse> getRecentReceivedTransactionListByUser(String walletCodeByUserLogIn) {
@@ -607,4 +603,13 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
+    @Override
+    public List<Transaction> getTransactions(Instant startDate, Instant endDate) {
+        try {
+            List<Transaction> transactions = transactionRepository.getTransactions(startDate, endDate);
+            return transactions;
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching transaction details: " + e.getMessage());
+        }
+    }
 }
