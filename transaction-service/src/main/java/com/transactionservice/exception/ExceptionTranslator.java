@@ -4,8 +4,10 @@ package com.transactionservice.exception;
 import com.transactionservice.dto.response.common.MessageResponse;
 import com.transactionservice.exception.handler.BadRequestAlertException;
 import com.transactionservice.exception.handler.InternalServerErrorException;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -51,5 +53,12 @@ public class ExceptionTranslator implements ProblemHandling {
     public MessageResponse<String> handleInternalServerErrorException(InternalServerErrorException ex) {
         return new MessageResponse<>((short)HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), LocalDateTime.now());
     }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public MessageResponse<String> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
+        return new MessageResponse<>((short)HttpStatus.FORBIDDEN.value(), ex.getMessage(), LocalDateTime.now());
+    }
+
 }
 
