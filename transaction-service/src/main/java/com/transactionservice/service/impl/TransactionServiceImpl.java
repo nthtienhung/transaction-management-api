@@ -604,9 +604,9 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<Transaction> getTransactions(Instant startDate, Instant endDate) {
+    public List<TransactionStatsResponse> getTransactions(Instant startDate, Instant endDate) {
         try {
-            List<Transaction> transactions = transactionRepository.getTransactions(startDate, endDate);
+            List<TransactionStatsResponse> transactions = transactionRepository.getTransactions(startDate, endDate);
             return transactions;
         } catch (Exception e) {
             throw new RuntimeException("Error fetching transaction details: " + e.getMessage());
