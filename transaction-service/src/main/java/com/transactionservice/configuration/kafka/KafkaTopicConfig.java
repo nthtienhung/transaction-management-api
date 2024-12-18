@@ -28,7 +28,8 @@ public class KafkaTopicConfig {
                 createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_OTP),
                 createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_RECEIVE_TRANSACTION),
                 createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_EMAIL_SUCCESSFUL_TRANSACTION),
-                createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_CREATE_TRANSACTION)
+                createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_CREATE_TRANSACTION),
+                createTopic(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SEND_REPORT)
         );
     }
 

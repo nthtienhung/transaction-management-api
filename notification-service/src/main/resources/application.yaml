@@ -33,17 +33,28 @@ spring:
           auth: true
           starttls:
             enable: true
-
-  # Mail templates
-  # Directory inside main/resources or absolute filesystem path
-  templates:
-    path: mail-templates
   kafka:
     consumer:
       bootstrap-servers: localhost:9094
       group-id: noti-service-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  templates:
+    path: mail-templates
+feign:
+  client:
+    config:
+      iam-service:
+        name: 'iam-service'
+        url: http://localhost:8888/api/v1/auth
+      transaction-service:
+        name: 'transaction-service'
+        url: http://localhost:8888/api/v1/transaction
+
+  # Mail templates
+  # Directory inside main/resources or absolute filesystem path
+
+
 
 eureka:
   client:

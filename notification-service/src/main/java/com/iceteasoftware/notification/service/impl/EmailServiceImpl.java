@@ -1,6 +1,7 @@
 package com.iceteasoftware.notification.service.impl;
 
 import com.iceteasoftware.notification.constant.KafkaTopicConstants;
+import com.iceteasoftware.notification.dto.TransactionStatsResponse;
 import com.iceteasoftware.notification.entity.Notification;
 import com.iceteasoftware.notification.entity.Template;
 import com.iceteasoftware.notification.repository.NotificationRepository;
@@ -15,7 +16,11 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -24,10 +29,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.*;
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.HashMap;
+
 
 @Service
 @RequiredArgsConstructor
@@ -291,6 +300,80 @@ public class EmailServiceImpl implements EmailService {
         mimeMessageHelper.setText(html, true);
 
         // 4. Gửi email
+        mailSender.send(mimeMessage);
+        log.info("Email has been sent to: {}", email);
+    }
+
+    @Override
+    public void sendEmail(String email, List<TransactionStatsResponse> transactionDetails, String subject, String templateName) throws MessagingException, JsonProcessingException, IOException {
+        // 1. Tạo email MIME
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(
+                mimeMessage,
+                MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                StandardCharsets.UTF_8.name()
+        );
+
+        // 2. Tạo thông tin cho email template
+        Context context = new Context();
+        Map<String, Object> props = new HashMap<>();
+
+        // Tạo một danh sách các giao dịch để truyền vào template
+        List<Map<String, Object>> transactions = new ArrayList<>();
+        transactionDetails.forEach(detail -> {
+            Map<String, Object> transaction = new HashMap<>();
+            transaction.put("transactionCode", detail.getTransactionCode());
+            transaction.put("senderWalletCode", detail.getSenderWalletCode());
+            transaction.put("recipientWalletCode", detail.getRecipientWalletCode());
+            transaction.put("amount", detail.getAmount());
+            transaction.put("status", detail.getStatus());
+            transaction.put("createdDate", detail.getCreatedDate());
+            transactions.add(transaction);
+        });
+
+        // 3. Tạo tệp Excel
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Transactions");
+            int rowNum = 0;
+
+            // Tạo tiêu đề cho bảng
+            Row headerRow = sheet.createRow(rowNum++);
+            String[] columns = {"Transaction Code", "Amount", "Sender Wallet", "Recipient Wallet", "Status", "Created Date"};
+            for (int i = 0; i < columns.length; i++) {
+                headerRow.createCell(i).setCellValue(columns[i]);
+            }
+
+            // Thêm dữ liệu vào bảng
+            for (TransactionStatsResponse transaction : transactionDetails) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(transaction.getTransactionCode());
+                row.createCell(1).setCellValue(transaction.getAmount());
+                row.createCell(2).setCellValue(transaction.getSenderWalletCode());
+                row.createCell(3).setCellValue(transaction.getRecipientWalletCode());
+                row.createCell(4).setCellValue(transaction.getStatus());
+//                row.createCell(5).setCellValue(transaction.getCreatedDate().toString());
+            }
+
+            // Ghi workbook vào ByteArrayOutputStream
+            workbook.write(byteArrayOutputStream);
+        }
+
+        // 4. Đính kèm tệp Excel vào email
+        byte[] excelData = byteArrayOutputStream.toByteArray();
+        mimeMessageHelper.addAttachment("Transactions_Report.xlsx", new ByteArrayResource(excelData));
+
+        // 5. Cấu hình nội dung email
+        props.put("email", email);
+        props.put("transactions", transactions);
+        context.setVariables(props);
+        mimeMessageHelper.setFrom(emailFrom);
+        mimeMessageHelper.setTo(email);
+        mimeMessageHelper.setSubject(subject);
+        String html = templateEngine.process(templateName, context);
+        mimeMessageHelper.setText(html, true);
+
+        // 6. Gửi email
         mailSender.send(mimeMessage);
         log.info("Email has been sent to: {}", email);
     }
