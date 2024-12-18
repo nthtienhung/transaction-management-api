@@ -25,7 +25,7 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(emailJobDetail())
                 .withIdentity("emailJobTriggerDaily")
-                .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(17, 5))
+                .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(0, 0))
                 .build();
     }
 
@@ -34,7 +34,7 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(emailJobDetail())
                 .withIdentity("emailJobTriggerWeekly")
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 9 ? * MON")) // Mỗi thứ Hai lúc 9:00
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 0 ? * MON"))
                 .build();
     }
 
@@ -43,7 +43,8 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(emailJobDetail())
                 .withIdentity("emailJobTriggerMonthly")
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 9 1 * ?")) // Ngày 1 của mỗi tháng lúc 9:00
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 0 1 * ?"))
                 .build();
     }
 }
+
