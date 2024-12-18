@@ -1,5 +1,5 @@
 server:
-  port: 8080  # Port for Config Service
+  port: 8085  # Port for Config Service
 
 jwt:
     secret : 0aPglnnROU/zGjIuvAA32LpDzmqEY2O7J4fgQ4Eh+4KuJaSCXQIFQgBv6a69Pvkt

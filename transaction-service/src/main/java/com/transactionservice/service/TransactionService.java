@@ -4,17 +4,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.transactionservice.dto.request.ConfirmTransactionRequest;
 import com.transactionservice.dto.request.TransactionRequest;
 import com.transactionservice.dto.request.email.EmailRequest;
-import com.transactionservice.dto.response.TransactionResponse;
+import com.transactionservice.dto.response.transaction.TransactionResponse;
 import com.transactionservice.dto.request.TransactionListRequest;
-import com.transactionservice.dto.response.TransactionDashboardResponse;
-import com.transactionservice.dto.response.TransactionListResponse;
+import com.transactionservice.dto.response.transaction.TransactionDashboardResponse;
+import com.transactionservice.dto.response.transaction.TransactionListResponse;
 import org.springframework.data.domain.Page;
 import com.transactionservice.dto.request.TransactionSearch;
-import com.transactionservice.dto.response.TransactionSearchResponse;
+import com.transactionservice.dto.response.transaction.TransactionSearchResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 public interface TransactionService {
 
@@ -37,5 +39,11 @@ public interface TransactionService {
     TransactionResponse confirmTransactionWithOTP(ConfirmTransactionRequest confirmTransactionRequest) throws JsonProcessingException;
 
     Integer getTotalTransactionByUser(String walletCode);
+
+    Map<String, Object> getGeneralStatistics(Instant startDate, Instant endDate);
+
+    List<Map<String, Object>> getUserStatistics(Instant startDate, Instant endDate);
+
+    List<Map<String, Object>> getTransactionDetails(Instant startDate, Instant endDate);
 }
 

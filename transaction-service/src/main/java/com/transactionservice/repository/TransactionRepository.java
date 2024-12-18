@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.util.List;
 
 
 @Repository
@@ -48,4 +49,19 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.senderWalletCode = :walletCode OR t.recipientWalletCode = :walletCode")
     Integer countBySenderWalletCodeOrRecipientWalletCode(String walletCode);
 
+    @Query("SELECT COUNT(t), SUM(t.amount) " +
+            "FROM Transaction t WHERE t.status = 'SUCCESS' AND t.createdDate BETWEEN :startDate AND :endDate")
+    List<Object[]> getTransactionStatistics(@Param("startDate") Instant startDate, @Param("endDate") Instant endDate);
+
+    @Query("SELECT t.senderWalletCode, COUNT(t), SUM(t.amount) " +
+            "FROM Transaction t WHERE t.status = 'SUCCESS' AND t.createdDate BETWEEN :startDate AND :endDate " +
+            "GROUP BY t.senderWalletCode")
+    List<Object[]> getUserTransactionStatistics(@Param("startDate") Instant startDate, @Param("endDate") Instant endDate);
+
+
+    @Query("SELECT t.transactionCode, t.senderWalletCode, t.recipientWalletCode, t.amount, t.status, t.createdDate " +
+            "FROM Transaction t WHERE t.status = 'SUCCESS' AND t.createdDate BETWEEN :startDate AND :endDate")
+    List<Object[]> getTransactionDetails(
+            @Param("startDate") Instant startDate,
+            @Param("endDate") Instant endDate);
 }

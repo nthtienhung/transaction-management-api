@@ -11,7 +11,15 @@ import com.transactionservice.dto.request.TransactionSearch;
 import com.transactionservice.dto.request.*;
 import com.transactionservice.dto.request.email.EmailRequest;
 import com.transactionservice.dto.request.email.EmailTransactionRequest;
-import com.transactionservice.dto.response.*;
+
+import com.transactionservice.dto.response.FullNameResponse;
+import com.transactionservice.dto.response.transaction.TransactionDashboardResponse;
+import com.transactionservice.dto.response.transaction.TransactionListResponse;
+import com.transactionservice.dto.response.transaction.TransactionResponse;
+import com.transactionservice.dto.response.transaction.TransactionSearchResponse;
+
+import com.transactionservice.dto.response.user.UserResponse;
+import com.transactionservice.dto.response.wallet.WalletResponse;
 import com.transactionservice.entity.Transaction;
 import com.transactionservice.enums.MessageCode;
 import com.transactionservice.enums.Status;
@@ -37,10 +45,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -552,6 +557,54 @@ public class TransactionServiceImpl implements TransactionService {
         Instant endDate = endOfWeek.atStartOfDay(ZoneId.systemDefault()).toInstant();
 
         return new Instant[]{startDate, endDate};
+    }
+
+    @Override
+    public Map<String, Object> getGeneralStatistics(Instant startDate, Instant endDate) {
+        try {
+            Object[] stats = transactionRepository.getTransactionStatistics(startDate, endDate).get(0);
+            Map<String, Object> result = new HashMap<>();
+            result.put("totalTransactions", stats[0]);
+            result.put("totalAmount", stats[1]);
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching general statistics: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Map<String, Object>> getUserStatistics(Instant startDate, Instant endDate) {
+        try {
+            List<Object[]> userStats = transactionRepository.getUserTransactionStatistics(startDate, endDate);
+            return userStats.stream().map(stat -> {
+                Map<String, Object> userStat = new HashMap<>();
+                userStat.put("senderWallet", stat[0]);
+                userStat.put("totalTransactions", stat[1]);
+                userStat.put("totalAmount", stat[2]);
+                return userStat;
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching user statistics: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Map<String, Object>> getTransactionDetails(Instant startDate, Instant endDate) {
+        try {
+            List<Object[]> transactions = transactionRepository.getTransactionDetails(startDate, endDate);
+            return transactions.stream().map(transaction -> {
+                Map<String, Object> result = new HashMap<>();
+                result.put("transactionCode", transaction[0]);
+                result.put("senderWalletCode", transaction[1]);
+                result.put("recipientWalletCode", transaction[2]);
+                result.put("amount", transaction[3]);
+                result.put("status", transaction[4]);
+                result.put("date", transaction[5]);
+                return result;
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching transaction details: " + e.getMessage());
+        }
     }
 
 }

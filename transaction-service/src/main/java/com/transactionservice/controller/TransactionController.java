@@ -3,7 +3,12 @@ package com.transactionservice.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.transactionservice.dto.request.ConfirmTransactionRequest;
 import com.transactionservice.dto.request.email.EmailRequest;
-import com.transactionservice.dto.response.TransactionResponse;
+
+import com.transactionservice.dto.response.common.MessageResponse;
+import com.transactionservice.dto.response.transaction.TransactionDashboardResponse;
+import com.transactionservice.dto.response.transaction.TransactionListResponse;
+import com.transactionservice.dto.response.transaction.TransactionResponse;
+import com.transactionservice.dto.response.transaction.TransactionSearchResponse;
 import com.transactionservice.enums.Status;
 
 import com.transactionservice.dto.request.TransactionListRequest;
@@ -24,6 +29,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -101,8 +107,8 @@ public class TransactionController {
 
     @PostMapping("/getAllTransaction")
     public ResponseEntity<Page<TransactionSearchResponse>> getAllTransaction(@ModelAttribute TransactionSearch transactionSearch,
-            @RequestParam int page,
-            @RequestParam int size) {
+                                                                             @RequestParam int page,
+                                                                             @RequestParam int size) {
         Instant fromInstant = transactionSearch.getFromDate() != null ? Instant.parse(transactionSearch.getFromDate().toString()) : null;
         Instant toInstant = transactionSearch.getToDate() != null ? Instant.parse(transactionSearch.getToDate().toString()) : null;
         TransactionSearch transactionSearchValue = new TransactionSearch(transactionSearch.getTransactionId(), transactionSearch.getWalletCode(), transactionSearch.getStatus(), fromInstant, toInstant);
@@ -110,6 +116,30 @@ public class TransactionController {
         Page<TransactionSearchResponse> transactionSearchResponses =
                 transactionService.getTransactionByInformation(transactionSearchValue, pageable);
         return new ResponseEntity<>(transactionSearchResponses, HttpStatus.OK);
+    }
+
+    @GetMapping("/general")
+    public ResponseEntity<Map<String, Object>> getGeneralReport(
+            @RequestParam Instant startDate,
+            @RequestParam Instant endDate) {
+        Map<String, Object> report = transactionService.getGeneralStatistics(startDate, endDate);
+        return ResponseEntity.ok(report);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<Map<String, Object>>> getUserReports(
+            @RequestParam Instant startDate,
+            @RequestParam Instant endDate) {
+        List<Map<String, Object>> reports = transactionService.getUserStatistics(startDate, endDate);
+        return ResponseEntity.ok(reports);
+    }
+
+    @GetMapping("/transactions")
+    public ResponseEntity<List<Map<String, Object>>> getTransactionDetails(
+            @RequestParam Instant startDate,
+            @RequestParam Instant endDate) {
+        List<Map<String, Object>> transactions = transactionService.getTransactionDetails(startDate, endDate);
+        return ResponseEntity.ok(transactions);
     }
 
 }

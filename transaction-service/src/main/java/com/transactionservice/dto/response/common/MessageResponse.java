@@ -1,4 +1,4 @@
-package com.transactionservice.dto.response;
+package com.transactionservice.dto.response.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
