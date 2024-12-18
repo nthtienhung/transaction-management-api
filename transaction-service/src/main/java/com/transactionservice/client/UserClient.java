@@ -1,6 +1,7 @@
 package com.transactionservice.client;
 
-import com.transactionservice.dto.response.user.FullNameResponse;
+
+import com.transactionservice.dto.response.FullNameResponse;
 import com.transactionservice.dto.response.user.UserResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
