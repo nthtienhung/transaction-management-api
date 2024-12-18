@@ -31,6 +31,9 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.io.IOException;
 import java.util.List;
@@ -307,7 +310,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendEmail(String email, List<TransactionStatsResponse> transactionDetails, String subject, String templateName) throws MessagingException, JsonProcessingException, IOException {
+    public void sendEmail(String email, List<TransactionStatsResponse> transactionDetails, String subject, String templateName, String timePeriod) throws MessagingException, JsonProcessingException, IOException {
         // 1. Tạo email MIME
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(
@@ -320,7 +323,47 @@ public class EmailServiceImpl implements EmailService {
         Context context = new Context();
         Map<String, Object> props = new HashMap<>();
 
-        // Tạo một danh sách các giao dịch để truyền vào template
+        // Tính tổng số giao dịch, tổng số tiền, số lượng giao dịch theo trạng thái
+        long totalAmount = 0;
+        long successCount = 0;
+        long failedCount = 0;
+        long pendingCount = 0;
+
+        long successAmount = 0;
+        long failedAmount = 0;
+        long pendingAmount = 0;
+
+        for (TransactionStatsResponse detail : transactionDetails) {
+            totalAmount += detail.getAmount();
+            switch (detail.getStatus()) {
+                case "SUCCESS":
+                    successCount++;
+                    successAmount += detail.getAmount();
+                    break;
+                case "FAILED":
+                    failedCount++;
+                    failedAmount += detail.getAmount();
+                    break;
+                case "PENDING":
+                    pendingCount++;
+                    pendingAmount += detail.getAmount();
+                    break;
+            }
+        }
+
+        // Chuyển các thông tin này vào props để hiển thị trong email
+        props.put("totalTransactions", transactionDetails.size());
+        props.put("totalAmount", totalAmount);
+        props.put("successCount", successCount);
+        props.put("failedCount", failedCount);
+        props.put("pendingCount", pendingCount);
+        props.put("successAmount", successAmount);  // Tổng số tiền giao dịch thành công
+        props.put("failedAmount", failedAmount);    // Tổng số tiền giao dịch thất bại
+        props.put("pendingAmount", pendingAmount);  // Tổng số tiền giao dịch pending
+        props.put("timePeriod", timePeriod);  // Thêm thời gian vào context
+
+        // Tạo một danh sách các giao dịch để truyền vào template cho chi tiết giao dịch trong Excel
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         List<Map<String, Object>> transactions = new ArrayList<>();
         transactionDetails.forEach(detail -> {
             Map<String, Object> transaction = new HashMap<>();
@@ -329,9 +372,14 @@ public class EmailServiceImpl implements EmailService {
             transaction.put("recipientWalletCode", detail.getRecipientWalletCode());
             transaction.put("amount", detail.getAmount());
             transaction.put("status", detail.getStatus());
-            transaction.put("createdDate", detail.getCreatedDate());
+            ZonedDateTime zonedDateTime = detail.getCreatedDate().atZone(ZoneId.systemDefault());
+            String formattedDate = zonedDateTime.format(formatter);
+            transaction.put("createdDate", formattedDate);
             transactions.add(transaction);
         });
+
+        // Thêm danh sách giao dịch vào props để truyền vào template
+        props.put("transactions", transactions);
 
         // 3. Tạo tệp Excel
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -354,7 +402,9 @@ public class EmailServiceImpl implements EmailService {
                 row.createCell(2).setCellValue(transaction.getSenderWalletCode());
                 row.createCell(3).setCellValue(transaction.getRecipientWalletCode());
                 row.createCell(4).setCellValue(transaction.getStatus());
-//                row.createCell(5).setCellValue(transaction.getCreatedDate().toString());
+                ZonedDateTime zonedDateTime = transaction.getCreatedDate().atZone(ZoneId.systemDefault());
+                String formattedDate = zonedDateTime.format(formatter);
+                row.createCell(5).setCellValue(formattedDate);
             }
 
             // Ghi workbook vào ByteArrayOutputStream
@@ -366,9 +416,7 @@ public class EmailServiceImpl implements EmailService {
         mimeMessageHelper.addAttachment("Transactions_Report.xlsx", new ByteArrayResource(excelData));
 
         // 5. Cấu hình nội dung email
-        props.put("email", email);
-        props.put("transactions", transactions);
-        context.setVariables(props);
+        context.setVariables(props);  // Thiết lập các biến cho template
         mimeMessageHelper.setFrom(emailFrom);
         mimeMessageHelper.setTo(email);
         mimeMessageHelper.setSubject(subject);
