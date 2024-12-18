@@ -8,6 +8,7 @@ import com.transactionservice.dto.response.transaction.TransactionResponse;
 import com.transactionservice.dto.request.TransactionListRequest;
 import com.transactionservice.dto.response.transaction.TransactionDashboardResponse;
 import com.transactionservice.dto.response.transaction.TransactionListResponse;
+import com.transactionservice.entity.Transaction;
 import org.springframework.data.domain.Page;
 import com.transactionservice.dto.request.TransactionSearch;
 import com.transactionservice.dto.response.transaction.TransactionSearchResponse;
@@ -45,5 +46,7 @@ public interface TransactionService {
     List<Map<String, Object>> getUserStatistics(Instant startDate, Instant endDate);
 
     List<Map<String, Object>> getTransactionDetails(Instant startDate, Instant endDate);
+
+    List<Transaction> getTransactions(Instant startDate, Instant endDate);
 }
 

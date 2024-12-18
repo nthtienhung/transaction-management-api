@@ -35,7 +35,7 @@ public class MessageConfiguration {
     @Bean
     public LocaleResolver localeResolver() {
         SessionLocaleResolver localeResolver = new SessionLocaleResolver();
-        localeResolver.setDefaultLocale(Labels.US);
+        localeResolver.setDefaultLocale(Labels.VN);
         return localeResolver;
     }
 

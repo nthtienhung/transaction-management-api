@@ -6,7 +6,6 @@ spring:
     name: notification-service
   datasource:
     url: jdbc:postgresql://localhost:5432/team2db
-
     username: postgres
     password: 123
 
@@ -35,6 +34,15 @@ spring:
           auth: true
           starttls:
             enable: true
+feign:
+  client:
+    config:
+      iam-service:
+        name: 'iam-service'
+        url: http://localhost:8888/api/v1/auth
+      transaction-service:
+        name: 'transaction-service'
+        url: http://localhost:8888/api/v1/transaction
 
   # Mail templates
   # Directory inside main/resources or absolute filesystem path
