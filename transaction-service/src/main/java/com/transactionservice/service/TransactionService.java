@@ -6,10 +6,15 @@ import com.transactionservice.dto.request.TransactionRequest;
 import com.transactionservice.dto.request.email.EmailRequest;
 import com.transactionservice.dto.response.transaction.*;
 import com.transactionservice.dto.request.TransactionListRequest;
-import com.transactionservice.entity.Transaction;
 import org.springframework.data.domain.Page;
+import com.transactionservice.dto.response.transaction.TransactionStatsResponse;
 import com.transactionservice.dto.request.TransactionSearch;
-import org.springframework.data.domain.Page;
+import com.transactionservice.dto.response.transaction.TransactionDashboardResponse;
+import com.transactionservice.dto.response.transaction.TransactionListResponse;
+
+import com.transactionservice.dto.response.transaction.TransactionSearchResponse;
+
+
 import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;
@@ -37,6 +42,8 @@ public interface TransactionService {
     TransactionResponse confirmTransactionWithOTP(ConfirmTransactionRequest confirmTransactionRequest) throws JsonProcessingException;
 
     Integer getTotalTransactionByUser(String walletCode);
+
+    TransactionDetailResponse getTransactionDetailByTransactionCode(String transactionCode);
 
     Map<String, Object> getGeneralStatistics(Instant startDate, Instant endDate);
 
