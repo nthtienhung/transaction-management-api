@@ -42,7 +42,6 @@ public class WalletController {
         walletService.updateWalletBalance(walletCode, amount);
     }
 
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     @GetMapping("/{walletCode}/user-id")
     public String getUserIdByWalletCode(@PathVariable("walletCode") String walletCode) {
         return walletService.getUserIdByWalletCode(walletCode);
