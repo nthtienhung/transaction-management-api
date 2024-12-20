@@ -52,8 +52,6 @@ feign:
         name: 'transaction-service'
         url: http://localhost:8888/api/v1/transaction
 
-  # Mail templates
-  # Directory inside main/resources or absolute filesystem path
 
 
 eureka:

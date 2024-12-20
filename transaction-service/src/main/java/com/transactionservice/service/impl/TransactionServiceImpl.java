@@ -11,10 +11,8 @@ import com.transactionservice.dto.request.TransactionSearch;
 import com.transactionservice.dto.request.*;
 import com.transactionservice.dto.request.email.EmailRequest;
 import com.transactionservice.dto.request.email.EmailTransactionRequest;
-
 import com.transactionservice.dto.response.FullNameResponse;
 import com.transactionservice.dto.response.transaction.*;
-
 import com.transactionservice.dto.response.user.UserResponse;
 import com.transactionservice.dto.response.wallet.WalletResponse;
 import com.transactionservice.entity.Transaction;
@@ -255,6 +253,40 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public Integer getTotalTransactionByUser(String walletCode) {
         return transactionRepository.countBySenderWalletCodeOrRecipientWalletCode(walletCode);
+    }
+
+    @Override
+    public TransactionDetailResponse getTransactionDetailByTransactionCode(String transactionCode) {
+        Transaction transaction = transactionRepository.findTransactionByTransactionCode(transactionCode);
+
+        if (transaction == null) {
+            throw new NotFoundAlertException(MessageCode.MSG4111);
+        }
+
+        // Lấy userId từ recipientWalletCode
+        String recipientId = walletClient.getUserIdByWalletCode(transaction.getRecipientWalletCode());
+        // Lấy thông tin user (firstName, lastName) từ userId
+        FullNameResponse recipientFullNameResponse = userClient.getFullNameByUserId(recipientId);
+
+        // Lấy userId từ senderWalletCode
+        String senderId = walletClient.getUserIdByWalletCode(transaction.getSenderWalletCode());
+        // Lấy thông tin user (firstName, lastName) từ userId
+        FullNameResponse senderFullNameResponse = userClient.getFullNameByUserId(senderId);
+
+        TransactionDetailResponse response = new TransactionDetailResponse();
+        response.setTransactionCode(transaction.getTransactionCode());
+        response.setSenderWalletCode(transaction.getSenderWalletCode());
+        response.setRecipientWalletCode(transaction.getRecipientWalletCode());
+        response.setAmount(transaction.getAmount());
+        response.setDescription(transaction.getDescription());
+        response.setNameOfSender(senderFullNameResponse.getFirstName() + " " + senderFullNameResponse.getLastName());
+        response.setNameOfRecipient(recipientFullNameResponse.getFirstName() + " " + recipientFullNameResponse.getLastName());
+        response.setStatus(String.valueOf(transaction.getStatus()));
+        response.setCreatedDate(transaction.getCreatedDate());
+        response.setUpdatedDate(transaction.getUpdatedDate());
+
+        return response;
+
     }
 
     /**
