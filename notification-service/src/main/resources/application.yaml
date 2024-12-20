@@ -41,6 +41,7 @@ spring:
       group-id: noti-service-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
 feign:
   client:
     config:
@@ -51,8 +52,6 @@ feign:
         name: 'transaction-service'
         url: http://localhost:8888/api/v1/transaction
 
-  # Mail templates
-  # Directory inside main/resources or absolute filesystem path
 
 
 eureka:

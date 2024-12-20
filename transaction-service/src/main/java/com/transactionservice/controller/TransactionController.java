@@ -3,12 +3,13 @@ package com.transactionservice.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.transactionservice.dto.request.ConfirmTransactionRequest;
 import com.transactionservice.dto.request.email.EmailRequest;
-
 import com.transactionservice.dto.response.common.MessageResponse;
-import com.transactionservice.dto.response.transaction.*;
-import com.transactionservice.entity.Transaction;
-import com.transactionservice.enums.Status;
-
+import com.transactionservice.dto.response.transaction.TransactionDashboardResponse;
+import com.transactionservice.dto.response.transaction.TransactionListResponse;
+import com.transactionservice.dto.response.transaction.TransactionResponse;
+import com.transactionservice.dto.response.transaction.TransactionSearchResponse;
+import com.transactionservice.dto.response.transaction.TransactionDetailResponse;
+import com.transactionservice.dto.response.transaction.TransactionStatsResponse;
 import com.transactionservice.dto.request.TransactionListRequest;
 import com.transactionservice.dto.response.*;
 import com.transactionservice.dto.request.TransactionSearch;
@@ -38,6 +39,12 @@ public class TransactionController {
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
     private final TransactionService transactionService;
 
+    /**
+     * Retrieves a list of recent received transactions for a user.
+     *
+     * @param walletCodeByUserLogIn the wallet code of the user
+     * @return a MessageResponse containing a page of TransactionDashboardResponse
+     */
     @PreAuthorize("hasRole('" + ROLE_USER + "')")
     @GetMapping("/recent-received-transaction-list-by-user")
     public MessageResponse<Page<TransactionDashboardResponse>> getRecentReceivedTransactionList(@RequestParam String walletCodeByUserLogIn) {
@@ -45,14 +52,28 @@ public class TransactionController {
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
+
     @PreAuthorize("hasRole('" + ROLE_USER + "')")
+    /**
+     * Retrieves a list of recent sent transactions for a user.
+     *
+     * @param walletCodeByUserLogIn the wallet code of the user
+     * @return a MessageResponse containing a page of TransactionDashboardResponse
+     */
     @GetMapping("/recent-sent-transaction-list-by-user")
     public MessageResponse<Page<TransactionDashboardResponse>> getRecentSentTransactionList(@RequestParam String walletCodeByUserLogIn) {
         Page<TransactionDashboardResponse> data = transactionService.getRecentSentTransactionListByUser(walletCodeByUserLogIn);
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
+
     @PreAuthorize("hasRole('" + ROLE_USER + "')")
+    /**
+     * Retrieves the total amount of sent transactions by a user in the current week.
+     *
+     * @param senderWalletCode the wallet code of the sender
+     * @return a MessageResponse containing the total amount of sent transactions
+     */
     @GetMapping("/total-amount-sent-transaction-by-user-in-week")
     public MessageResponse<Double> getTotalAmountSentTransactionByUser(@RequestParam String senderWalletCode) {
         Double data = transactionService.getTotalSentTransactionByUserInWeek(senderWalletCode);
@@ -60,6 +81,12 @@ public class TransactionController {
     }
 
     @PreAuthorize("hasRole('" + ROLE_USER + "')")
+    /**
+     * Retrieves the total amount of received transactions by a user in the current week.
+     *
+     * @param recipientWalletCode the wallet code of the recipient
+     * @return a MessageResponse containing the total amount of received transactions
+     */
     @GetMapping("/total-amount-received-transaction-by-user-in-week")
     public MessageResponse<Double> getTotalAmountReceivedTransactionByUser(@RequestParam String recipientWalletCode) {
         Double data = transactionService.getTotalReceivedTransactionByUserInWeek(recipientWalletCode);
@@ -67,13 +94,24 @@ public class TransactionController {
     }
 
     @PreAuthorize("hasRole('" + ROLE_USER + "')")
+    /**
+     * Retrieves the total number of transactions by a user.
+     *
+     * @param walletCode the wallet code of the user
+     * @return a MessageResponse containing the total number of transactions
+     */
     @GetMapping("/total-transaction-by-user")
     public MessageResponse<Integer> getTotalTransactionByUser(@RequestParam String walletCode) {
         Integer data = transactionService.getTotalTransactionByUser(walletCode);
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
+    @GetMapping("/{transactionCode}")
+    public MessageResponse<TransactionDetailResponse> getTransactionDetailByTransactionCode(@PathVariable String transactionCode){
+        TransactionDetailResponse data = transactionService.getTransactionDetailByTransactionCode(transactionCode);
+        return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
+    }
+
     @PostMapping("/create-transaction")
     public MessageResponse<TransactionResponse> createTransaction(@RequestBody TransactionRequest transactionRequest) throws JsonProcessingException {
         TransactionResponse savedTransaction = transactionService.createTransaction(transactionRequest);
