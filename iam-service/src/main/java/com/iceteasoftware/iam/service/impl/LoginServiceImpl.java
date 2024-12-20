@@ -79,7 +79,9 @@ public class LoginServiceImpl implements LoginService {
 
         //Lấy thông tin user
         Optional<User> user = userRepository.findByEmail(email);
-
+        if(!loginRequest.getRole().equals(user.get().getRole())) {
+            throw new BadRequestAlertException(MessageCode.MSG1049);
+        }
         // Check tài khoản có bị block k
         if (com.iceteasoftware.iam.util.Validator.equals(Status.BLOCK.name(), user.get().getStatus())) {
             throw new BadRequestAlertException(MessageCode.MSG1006);

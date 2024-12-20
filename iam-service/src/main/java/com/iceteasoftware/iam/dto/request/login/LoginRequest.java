@@ -17,6 +17,7 @@ public class LoginRequest extends Request {
     @Exclude
     private String password;
     private Boolean rememberMe;
+    private String role;
 
     @Override
     public String toString() {

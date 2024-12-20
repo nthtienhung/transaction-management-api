@@ -29,8 +29,6 @@ public class WalletController {
         return walletService.getWalletByUserId(userId);
     }
 
-
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     @GetMapping("/{walletCode}")
     WalletResponse getWalletByWalletCode(@PathVariable("walletCode") String walletCode) {
         System.out.println("Wallet Code: " + walletCode);
@@ -44,7 +42,6 @@ public class WalletController {
         walletService.updateWalletBalance(walletCode, amount);
     }
 
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     @GetMapping("/{walletCode}/user-id")
     public String getUserIdByWalletCode(@PathVariable("walletCode") String walletCode) {
         return walletService.getUserIdByWalletCode(walletCode);

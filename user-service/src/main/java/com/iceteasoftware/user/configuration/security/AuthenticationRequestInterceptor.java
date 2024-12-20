@@ -29,10 +29,10 @@ public class AuthenticationRequestInterceptor implements RequestInterceptor {
                 log.info("Extracted token: {}", token);
                 requestTemplate.header("Authorization", "Bearer " + token); // Gửi lại token (nếu cần)
             } else {
-//                log.warn("Invalid Authorization header format: {}", authHeader);
+                log.warn("Invalid Authorization header format: {}", authHeader);
             }
         } else {
-//            log.warn("No Authorization header found in the incoming request.");
+            log.warn("No Authorization header found in the incoming request.");
         }
     }
 }

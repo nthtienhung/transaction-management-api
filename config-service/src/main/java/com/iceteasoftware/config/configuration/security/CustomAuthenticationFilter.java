@@ -1,4 +1,4 @@
-package com.iceteasoftware.user.configuration.security;
+package com.iceteasoftware.config.configuration.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -49,12 +49,10 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             } catch (Exception e) {
                 log.error("Invalid token: {}", e.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json");
-                response.getWriter().write("{\"error\": \"Invalid token\"}");
                 return;
             }
-            filterChain.doFilter(request, response);
         }
+        filterChain.doFilter(request, response);
     }
 
     public Claims decodeJWT(String jwt) {
