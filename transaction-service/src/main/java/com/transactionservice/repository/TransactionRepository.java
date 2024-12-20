@@ -1,5 +1,6 @@
 package com.transactionservice.repository;
 
+import com.transactionservice.dto.response.transaction.TransactionStatsResponse;
 import com.transactionservice.entity.Transaction;
 import feign.Param;
 import jakarta.transaction.Transactional;
@@ -65,8 +66,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
             @Param("startDate") Instant startDate,
             @Param("endDate") Instant endDate);
 
-    @Query("SELECT t FROM Transaction t WHERE t.createdDate BETWEEN :startDate AND :endDate")
-    List<Transaction> getTransactions(
+    @Query("SELECT new com.transactionservice.dto.response.transaction.TransactionStatsResponse(t.transactionCode, t.senderWalletCode, t.recipientWalletCode, t.amount, t.status, t.createdDate) " +
+            "FROM Transaction t " +
+            "WHERE t.createdDate BETWEEN :startDate AND :endDate")
+    List<TransactionStatsResponse> getTransactions(
             @Param("startDate") Instant startDate,
             @Param("endDate") Instant endDate);
 

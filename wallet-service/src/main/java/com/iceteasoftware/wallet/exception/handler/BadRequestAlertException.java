@@ -1,8 +1,9 @@
-package com.transactionservice.exception.handle;
+package com.iceteasoftware.wallet.exception.handler;
 
-import com.transactionservice.configuration.message.Labels;
-import com.transactionservice.constant.ApiConstants;
-import com.transactionservice.enums.MessageCode;
+
+import com.iceteasoftware.wallet.configuration.message.Labels;
+import com.iceteasoftware.wallet.constant.ApiConstants;
+import com.iceteasoftware.wallet.enums.MessageCode;
 import lombok.Getter;
 import org.zalando.problem.AbstractThrowableProblem;
 import org.zalando.problem.Status;
@@ -12,8 +13,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Handler BadRequest Exception
+ *
+ * @author duongduc
+ * @version 1.0
+ * @since 2024-04-08
+ */
 @Getter
 public class BadRequestAlertException extends AbstractThrowableProblem {
+
     /**
      * The Constant serialVersionUID
      */
