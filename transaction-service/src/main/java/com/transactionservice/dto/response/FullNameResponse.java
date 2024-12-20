@@ -1,4 +1,4 @@
-package com.transactionservice.dto.response.user;
+package com.transactionservice.dto.response;
 
 import lombok.Getter;
 import lombok.Setter;

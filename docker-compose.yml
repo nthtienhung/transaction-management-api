@@ -37,7 +37,7 @@ services:
     volumes:
       - redis_data:/bitnami/redis
 
-  # PostgreSQL
+#  # PostgreSQL
 #  postgres:
 #    image: 'bitnami/postgresql:latest'
 #    container_name: postgres
@@ -50,48 +50,48 @@ services:
 #    volumes:
 #      - postgres_data:/bitnami/postgresql
 #      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-#
-#  # Elasticsearch
-#  elasticsearch:
-#    image: 'bitnami/elasticsearch:latest'
-#    container_name: elasticsearch
-#    environment:
-#      - discovery.type=single-node
-#      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-#    ports:
-#      - '9200:9200'
-#    networks:
-#      - elk
-#    volumes:
-#      - elasticsearch_data:/bitnami/elasticsearch
-#
-#  # Logstash
-#  logstash:
-#    image: 'bitnami/logstash:latest'
-#    container_name: logstash
-#    ports:
-#      - '5044:5044'
-#    environment:
-#      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-#    volumes:
-#      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-#    networks:
-#      - elk
-#    depends_on:
-#      - elasticsearch
-#
-#  # Kibana
-#  kibana:
-#    image: 'bitnami/kibana:latest'
-#    container_name: kibana
-#    ports:
-#      - '5601:5601'
-#    environment:
-#      ELASTICSEARCH_HOSTS: 'http://elasticsearch:9200'
-#    networks:
-#      - elk
-#    depends_on:
-#      - elasticsearch
+
+  # Elasticsearch
+  elasticsearch:
+    image: 'bitnami/elasticsearch:latest'
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - '9200:9200'
+    networks:
+      - elk
+    volumes:
+      - elasticsearch_data:/bitnami/elasticsearch
+
+  # Logstash
+  logstash:
+    image: 'bitnami/logstash:latest'
+    container_name: logstash
+    ports:
+      - '5044:5044'
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    volumes:
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  # Kibana
+  kibana:
+    image: 'bitnami/kibana:latest'
+    container_name: kibana
+    ports:
+      - '5601:5601'
+    environment:
+      ELASTICSEARCH_HOSTS: 'http://elasticsearch:9200'
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
 
 networks:
   elk:

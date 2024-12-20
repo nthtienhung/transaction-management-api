@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Statistics</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --primary-gradient: linear-gradient(135deg, #007bff, #4e8fff);
+            --secondary-color: #f8f9fa;
+            --text-color: #333;
+            --background-color: #f4f4f4;
+            --table-border-color: #ddd;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --header-bg-color: #001f3d;
+            --header-text-color: #fff;
+            --footer-bg-color: #f1f1f1;
+            --footer-text-color: #333;
+            --card-bg-color: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .email-container {
+            max-width: 750px;
+            margin: 0 auto;
+            background-color: var(--card-bg-color);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .email-header {
+            background: var(--primary-gradient);
+            color: var(--header-text-color);
+            padding: 30px 15px;
+            text-align: center;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .email-header h1 {
+            margin: 0;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .email-body {
+            padding: 20px;
+        }
+
+        .email-body h3 {
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .transaction-summary {
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .transaction-summary p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .transaction-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            font-size: 14px;
+        }
+
+        .transaction-table th, .transaction-table td {
+            padding: 15px;
+            border: 1px solid var(--table-border-color);
+            text-align: left;
+        }
+
+        .transaction-table th {
+            background-color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        .transaction-table td {
+            background-color: #fff;
+        }
+
+        .transaction-table td:nth-child(4) {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .transaction-table td:nth-child(5) {
+            text-transform: capitalize;
+            font-weight: bold;
+        }
+
+        .transaction-table td:nth-child(5)[data-status="SUCCESS"] {
+            color: var(--success-color);
+        }
+
+        .transaction-table td:nth-child(5)[data-status="FAILED"] {
+            color: var(--error-color);
+        }
+
+        .no-transaction {
+            text-align: center;
+            color: #888;
+            font-size: 18px;
+            margin-top: 30px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--footer-text-color);
+            font-size: 14px;
+            border-top: 1px solid var(--table-border-color);
+            padding-top: 15px;
+            background-color: var(--footer-bg-color);
+            padding-bottom: 15px;
+        }
+
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .email-container {
+                padding: 20px;
+            }
+
+            .transaction-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .email-header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="email-container">
+    <div class="email-header">
+        <h1>Transaction Report</h1>
+    </div>
+
+    <div class="email-body">
+        <h3>Hello,</h3>
+        <p>This is the transaction report for the period of <span th:text="${timePeriod}"></span> from the system:</p>
+
+        <!-- Display transaction summary -->
+        <div class="transaction-summary">
+            <p><strong>Total Transactions:</strong> <span th:text="${totalTransactions}"></span></p>
+            <p><strong>Total Amount:</strong> <span th:text="${#numbers.formatDecimal(totalAmount, 0, 2)}"></span></p>
+            <p><strong>Successful Transactions:</strong> <span th:text="${successCount}"></span> (Total Amount: <span th:text="${#numbers.formatDecimal(successAmount, 0, 2)}"></span>)</p>
+            <p><strong>Failed Transactions:</strong> <span th:text="${failedCount}"></span> (Total Amount: <span th:text="${#numbers.formatDecimal(failedAmount, 0, 2)}"></span>)</p>
+            <p><strong>Pending Transactions:</strong> <span th:text="${pendingCount}"></span> (Total Amount: <span th:text="${#numbers.formatDecimal(pendingAmount, 0, 2)}"></span>)</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Thank you for using our service! If you have any questions, please contact us at <a href="mailto:OLongTeaPlus@iceteasoftware.com">OLongTeaPlus@iceteasoftware.com</a>.</p>
+    </div>
+</div>
+
+</body>
+</html>

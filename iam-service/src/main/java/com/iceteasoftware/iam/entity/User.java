@@ -1,6 +1,7 @@
 package com.iceteasoftware.iam.entity;
 
 import com.iceteasoftware.iam.entity.common.AuditTable;
+import com.iceteasoftware.iam.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,6 +29,7 @@ public class User extends AuditTable {
     private String password;
 
     @Column(name = "status", nullable = false)
+    // @Enumerated(EnumType.STRING)
     private Boolean status;
 
     @Column(name = "role", length = 10)

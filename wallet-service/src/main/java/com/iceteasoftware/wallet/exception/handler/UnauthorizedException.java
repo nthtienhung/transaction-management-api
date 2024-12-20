@@ -1,6 +1,7 @@
-package com.transactionservice.exception.handle;
+package com.iceteasoftware.wallet.exception.handler;
 
-import com.transactionservice.constant.ApiConstants;
+import com.iceteasoftware.wallet.constant.ApiConstants;
+import lombok.Getter;
 import org.zalando.problem.AbstractThrowableProblem;
 import org.zalando.problem.Status;
 
@@ -9,7 +10,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+@Getter
 public class UnauthorizedException extends AbstractThrowableProblem {
+
     /**
      * The Constant serialVersionUID
      */
@@ -20,24 +23,24 @@ public class UnauthorizedException extends AbstractThrowableProblem {
     private final Object[] errorParams;
 
     /**
-     * Constructor với thông điệp mặc định, mã lỗi và khóa lỗi được chỉ định.
+     * Contructor 3 tham số để gán giá trị vào label
      *
-     * @param defaultMessage Thông điệp mặc định
-     * @param errorCode Mã lỗi
-     * @param errorKey Khóa lỗi
+     * @param defaultMessage
+     * @param errorCode
+     * @param errorKey
      */
     public UnauthorizedException(String defaultMessage, String errorCode, String errorKey) {
         this(ApiConstants.ErrorType.DEFAULT_TYPE, defaultMessage, errorCode, errorKey, new Object[0]);
     }
 
     /**
-     * Constructor với URI, thông điệp mặc định, mã lỗi, khóa lỗi và danh sách tham số lỗi được chỉ định.
+     * Contructor 5 tham số để gán giá trị vào label
      *
-     * @param type URI của loại lỗi
-     * @param defaultMessage Thông điệp mặc định
-     * @param errorCode Mã lỗi
-     * @param errorKey Khóa lỗi
-     * @param errorParams Danh sách tham số lỗi
+     * @param type
+     * @param defaultMessage
+     * @param errorCode
+     * @param errorKey
+     * @param errorParams
      */
     public UnauthorizedException(URI type, String defaultMessage, String errorCode, String errorKey,
                                  Object[] errorParams) {
@@ -49,13 +52,12 @@ public class UnauthorizedException extends AbstractThrowableProblem {
     }
 
     /**
-     * Phương thức tạo bản đồ tham số cảnh báo.
+     * Contructor 4 tham số để gán giá trị vào label
      *
-     * @param message Thông điệp
-     * @param errorCode Mã lỗi
-     * @param errorKey Khóa lỗi
-     * @param errorParams Danh sách tham số lỗi
-     * @return Bản đồ tham số cảnh báo
+     * @param message
+     * @param errorCode
+     * @param errorKey
+     * @param errorParams
      */
     private static Map<String, Object> getAlertParameters(String message, String errorCode, String errorKey,
                                                           Object[] errorParams) {
@@ -70,3 +72,4 @@ public class UnauthorizedException extends AbstractThrowableProblem {
     }
 
 }
+

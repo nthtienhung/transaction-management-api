@@ -4,14 +4,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.transactionservice.dto.request.ConfirmTransactionRequest;
 import com.transactionservice.dto.request.TransactionRequest;
 import com.transactionservice.dto.request.email.EmailRequest;
-import com.transactionservice.dto.response.transaction.TransactionResponse;
+import com.transactionservice.dto.response.transaction.*;
 import com.transactionservice.dto.request.TransactionListRequest;
+import org.springframework.data.domain.Page;
+import com.transactionservice.dto.response.transaction.TransactionStatsResponse;
+import com.transactionservice.dto.request.TransactionSearch;
 import com.transactionservice.dto.response.transaction.TransactionDashboardResponse;
 import com.transactionservice.dto.response.transaction.TransactionListResponse;
-import org.springframework.data.domain.Page;
-import com.transactionservice.dto.request.TransactionSearch;
+
 import com.transactionservice.dto.response.transaction.TransactionSearchResponse;
-import org.springframework.data.domain.Page;
+
+
 import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;
@@ -40,10 +43,14 @@ public interface TransactionService {
 
     Integer getTotalTransactionByUser(String walletCode);
 
+    TransactionDetailResponse getTransactionDetailByTransactionCode(String transactionCode);
+
     Map<String, Object> getGeneralStatistics(Instant startDate, Instant endDate);
 
     List<Map<String, Object>> getUserStatistics(Instant startDate, Instant endDate);
 
     List<Map<String, Object>> getTransactionDetails(Instant startDate, Instant endDate);
+
+    List<TransactionStatsResponse> getTransactions(Instant startDate, Instant endDate);
 }
 
