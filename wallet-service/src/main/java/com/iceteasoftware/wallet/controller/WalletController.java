@@ -29,7 +29,6 @@ public class WalletController {
         return walletService.getWalletByUserId(userId);
     }
 
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     @GetMapping("/{walletCode}")
     WalletResponse getWalletByWalletCode(@PathVariable("walletCode") String walletCode) {
         System.out.println("Wallet Code: " + walletCode);

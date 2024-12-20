@@ -39,14 +39,13 @@ public class TransactionController {
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
     private final TransactionService transactionService;
 
-
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     /**
      * Retrieves a list of recent received transactions for a user.
      *
      * @param walletCodeByUserLogIn the wallet code of the user
      * @return a MessageResponse containing a page of TransactionDashboardResponse
      */
+    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     @GetMapping("/recent-received-transaction-list-by-user")
     public MessageResponse<Page<TransactionDashboardResponse>> getRecentReceivedTransactionList(@RequestParam String walletCodeByUserLogIn) {
         Page<TransactionDashboardResponse> data = transactionService.getRecentReceivedTransactionListByUser(walletCodeByUserLogIn);
