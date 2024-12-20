@@ -126,12 +126,17 @@ public class TransactionServiceImpl implements TransactionService {
 
     private TransactionListResponse mapToDto(Transaction transaction) {
         String recipientWalletCode = transaction.getRecipientWalletCode();
+        String senderWalletCode = transaction.getSenderWalletCode();
 
         // Lấy userId từ recipientWalletCode
         String userId = walletClient.getUserIdByWalletCode(recipientWalletCode);
 
+        // Lấy thông tin user (firstName, lastName) từ senderWalletCode
+        String userIdSender = walletClient.getUserIdByWalletCode(senderWalletCode);
+
         // Lấy thông tin user (firstName, lastName) từ userId
         FullNameResponse fullNameResponse = userClient.getFullNameByUserId(userId);
+        FullNameResponse fullNameResponseSender = userClient.getFullNameByUserId(userIdSender);
 
         return TransactionListResponse.builder()
                 .transactionCode(transaction.getTransactionCode())
@@ -142,6 +147,8 @@ public class TransactionServiceImpl implements TransactionService {
                 .description(transaction.getDescription())
                 .FirstName(fullNameResponse.getFirstName())
                 .LastName(fullNameResponse.getLastName())
+                .FirstNameSender(fullNameResponseSender.getFirstName())
+                .LastNameSender(fullNameResponseSender.getLastName())
                 .createdAt(transaction.getCreatedDate())
                 .build();
     }

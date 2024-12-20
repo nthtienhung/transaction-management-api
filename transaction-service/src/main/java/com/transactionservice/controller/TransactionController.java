@@ -70,6 +70,7 @@ public class TransactionController {
         TransactionResponse savedTransaction = transactionService.createTransaction(transactionRequest);
         return MessageResponse.<TransactionResponse>builder().status((short) HttpStatus.CREATED.value()).message(Constants.DEFAULT_MESSAGE_SUCCESS).data(savedTransaction).localDateTime(String.valueOf(Instant.now())).build();
     }
+
     /**
      * API gửi OTP xác nhận giao dịch
      */
@@ -104,20 +105,15 @@ public class TransactionController {
     }
 
     @PostMapping("/getAllTransaction")
-    public ResponseEntity<Page<TransactionSearchResponse>> getAllTransaction(
-            @RequestParam(required = false) String transactionId,
-            @RequestParam(required = false) String walletCode,
-            @RequestParam(required = false) Status status,
-            @RequestParam(required = false) String fromDate,
-            @RequestParam(required = false) String toDate,
-            @RequestParam int page,
-            @RequestParam int size) {
-        Instant fromInstant = fromDate != null ? Instant.parse(fromDate) : null;
-        Instant toInstant = toDate != null ? Instant.parse(toDate) : null;
-        TransactionSearch transactionSearch = new TransactionSearch(transactionId, walletCode, status, fromInstant, toInstant);
+    public ResponseEntity<Page<TransactionSearchResponse>> getAllTransaction(@ModelAttribute TransactionSearch transactionSearch,
+                                                                             @RequestParam int page,
+                                                                             @RequestParam int size) {
+        Instant fromInstant = transactionSearch.getFromDate() != null ? Instant.parse(transactionSearch.getFromDate().toString()) : null;
+        Instant toInstant = transactionSearch.getToDate() != null ? Instant.parse(transactionSearch.getToDate().toString()) : null;
+        TransactionSearch transactionSearchValue = new TransactionSearch(transactionSearch.getTransactionId(), transactionSearch.getWalletCode(), transactionSearch.getStatus(), fromInstant, toInstant);
         Pageable pageable = PageRequest.of(page, size); // Tạo Pageable từ tham số
         Page<TransactionSearchResponse> transactionSearchResponses =
-                transactionService.getTransactionByInformation(transactionSearch, pageable);
+                transactionService.getTransactionByInformation(transactionSearchValue, pageable);
         return new ResponseEntity<>(transactionSearchResponses, HttpStatus.OK);
     }
 
