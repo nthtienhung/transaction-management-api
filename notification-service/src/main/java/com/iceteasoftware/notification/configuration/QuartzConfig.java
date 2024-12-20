@@ -25,7 +25,7 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(emailJobDetail())
                 .withIdentity("emailJobTriggerDaily")
-                .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(0, 0))
+                .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(18, 5))
                 .build();
     }
 

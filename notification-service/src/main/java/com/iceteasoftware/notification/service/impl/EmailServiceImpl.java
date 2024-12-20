@@ -311,6 +311,10 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendEmail(String email, List<TransactionStatsResponse> transactionDetails, String subject, String templateName, String timePeriod) throws MessagingException, JsonProcessingException, IOException {
+        // Kiểm tra null và gán giá trị mặc định nếu cần
+        if (transactionDetails == null) {
+            transactionDetails = Collections.emptyList();
+        }
         // 1. Tạo email MIME
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(

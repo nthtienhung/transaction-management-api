@@ -20,8 +20,8 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, String> {
     @Query("SELECT t FROM Transaction t WHERE " +
             "(COALESCE(:transactionCode, '') = '' OR t.transactionCode = :transactionCode) AND " +
-            "(COALESCE(:recipientWalletCode, '') = '' OR t.recipientWalletCode like %:recipientWalletCode%) OR " +
-            "(COALESCE(:senderWalletCode, '') = '' OR t.senderWalletCode like %:senderWalletCode%)")
+            "(COALESCE(:recipientWalletCode, '') = '' OR t.recipientWalletCode = :recipientWalletCode) OR " +
+            "(COALESCE(:senderWalletCode, '') = '' OR t.senderWalletCode = :senderWalletCode)")
     Page<Transaction> findTransactions(
             @Param("transactionCode") String transactionCode,
             @Param("recipientWalletCode") String recipientWalletCode,
