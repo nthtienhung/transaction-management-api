@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.Instant;
 import java.util.List;
 
-@FeignClient(name = "transaction-service", url = "${feign.client.config.transaction-service.url}")
+@FeignClient(name = "transaction-service", url = "http://localhost:8888/api/v1/transaction")
 public interface TransactionClient {
     @GetMapping("/transactions-detail")
     List<TransactionStatsResponse> getTransactionDetails(

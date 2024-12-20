@@ -1,4 +1,4 @@
-package com.iceteasoftware.wallet.configuration.security;
+package com.iceteasoftware.user.configuration.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -134,16 +134,12 @@ public class JWTTokenProvider<T extends AbstractUserPrincipal> implements Initia
 
         String username = claims.getSubject();
 
-        T principal = (T) userDetailsService.loadUserByUsername(username);
+        String role = claims.get("role", String.class);
 
-        if (Validator.isNull(principal)) {
-            return null;
-        }
 
 //        return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(claims.get("role").toString()));
-        log.info("claim: " + claims.toString() + "\n" + "principal: " + principal.toString());
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+        return new UsernamePasswordAuthenticationToken(username, null,
+                Collections.singletonList(new SimpleGrantedAuthority(role)));
 
     }
     public boolean validateToken(String accessToken, String csrfToken) {

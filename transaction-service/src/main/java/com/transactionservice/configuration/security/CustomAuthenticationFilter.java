@@ -52,8 +52,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                 log.error("Invalid token: {}", e.getMessage());
                 return;
             }
-            filterChain.doFilter(request, response);
         }
+        filterChain.doFilter(request, response);
     }
 
     public Claims decodeJWT(String jwt) {

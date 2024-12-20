@@ -1,4 +1,5 @@
-package com.transactionservice.configuration.security;
+package com.iceteasoftware.config.configuration.security;
+
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

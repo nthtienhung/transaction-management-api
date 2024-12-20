@@ -3,15 +3,19 @@ package com.iceteasoftware.user.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iceteasoftware.user.client.IamClient;
 import com.iceteasoftware.user.constant.KafkaTopicConstants;
 import com.iceteasoftware.user.configuration.message.Labels;
+import com.iceteasoftware.user.dto.UserProfileResponse;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
+import com.iceteasoftware.user.dto.response.StatusRoleUserResponse;
 import com.iceteasoftware.user.dto.response.UserResponse;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
 import com.iceteasoftware.user.dto.response.profile.FullNameResponse;
 import com.iceteasoftware.user.entity.Profile;
 import com.iceteasoftware.user.entity.User;
 import com.iceteasoftware.user.enums.MessageCode;
+import com.iceteasoftware.user.enums.Status;
 import com.iceteasoftware.user.exception.handler.BadRequestAlertException;
 import com.iceteasoftware.user.repository.UserProfileRepository;
 import com.iceteasoftware.user.repository.UserRepository;
@@ -25,13 +29,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -46,6 +55,7 @@ public class UserServiceImpl implements UserService {
     private final UserProfileRepository userProfileRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final UserRepository userRepository;
+    private final IamClient iamClient;
     @Value("${security.authentication.jwt.base64-secret}")
     private String jwtSecret;
 
@@ -218,11 +228,13 @@ public class UserServiceImpl implements UserService {
      */
     private String extractEmailFromJwt(String jwt) {
         try {
-            // Trim and validate the JWT
+            // Remove "Bearer " prefix if present
+            jwt = removeBearerPrefix(jwt);
+
+            // Validate the JWT
             if (jwt == null || jwt.trim().isEmpty()) {
                 throw new IllegalArgumentException("JWT string is null or empty");
             }
-            jwt = jwt.trim();
 
             // Parse claims
             Claims claims = Jwts.parser()
@@ -239,12 +251,19 @@ public class UserServiceImpl implements UserService {
             System.err.println("JWT is expired: " + e.getMessage());
         } catch (UnsupportedJwtException e) {
             System.err.println("Unsupported JWT: " + e.getMessage());
+        } catch (SignatureException e) {
+            System.err.println("Invalid JWT signature: " + e.getMessage());
         } catch (Exception e) {
             System.err.println("Error parsing JWT: " + e.getMessage());
         }
         return null;
     }
-
+    public static String removeBearerPrefix(String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            return token.substring(7).trim(); // Remove "Bearer " (7 characters) and trim spaces
+        }
+        return token; // Return the original token if no "Bearer " prefix is found
+    }
     /**
      * Retrieves a user's profile based on their email address.
      *
@@ -374,6 +393,38 @@ public class UserServiceImpl implements UserService {
         Optional<User> user = userRepository.findByEmail(email);
         return new ResponseEntity<>(user.get(), HttpStatus.OK);
     }
+    
+
+
+    @Override
+    public Page<UserProfileResponse> getAllUserProfile(Pageable pageable, String searchTerm) {
+        // Use Spring's Pageable directly
+        Page<Profile> profilePage = userProfileRepository.findAll(pageable);
+
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            profilePage = userProfileRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+                searchTerm, 
+                searchTerm, 
+                pageable);
+        } else {
+            profilePage = userProfileRepository.findAll(pageable);
+        }
+
+        return profilePage.map(profile -> {
+            StatusRoleUserResponse statusRoleUserResponse = iamClient.getRoleStatus(profile.getUserId());
+            return UserProfileResponse.builder()
+                    .userId(profile.getUserId())
+                    .firstName(profile.getFirstName())
+                    .lastName(profile.getLastName())
+                    .email(profile.getEmail())
+                    .phone(profile.getPhone())
+                    .dob(profile.getDob())
+                    .address(profile.getAddress())
+                    .role(statusRoleUserResponse.getRole())
+                    .status(statusRoleUserResponse.getStatus())
+                    .build();
+        });
+    }
 
     public UserResponse getUserById(String userId) {
         System.out.println("User ID: " + userId);
@@ -407,4 +458,23 @@ public class UserServiceImpl implements UserService {
             return null;
         }
     }
+
+    // @Override
+    // public void updateUserStatus(String userId, Status status) {
+    //     if (userId == null || userId.trim().isEmpty()) {
+    //         throw new BadRequestAlertException(MessageCode.MSG1101);
+    //     }
+        
+    //     try {
+    //         String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+    //         iamClient.updateUserStatus(
+    //             userId, 
+    //             status,
+    //             token,
+    //             "ROLE_ADMIN"
+    //         );
+    //     } catch (IllegalArgumentException e) {
+    //         throw new BadRequestAlertException(MessageCode.MSG1101);
+    //     }
+    // }
 }

@@ -195,7 +195,6 @@ public class TransactionController {
         return ResponseEntity.ok(transactions);
     }
 
-    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
     @GetMapping("/transactions-detail")
     public ResponseEntity<List<TransactionStatsResponse>> getTransactions(
             @RequestParam Instant startDate,
