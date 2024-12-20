@@ -33,6 +33,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserController {
 
+    public static final String ROLE_USER = "ROLE_USER";
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
     private final UserService userService;
 
     /**
@@ -70,6 +72,8 @@ public class UserController {
         return userService.updateProfile(request, updateRequest);
     }
 
+    //
+
     @GetMapping("/getUser")
     public ResponseEntity<User> getUser(HttpServletRequest request) {
         return this.userService.findUser(request);
@@ -80,8 +84,9 @@ public class UserController {
      * 
      * @return List of all user profiles
      */
+
     @GetMapping("/user-list")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
     public ResponseObject<Page<UserProfileResponse>> getUserList(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
@@ -108,7 +113,6 @@ public class UserController {
 //        return new ResponseObject<UserResponse>(HttpStatus.OK.value(), "Success", LocalDateTime.now(), userResponse);
         return userResponse;
     }
-
 
     @GetMapping("/check-email-exists")
     Boolean isEmailExists(@RequestParam String email) {

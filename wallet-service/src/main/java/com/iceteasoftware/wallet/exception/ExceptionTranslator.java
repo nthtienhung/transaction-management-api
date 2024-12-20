@@ -1,10 +1,9 @@
-package com.transactionservice.exception;
+package com.iceteasoftware.wallet.exception;
 
 
-import com.transactionservice.dto.response.common.MessageResponse;
-import com.transactionservice.exception.handler.BadRequestAlertException;
-import com.transactionservice.exception.handler.InternalServerErrorException;
-import io.jsonwebtoken.ExpiredJwtException;
+import com.iceteasoftware.wallet.dto.response.common.ResponseObject;
+import com.iceteasoftware.wallet.exception.handler.BadRequestAlertException;
+import com.iceteasoftware.wallet.exception.handler.InternalServerErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -38,8 +37,8 @@ public class ExceptionTranslator implements ProblemHandling {
      */
     @ExceptionHandler(BadRequestAlertException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public MessageResponse<String> handleBadRequestAlertException(BadRequestAlertException ex) {
-        return new MessageResponse<>((short) HttpStatus.BAD_REQUEST.value(), ex.getMessage(), LocalDateTime.now(), "");
+    public ResponseObject<String> handleBadRequestAlertException(BadRequestAlertException ex) {
+        return new ResponseObject<>((short) HttpStatus.BAD_REQUEST.value(), ex.getMessage(), LocalDateTime.now(), "");
     }
 
     /**
@@ -50,14 +49,14 @@ public class ExceptionTranslator implements ProblemHandling {
      * @return ResponseEntity chứa thông báo lỗi.
      */
     @ExceptionHandler(InternalServerErrorException.class)
-    public MessageResponse<String> handleInternalServerErrorException(InternalServerErrorException ex) {
-        return new MessageResponse<>((short)HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), LocalDateTime.now());
+    public ResponseObject<String> handleInternalServerErrorException(InternalServerErrorException ex) {
+        return new ResponseObject<>((short)HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), LocalDateTime.now());
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    public MessageResponse<String> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
-        return new MessageResponse<>((short)HttpStatus.FORBIDDEN.value(), ex.getMessage(), LocalDateTime.now());
+    public ResponseObject<String> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
+        return new ResponseObject<>((short)HttpStatus.FORBIDDEN.value(), ex.getMessage(), LocalDateTime.now());
     }
 
 }

@@ -1,6 +1,6 @@
 package com.iceteasoftware.user.client;
 
-import com.iceteasoftware.iam.configuration.security.AuthenticationRequestInterceptor;
+import com.iceteasoftware.user.configuration.security.AuthenticationRequestInterceptor;
 import com.iceteasoftware.user.dto.response.StatusRoleUserResponse;
 import com.iceteasoftware.user.enums.Status;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
     configuration = { AuthenticationRequestInterceptor.class })
 public interface IamClient {
 
-    @GetMapping("get-role-status/{userId}")
+    @GetMapping("/get-role-status/{userId}")
     StatusRoleUserResponse getRoleStatus(@PathVariable("userId") String userId);
 
     // @PutMapping("update-status/{userId}")

@@ -18,7 +18,8 @@ public class UserController {
     public StatusRoleUserResponse getRoleStatus(@PathVariable String userId) {
         return userService.getRoleAndStatusByUserId(userId);
     }
-    
+
+
     @PutMapping("update-status/{userId}")
     @PreAuthorize("hasRole('ADMIN')")  // Make sure only admins can update status
     @CrossOrigin(origins = "http://localhost:3000")  // Add this to allow frontend calls

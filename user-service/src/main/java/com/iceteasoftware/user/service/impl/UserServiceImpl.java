@@ -29,6 +29,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -227,11 +228,13 @@ public class UserServiceImpl implements UserService {
      */
     private String extractEmailFromJwt(String jwt) {
         try {
-            // Trim and validate the JWT
+            // Remove "Bearer " prefix if present
+            jwt = removeBearerPrefix(jwt);
+
+            // Validate the JWT
             if (jwt == null || jwt.trim().isEmpty()) {
                 throw new IllegalArgumentException("JWT string is null or empty");
             }
-            jwt = jwt.trim();
 
             // Parse claims
             Claims claims = Jwts.parser()
@@ -248,12 +251,19 @@ public class UserServiceImpl implements UserService {
             System.err.println("JWT is expired: " + e.getMessage());
         } catch (UnsupportedJwtException e) {
             System.err.println("Unsupported JWT: " + e.getMessage());
+        } catch (SignatureException e) {
+            System.err.println("Invalid JWT signature: " + e.getMessage());
         } catch (Exception e) {
             System.err.println("Error parsing JWT: " + e.getMessage());
         }
         return null;
     }
-
+    public static String removeBearerPrefix(String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            return token.substring(7).trim(); // Remove "Bearer " (7 characters) and trim spaces
+        }
+        return token; // Return the original token if no "Bearer " prefix is found
+    }
     /**
      * Retrieves a user's profile based on their email address.
      *
