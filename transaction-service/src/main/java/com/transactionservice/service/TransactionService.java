@@ -42,7 +42,9 @@ public interface TransactionService {
 
     Integer getTotalTransactionByUser(String walletCode);
 
-    TransactionDetailResponse getTransactionDetailByTransactionCode(String transactionCode);
+    TransactionDetailResponse getTransactionDetailByAdmin(String transactionCode);
+
+    TransactionDetailResponse getTransactionDetailByUser(String transactionCode);
 
     Map<String, Object> getGeneralStatistics(Instant startDate, Instant endDate);
 

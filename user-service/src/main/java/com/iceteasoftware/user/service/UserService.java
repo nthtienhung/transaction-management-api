@@ -30,4 +30,9 @@ public interface UserService {
     Boolean isEmailExists(String email);
 
     FullNameResponse getFullNameByUserId(String userId);
+
+    String getUserIdByUsername(String username);
+
+    // void updateUserStatus(String userId, Status status);
+
 }

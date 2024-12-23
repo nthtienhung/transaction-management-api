@@ -19,4 +19,7 @@ public interface UserClient {
     @GetMapping("/{userId}/full-name")
     FullNameResponse getFullNameByUserId(@PathVariable("userId") String userId);
 
+    @GetMapping("/user-id/{username}")
+    String getUserIdByUsername(@PathVariable String username);
+
 }

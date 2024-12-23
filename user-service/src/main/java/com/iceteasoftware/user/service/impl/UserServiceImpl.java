@@ -407,4 +407,28 @@ public class UserServiceImpl implements UserService {
             return null;
         }
     }
+
+    @Override
+    public String getUserIdByUsername(String username) {
+        return userProfileRepository.findUserIdByUsername(username);
+    }
+
+    // @Override
+    // public void updateUserStatus(String userId, Status status) {
+    //     if (userId == null || userId.trim().isEmpty()) {
+    //         throw new BadRequestAlertException(MessageCode.MSG1101);
+    //     }
+        
+    //     try {
+    //         String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+    //         iamClient.updateUserStatus(
+    //             userId, 
+    //             status,
+    //             token,
+    //             "ROLE_ADMIN"
+    //         );
+    //     } catch (IllegalArgumentException e) {
+    //         throw new BadRequestAlertException(MessageCode.MSG1101);
+    //     }
+    // }
 }

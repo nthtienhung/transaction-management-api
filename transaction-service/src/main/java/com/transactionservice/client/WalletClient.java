@@ -17,4 +17,7 @@ public interface WalletClient {
 
     @GetMapping("/{walletCode}/user-id")
     String getUserIdByWalletCode(@PathVariable("walletCode") String walletCode);
+
+    @GetMapping("/{userId}")
+    WalletResponse getWalletByUserId(@PathVariable String userId);
 }

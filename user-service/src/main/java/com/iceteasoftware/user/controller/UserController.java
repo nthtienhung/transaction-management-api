@@ -79,4 +79,26 @@ public class UserController {
     public FullNameResponse getFullNameByUserId(@PathVariable("userId") String userId){
         return userService.getFullNameByUserId(userId);
     }
+
+
+    @GetMapping("/user-id/{username}")
+    public String getUserIdByUsername(@PathVariable String username){
+        return userService.getUserIdByUsername(username);
+    }
+
+    // @PutMapping("/user-list/{userId}/status")
+    // @PreAuthorize("hasRole('ADMIN')")
+    // public ResponseObject<Void> updateUserStatus(
+    //     @PathVariable String userId,
+    //     @RequestBody Map<String, String> statusMap
+    // ) {
+    //     Status status = Status.valueOf(statusMap.get("status"));
+    //     userService.updateUserStatus(userId, status);
+    //     return new ResponseObject<>(
+    //         HttpStatus.OK.value(),
+    //         Constants.DEFAULT_MESSAGE_SUCCESS,
+    //         LocalDateTime.now()
+    //     );
+    // }
+
 }
