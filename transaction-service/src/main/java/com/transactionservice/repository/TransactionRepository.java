@@ -21,7 +21,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
     @Query("SELECT t FROM Transaction t WHERE " +
             "(COALESCE(:transactionCode, '') = '' OR t.transactionCode = :transactionCode) AND " +
             "(COALESCE(:recipientWalletCode, '') = '' OR t.recipientWalletCode = :recipientWalletCode) OR " +
-            "(COALESCE(:senderWalletCode, '') = '' OR t.senderWalletCode = :senderWalletCode)")
+            "(COALESCE(:senderWalletCode, '') = '' OR t.senderWalletCode = :senderWalletCode)" +
+            "ORDER BY t.createdDate DESC")
     Page<Transaction> findTransactions(
             @Param("transactionCode") String transactionCode,
             @Param("recipientWalletCode") String recipientWalletCode,
