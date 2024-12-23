@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 public class UserController {
@@ -21,11 +23,12 @@ public class UserController {
 
 
     @PutMapping("update-status/{userId}")
-    @PreAuthorize("hasRole('ADMIN')")  // Make sure only admins can update status
+    @PreAuthorize("hasRole('ADMIN')")
     public void updateUserStatus(
-        @PathVariable String userId,
-        @RequestBody Status status
+            @PathVariable String userId,
+            @RequestBody Map<String, String> statusMap
     ) {
+        Status status = Status.valueOf(statusMap.get("status"));
         userService.updateUserStatus(userId, status);
     }
 }
