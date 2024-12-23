@@ -210,9 +210,9 @@ public class LoginServiceImpl implements LoginService {
         // Lấy token từ Authorization header
         String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+        if (bearerToken != null ) {
             // Trả về token mà không có tiền tố "Bearer "
-            return bearerToken.substring(7);
+            return bearerToken;
         }
 
         // Nếu không tìm thấy trong header, kiểm tra cookie (nếu sử dụng)
