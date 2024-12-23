@@ -7,12 +7,13 @@ import com.transactionservice.dto.request.email.EmailRequest;
 import com.transactionservice.dto.response.transaction.*;
 import com.transactionservice.dto.request.TransactionListRequest;
 import org.springframework.data.domain.Page;
+import com.transactionservice.dto.response.transaction.TransactionStatsResponse;
 import com.transactionservice.dto.request.TransactionSearch;
 import com.transactionservice.dto.response.transaction.TransactionDashboardResponse;
 import com.transactionservice.dto.response.transaction.TransactionListResponse;
-import com.transactionservice.entity.Transaction;
-import com.transactionservice.dto.request.TransactionSearch;
+
 import com.transactionservice.dto.response.transaction.TransactionSearchResponse;
+
 
 import org.springframework.data.domain.Pageable;
 
@@ -52,6 +53,6 @@ public interface TransactionService {
 
     List<Map<String, Object>> getTransactionDetails(Instant startDate, Instant endDate);
 
-    List<Transaction> getTransactions(Instant startDate, Instant endDate);
+    List<TransactionStatsResponse> getTransactions(Instant startDate, Instant endDate);
 }
 

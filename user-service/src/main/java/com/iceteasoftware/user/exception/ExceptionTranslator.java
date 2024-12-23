@@ -5,6 +5,7 @@ import com.iceteasoftware.user.exception.handler.BadRequestAlertException;
 import com.iceteasoftware.user.exception.handler.InternalServerErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -50,5 +51,12 @@ public class ExceptionTranslator implements ProblemHandling {
     public ResponseObject<String> handleInternalServerErrorException(InternalServerErrorException ex) {
         return new ResponseObject<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), LocalDateTime.now());
     }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public ResponseObject<String> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
+        return new ResponseObject<>((short)HttpStatus.FORBIDDEN.value(), ex.getMessage(), LocalDateTime.now());
+    }
+
 }
 

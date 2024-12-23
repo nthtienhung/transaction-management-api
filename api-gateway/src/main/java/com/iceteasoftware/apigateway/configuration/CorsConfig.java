@@ -22,11 +22,6 @@ public class CorsConfig implements WebMvcConfigurer {
     @Autowired
     private JwtTokenInterceptor jwtTokenInterceptor;
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(jwtTokenInterceptor).addPathPatterns("/api/v1/config/**");
-        System.out.println("JwtTokenInterceptor đã được đăng ký!");
-    }
 
     @Bean
     public CorsFilter corsFilter() {

@@ -3,15 +3,13 @@ package com.transactionservice.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.transactionservice.dto.request.ConfirmTransactionRequest;
 import com.transactionservice.dto.request.email.EmailRequest;
-
 import com.transactionservice.dto.response.common.MessageResponse;
 import com.transactionservice.dto.response.transaction.TransactionDashboardResponse;
 import com.transactionservice.dto.response.transaction.TransactionListResponse;
 import com.transactionservice.dto.response.transaction.TransactionResponse;
 import com.transactionservice.dto.response.transaction.TransactionSearchResponse;
 import com.transactionservice.dto.response.transaction.TransactionDetailResponse;
-import com.transactionservice.entity.Transaction;
-import com.transactionservice.enums.Status;
+import com.transactionservice.dto.response.transaction.TransactionStatsResponse;
 import com.transactionservice.dto.request.TransactionListRequest;
 import com.transactionservice.dto.response.*;
 import com.transactionservice.dto.request.TransactionSearch;
@@ -24,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -36,6 +35,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class TransactionController {
 
+    public static final String ROLE_USER = "ROLE_USER";
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
     private final TransactionService transactionService;
 
     /**
@@ -44,12 +45,15 @@ public class TransactionController {
      * @param walletCodeByUserLogIn the wallet code of the user
      * @return a MessageResponse containing a page of TransactionDashboardResponse
      */
+    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     @GetMapping("/recent-received-transaction-list-by-user")
     public MessageResponse<Page<TransactionDashboardResponse>> getRecentReceivedTransactionList(@RequestParam String walletCodeByUserLogIn) {
         Page<TransactionDashboardResponse> data = transactionService.getRecentReceivedTransactionListByUser(walletCodeByUserLogIn);
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
+
+    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     /**
      * Retrieves a list of recent sent transactions for a user.
      *
@@ -62,6 +66,8 @@ public class TransactionController {
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
+
+    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     /**
      * Retrieves the total amount of sent transactions by a user in the current week.
      *
@@ -74,6 +80,7 @@ public class TransactionController {
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
+    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     /**
      * Retrieves the total amount of received transactions by a user in the current week.
      *
@@ -86,6 +93,7 @@ public class TransactionController {
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
+    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     /**
      * Retrieves the total number of transactions by a user.
      *
@@ -109,9 +117,11 @@ public class TransactionController {
         TransactionResponse savedTransaction = transactionService.createTransaction(transactionRequest);
         return MessageResponse.<TransactionResponse>builder().status((short) HttpStatus.CREATED.value()).message(Constants.DEFAULT_MESSAGE_SUCCESS).data(savedTransaction).localDateTime(String.valueOf(Instant.now())).build();
     }
+
     /**
      * API gửi OTP xác nhận giao dịch
      */
+    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     @PostMapping("/send-otp")
     public MessageResponse<String> sendTransactionOTP(@RequestBody EmailRequest sendOtpRequest) throws JsonProcessingException {
         transactionService.generateOtp(sendOtpRequest);
@@ -125,6 +135,7 @@ public class TransactionController {
     /**
      * API xác nhận giao dịch với OTP
      */
+    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     @PostMapping("/confirm")
     public MessageResponse<TransactionResponse> confirmTransactionWithOTP(@RequestBody ConfirmTransactionRequest confirmTransactionRequest) throws JsonProcessingException {
         TransactionResponse response = transactionService.confirmTransactionWithOTP(confirmTransactionRequest);
@@ -136,12 +147,14 @@ public class TransactionController {
                 .build();
     }
 
+    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     @GetMapping("/transaction-list-by-user")
     public MessageResponse<Page<TransactionListResponse>> getTransactionListByUser(@ModelAttribute TransactionListRequest request) {
         Page<TransactionListResponse> data = transactionService.getTransactionListByUser(request);
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
+    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
     @PostMapping("/getAllTransaction")
     public ResponseEntity<Page<TransactionSearchResponse>> getAllTransaction(@ModelAttribute TransactionSearch transactionSearch,
                                                                              @RequestParam int page,
@@ -155,6 +168,7 @@ public class TransactionController {
         return new ResponseEntity<>(transactionSearchResponses, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
     @GetMapping("/general")
     public ResponseEntity<Map<String, Object>> getGeneralReport(
             @RequestParam Instant startDate,
@@ -163,6 +177,7 @@ public class TransactionController {
         return ResponseEntity.ok(report);
     }
 
+    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
     @GetMapping("/users")
     public ResponseEntity<List<Map<String, Object>>> getUserReports(
             @RequestParam Instant startDate,
@@ -171,6 +186,7 @@ public class TransactionController {
         return ResponseEntity.ok(reports);
     }
 
+    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
     @GetMapping("/transactions")
     public ResponseEntity<List<Map<String, Object>>> getTransactionDetails(
             @RequestParam Instant startDate,
@@ -180,10 +196,10 @@ public class TransactionController {
     }
 
     @GetMapping("/transactions-detail")
-    public ResponseEntity<List<Transaction>> getTransactions(
+    public ResponseEntity<List<TransactionStatsResponse>> getTransactions(
             @RequestParam Instant startDate,
             @RequestParam Instant endDate) {
-        List<Transaction> transactions = transactionService.getTransactions(startDate, endDate);
+        List<TransactionStatsResponse> transactions = transactionService.getTransactions(startDate, endDate);
         return ResponseEntity.ok(transactions);
     }
 

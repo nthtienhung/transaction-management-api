@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thống kê giao dịch</title>
+    <title>Transaction Statistics</title>
     <style>
         :root {
             --primary-color: #007bff;
@@ -14,6 +14,11 @@
             --table-border-color: #ddd;
             --success-color: #28a745;
             --error-color: #dc3545;
+            --header-bg-color: #001f3d;
+            --header-text-color: #fff;
+            --footer-bg-color: #f1f1f1;
+            --footer-text-color: #333;
+            --card-bg-color: #ffffff;
         }
 
         body {
@@ -25,27 +30,27 @@
         }
 
         .email-container {
-            max-width: 700px;
+            max-width: 750px;
             margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
+            background-color: var(--card-bg-color);
+            padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
         .email-header {
             background: var(--primary-gradient);
-            color: white;
-            padding: 20px 15px;
+            color: var(--header-text-color);
+            padding: 30px 15px;
             text-align: center;
+            border-radius: 12px 12px 0 0;
         }
 
         .email-header h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 30px;
             font-weight: bold;
-            letter-spacing: 1px;
         }
 
         .email-body {
@@ -54,19 +59,29 @@
 
         .email-body h3 {
             color: var(--primary-color);
-            font-size: 20px;
+            font-size: 24px;
             margin-bottom: 10px;
+        }
+
+        .transaction-summary {
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .transaction-summary p {
+            margin: 8px 0;
+            line-height: 1.6;
         }
 
         .transaction-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 30px;
             font-size: 14px;
         }
 
         .transaction-table th, .transaction-table td {
-            padding: 12px;
+            padding: 15px;
             border: 1px solid var(--table-border-color);
             text-align: left;
         }
@@ -101,33 +116,40 @@
         .no-transaction {
             text-align: center;
             color: #888;
-            font-size: 16px;
-            margin-top: 20px;
+            font-size: 18px;
+            margin-top: 30px;
         }
 
         .footer {
             text-align: center;
-            margin-top: 30px;
-            color: #888;
-            font-size: 13px;
+            margin-top: 40px;
+            color: var(--footer-text-color);
+            font-size: 14px;
             border-top: 1px solid var(--table-border-color);
-            padding-top: 10px;
+            padding-top: 15px;
+            background-color: var(--footer-bg-color);
+            padding-bottom: 15px;
         }
 
         .footer a {
             color: var(--primary-color);
             text-decoration: none;
+            font-weight: bold;
         }
 
         @media (max-width: 600px) {
             .email-container {
-                padding: 15px;
+                padding: 20px;
             }
 
             .transaction-table {
                 display: block;
                 overflow-x: auto;
                 white-space: nowrap;
+            }
+
+            .email-header h1 {
+                font-size: 24px;
             }
         }
     </style>
@@ -136,47 +158,25 @@
 
 <div class="email-container">
     <div class="email-header">
-        <h1>Thống kê Giao dịch</h1>
+        <h1>Transaction Report</h1>
     </div>
 
     <div class="email-body">
-        <h3>Chào bạn,</h3>
-        <p>Đây là báo cáo giao dịch trong 24 giờ qua của hệ thống:</p>
+        <h3>Hello,</h3>
+        <p>This is the transaction report for the period of <span th:text="${timePeriod}"></span> from the system:</p>
 
-        <!-- Hiển thị bảng giao dịch nếu có -->
-        <div th:if="${!transactions.isEmpty()}">
-            <table class="transaction-table">
-                <thead>
-                <tr>
-                    <th scope="col">Mã giao dịch</th>
-                    <th scope="col">Mã ví gửi</th>
-                    <th scope="col">Mã ví nhận</th>
-                    <th scope="col">Số tiền</th>
-                    <th scope="col">Trạng thái</th>
-                    <th scope="col">Ngày tạo</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="transaction : ${transactions}">
-                    <td th:text="${transaction.transactionCode}"></td>
-                    <td th:text="${transaction.senderWalletCode}"></td>
-                    <td th:text="${transaction.recipientWalletCode}"></td>
-                    <td th:text="${#numbers.formatDecimal(transaction.amount, 0, 2)}"></td>
-                    <td th:text="${transaction.status}" th:attr="data-status=${transaction.status}"></td>
-                    <td th:text="${transaction.createdDate}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Hiển thị nếu không có giao dịch -->
-        <div class="no-transaction" th:if="${transactions.isEmpty()}">
-            <p>Hiện tại không có giao dịch nào trong 24 giờ qua.</p>
+        <!-- Display transaction summary -->
+        <div class="transaction-summary">
+            <p><strong>Total Transactions:</strong> <span th:text="${totalTransactions}"></span></p>
+            <p><strong>Total Amount:</strong> <span th:text="${#numbers.formatDecimal(totalAmount, 0, 2)}"></span></p>
+            <p><strong>Successful Transactions:</strong> <span th:text="${successCount}"></span> (Total Amount: <span th:text="${#numbers.formatDecimal(successAmount, 0, 2)}"></span>)</p>
+            <p><strong>Failed Transactions:</strong> <span th:text="${failedCount}"></span> (Total Amount: <span th:text="${#numbers.formatDecimal(failedAmount, 0, 2)}"></span>)</p>
+            <p><strong>Pending Transactions:</strong> <span th:text="${pendingCount}"></span> (Total Amount: <span th:text="${#numbers.formatDecimal(pendingAmount, 0, 2)}"></span>)</p>
         </div>
     </div>
 
     <div class="footer">
-        <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi! Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ qua <a href="OLongTeaPlus@iceteasoftware.com">OLongTeaPlus@iceteasoftware.com</a>.</p>
+        <p>Thank you for using our service! If you have any questions, please contact us at <a href="mailto:OLongTeaPlus@iceteasoftware.com">OLongTeaPlus@iceteasoftware.com</a>.</p>
     </div>
 </div>
 
