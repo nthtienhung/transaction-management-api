@@ -18,11 +18,10 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class WalletController {
 
-    public static final String ROLE_USER = "ROLE_USER";
-    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+    private final String USER_AUTHORITY = "hasRole('ROLE_USER')";
     private final WalletService walletService;
 
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
+    @PreAuthorize(USER_AUTHORITY)
     @GetMapping("/code/{userId}")
     WalletResponse getWalletByUserId(@PathVariable("userId") String userId) {
         System.out.println("User Id: " + userId);
@@ -35,7 +34,7 @@ public class WalletController {
         return walletService.getWalletByCode(walletCode);
     }
 
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
+    @PreAuthorize(USER_AUTHORITY)
     @PutMapping("/{walletCode}/balance")
     void updateWalletBalance(@PathVariable("walletCode") String walletCode, @RequestBody Long amount) {
         System.out.println("Wallet Code: " + walletCode);
@@ -47,7 +46,7 @@ public class WalletController {
         return walletService.getUserIdByWalletCode(walletCode);
     }
 
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
+    @PreAuthorize(USER_AUTHORITY)
     @GetMapping("/getWallet/{userId}")
     public ResponseEntity<WalletResponse> getWallet(@PathVariable("userId") String userId) {
         System.out.println("User ID: " + userId);
