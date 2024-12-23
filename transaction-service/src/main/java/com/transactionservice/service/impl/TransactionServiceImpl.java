@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -273,10 +274,10 @@ public class TransactionServiceImpl implements TransactionService {
         // Retrieve username and associated wallet code
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         String userId = userClient.getUserIdByUsername(username);
-        WalletResponse wallet = walletClient.getWalletByUserId(userId);
+        ResponseEntity<WalletResponse> wallet = walletClient.getWallet(userId);
 
         // Fetch transaction details
-        Transaction transaction = transactionRepository.findTransactionDetailByUser(transactionCode, wallet.getWalletCode());
+        Transaction transaction = transactionRepository.findTransactionDetailByUser(transactionCode, Objects.requireNonNull(wallet.getBody()).getWalletCode());
         if (transaction == null) {
             throw new NotFoundAlertException(MessageCode.MSG4111);
         }

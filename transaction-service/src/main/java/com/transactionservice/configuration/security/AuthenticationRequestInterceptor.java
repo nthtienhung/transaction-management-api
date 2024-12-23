@@ -27,13 +27,13 @@ public class AuthenticationRequestInterceptor implements RequestInterceptor {
         }
 
         var authHeader = servletRequestAttributes.getRequest().getHeader("Authorization");
-//        log.info("authHeader received: {}", authHeader);
+        log.info("authHeader received: {}", authHeader);
 
         if (StringUtils.hasText(authHeader)) {
             // Kiểm tra định dạng "Bearer <token>"
             if (authHeader.startsWith("Bearer ")) {
                 String token = authHeader.substring(7); // Loại bỏ "Bearer "
-//                log.info("Extracted token: {}", token);
+                log.info("Extracted token: {}", token);
                 requestTemplate.header("Authorization", "Bearer " + token); // Gửi lại token (nếu cần)
             } else {
 //                log.warn("Invalid Authorization header format: {}", authHeader);

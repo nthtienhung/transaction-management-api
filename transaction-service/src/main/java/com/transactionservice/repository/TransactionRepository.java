@@ -57,8 +57,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
 
     @Query("SELECT t " +
             "FROM Transaction t " +
-            "WHERE t.transactionCode = :transactionCode " +
-            "AND (t.senderWalletCode = :walletCode OR t.recipientWalletCode = :walletCode)")
+            "WHERE (t.senderWalletCode = :walletCode OR t.recipientWalletCode = :walletCode) " +
+            "AND t.transactionCode = :transactionCode ")
     Transaction findTransactionDetailByUser(String transactionCode, String walletCode);
 
     @Query("SELECT COUNT(t), SUM(t.amount) " +

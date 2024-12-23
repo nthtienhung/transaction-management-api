@@ -35,5 +35,5 @@ public interface UserProfileRepository extends JpaRepository<Profile, String> {
     Optional<FullNameResponse> findUserById(String userId);
 
     @Query(value = "SELECT u.userId FROM Profile u WHERE u.email = :email")
-    String findUserIdByUsername(String username);
+    String findUserIdByUsername(String email);
 }

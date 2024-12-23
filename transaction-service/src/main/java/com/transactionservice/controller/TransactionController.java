@@ -106,9 +106,17 @@ public class TransactionController {
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
-    @GetMapping("/{transactionCode}")
+    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
+    @GetMapping("/transaction-detail-by-admin/{transactionCode}")
     public MessageResponse<TransactionDetailResponse> getTransactionDetailByTransactionCode(@PathVariable String transactionCode){
-        TransactionDetailResponse data = transactionService.getTransactionDetailByTransactionCode(transactionCode);
+        TransactionDetailResponse data = transactionService.getTransactionDetailByAdmin(transactionCode);
+        return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
+    }
+
+    @PreAuthorize("hasRole('" + ROLE_USER + "')")
+    @GetMapping("/transaction-detail-by-user/{transactionCode}")
+    public MessageResponse<TransactionDetailResponse> getTransactionDetailByUser(@PathVariable String transactionCode){
+        TransactionDetailResponse data = transactionService.getTransactionDetailByUser(transactionCode);
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 

@@ -3,6 +3,7 @@ package com.transactionservice.client;
 import com.transactionservice.configuration.security.AuthenticationRequestInterceptor;
 import com.transactionservice.dto.response.wallet.WalletResponse;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,6 +22,6 @@ public interface WalletClient {
     @GetMapping("/{walletCode}/user-id")
     String getUserIdByWalletCode(@PathVariable("walletCode") String walletCode);
 
-    @GetMapping("/{userId}")
-    WalletResponse getWalletByUserId(@PathVariable String userId);
+    @GetMapping("/getWallet/{userId}")
+    ResponseEntity<WalletResponse> getWallet(@PathVariable("userId") String userId);
 }

@@ -24,6 +24,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.print.Pageable;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -124,8 +126,9 @@ public class UserController {
         return userService.getFullNameByUserId(userId);
     }
 
-    @GetMapping("/user-id/{username}")
-    public String getUserIdByUsername(@PathVariable String username){
+    @PreAuthorize("hasRole('" + ROLE_USER + "')")
+    @GetMapping("/user-id")
+    public String getUserIdByUsername(@RequestParam String username){
         return userService.getUserIdByUsername(username);
     }
 
