@@ -51,7 +51,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.senderWalletCode = :walletCode OR t.recipientWalletCode = :walletCode")
     Integer countBySenderWalletCodeOrRecipientWalletCode(String walletCode);
 
-    Transaction findTransactionByTransactionCode(String transactionCode);
+    @Query("SELECT t " +
+            "FROM Transaction t " +
+            "WHERE t.transactionCode = :transactionCode")
+    Transaction findTransactionByAdmin(String transactionCode);
+
+    @Query("SELECT t " +
+            "FROM Transaction t " +
+            "WHERE (t.senderWalletCode = :walletCode OR t.recipientWalletCode = :walletCode) " +
+            "AND t.transactionCode = :transactionCode ")
+    Transaction findTransactionDetailByUser(String transactionCode, String walletCode);
 
     @Query("SELECT COUNT(t), SUM(t.amount) " +
             "FROM Transaction t WHERE t.createdDate BETWEEN :startDate AND :endDate")
@@ -61,7 +70,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
             "FROM Transaction t WHERE t.createdDate BETWEEN :startDate AND :endDate " +
             "GROUP BY t.senderWalletCode")
     List<Object[]> getUserTransactionStatistics(@Param("startDate") Instant startDate, @Param("endDate") Instant endDate);
-
 
     @Query("SELECT t.transactionCode, t.senderWalletCode, t.recipientWalletCode, t.amount, t.status, t.createdDate " +
             "FROM Transaction t WHERE t.createdDate BETWEEN :startDate AND :endDate")

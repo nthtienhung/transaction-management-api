@@ -2,6 +2,7 @@ package com.iceteasoftware.user.configuration.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,8 +33,15 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if(token != null && token.startsWith("Bearer")) {
+
+        if(StringUtils.isBlank(token) || !token.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if(token.startsWith("Bearer")) {
             token = token.substring(7);
             try {
                 Claims claims = decodeJWT(token);

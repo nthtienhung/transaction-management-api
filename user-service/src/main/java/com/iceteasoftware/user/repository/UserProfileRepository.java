@@ -33,4 +33,7 @@ public interface UserProfileRepository extends JpaRepository<Profile, String> {
     @Query(value = "SELECT new com.iceteasoftware.user.dto.response.profile.FullNameResponse(u.firstName, u.lastName) " +
             "FROM Profile u WHERE u.userId = :userId")
     Optional<FullNameResponse> findUserById(String userId);
+
+    @Query(value = "SELECT u.userId FROM Profile u WHERE u.email = :email")
+    String findUserIdByUsername(String email);
 }

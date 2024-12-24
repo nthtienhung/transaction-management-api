@@ -35,8 +35,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class TransactionController {
 
-    public static final String ROLE_USER = "ROLE_USER";
-    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+    private final String ADMIN_AUTHORITY = "hasRole('ROLE_ADMIN')";
+    private final String USER_AUTHORITY = "hasRole('ROLE_USER')";
     private final TransactionService transactionService;
 
     /**
@@ -45,7 +45,7 @@ public class TransactionController {
      * @param walletCodeByUserLogIn the wallet code of the user
      * @return a MessageResponse containing a page of TransactionDashboardResponse
      */
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
+    @PreAuthorize(USER_AUTHORITY)
     @GetMapping("/recent-received-transaction-list-by-user")
     public MessageResponse<Page<TransactionDashboardResponse>> getRecentReceivedTransactionList(@RequestParam String walletCodeByUserLogIn) {
         Page<TransactionDashboardResponse> data = transactionService.getRecentReceivedTransactionListByUser(walletCodeByUserLogIn);
@@ -53,13 +53,14 @@ public class TransactionController {
     }
 
 
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
+
     /**
      * Retrieves a list of recent sent transactions for a user.
      *
      * @param walletCodeByUserLogIn the wallet code of the user
      * @return a MessageResponse containing a page of TransactionDashboardResponse
      */
+    @PreAuthorize(USER_AUTHORITY)
     @GetMapping("/recent-sent-transaction-list-by-user")
     public MessageResponse<Page<TransactionDashboardResponse>> getRecentSentTransactionList(@RequestParam String walletCodeByUserLogIn) {
         Page<TransactionDashboardResponse> data = transactionService.getRecentSentTransactionListByUser(walletCodeByUserLogIn);
@@ -67,51 +68,60 @@ public class TransactionController {
     }
 
 
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     /**
      * Retrieves the total amount of sent transactions by a user in the current week.
      *
      * @param senderWalletCode the wallet code of the sender
      * @return a MessageResponse containing the total amount of sent transactions
      */
+    @PreAuthorize(USER_AUTHORITY)
     @GetMapping("/total-amount-sent-transaction-by-user-in-week")
     public MessageResponse<Double> getTotalAmountSentTransactionByUser(@RequestParam String senderWalletCode) {
         Double data = transactionService.getTotalSentTransactionByUserInWeek(senderWalletCode);
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     /**
      * Retrieves the total amount of received transactions by a user in the current week.
      *
      * @param recipientWalletCode the wallet code of the recipient
      * @return a MessageResponse containing the total amount of received transactions
      */
+    @PreAuthorize(USER_AUTHORITY)
     @GetMapping("/total-amount-received-transaction-by-user-in-week")
     public MessageResponse<Double> getTotalAmountReceivedTransactionByUser(@RequestParam String recipientWalletCode) {
         Double data = transactionService.getTotalReceivedTransactionByUserInWeek(recipientWalletCode);
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
     /**
      * Retrieves the total number of transactions by a user.
      *
      * @param walletCode the wallet code of the user
      * @return a MessageResponse containing the total number of transactions
      */
+    @PreAuthorize(USER_AUTHORITY)
     @GetMapping("/total-transaction-by-user")
     public MessageResponse<Integer> getTotalTransactionByUser(@RequestParam String walletCode) {
         Integer data = transactionService.getTotalTransactionByUser(walletCode);
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
-    @GetMapping("/{transactionCode}")
+    @PreAuthorize(ADMIN_AUTHORITY)
+    @GetMapping("/transaction-detail-by-admin/{transactionCode}")
     public MessageResponse<TransactionDetailResponse> getTransactionDetailByTransactionCode(@PathVariable String transactionCode){
-        TransactionDetailResponse data = transactionService.getTransactionDetailByTransactionCode(transactionCode);
+        TransactionDetailResponse data = transactionService.getTransactionDetailByAdmin(transactionCode);
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
+    @PreAuthorize(USER_AUTHORITY)
+    @GetMapping("/transaction-detail-by-user/{transactionCode}")
+    public MessageResponse<TransactionDetailResponse> getTransactionDetailByUser(@PathVariable String transactionCode){
+        TransactionDetailResponse data = transactionService.getTransactionDetailByUser(transactionCode);
+        return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
+    }
+
+    @PreAuthorize(USER_AUTHORITY)
     @PostMapping("/create-transaction")
     public MessageResponse<TransactionResponse> createTransaction(@RequestBody TransactionRequest transactionRequest) throws JsonProcessingException {
         TransactionResponse savedTransaction = transactionService.createTransaction(transactionRequest);
@@ -121,7 +131,7 @@ public class TransactionController {
     /**
      * API gửi OTP xác nhận giao dịch
      */
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
+    @PreAuthorize(USER_AUTHORITY)
     @PostMapping("/send-otp")
     public MessageResponse<String> sendTransactionOTP(@RequestBody EmailRequest sendOtpRequest) throws JsonProcessingException {
         transactionService.generateOtp(sendOtpRequest);
@@ -135,7 +145,7 @@ public class TransactionController {
     /**
      * API xác nhận giao dịch với OTP
      */
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
+    @PreAuthorize(USER_AUTHORITY)
     @PostMapping("/confirm")
     public MessageResponse<TransactionResponse> confirmTransactionWithOTP(@RequestBody ConfirmTransactionRequest confirmTransactionRequest) throws JsonProcessingException {
         TransactionResponse response = transactionService.confirmTransactionWithOTP(confirmTransactionRequest);
@@ -147,14 +157,14 @@ public class TransactionController {
                 .build();
     }
 
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
+    @PreAuthorize(USER_AUTHORITY)
     @GetMapping("/transaction-list-by-user")
     public MessageResponse<Page<TransactionListResponse>> getTransactionListByUser(@ModelAttribute TransactionListRequest request) {
         Page<TransactionListResponse> data = transactionService.getTransactionListByUser(request);
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
-    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
+    @PreAuthorize(ADMIN_AUTHORITY)
     @PostMapping("/getAllTransaction")
     public ResponseEntity<Page<TransactionSearchResponse>> getAllTransaction(@ModelAttribute TransactionSearch transactionSearch,
                                                                              @RequestParam int page,
@@ -168,7 +178,7 @@ public class TransactionController {
         return new ResponseEntity<>(transactionSearchResponses, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
+    @PreAuthorize(ADMIN_AUTHORITY)
     @GetMapping("/general")
     public ResponseEntity<Map<String, Object>> getGeneralReport(
             @RequestParam Instant startDate,
@@ -177,7 +187,7 @@ public class TransactionController {
         return ResponseEntity.ok(report);
     }
 
-    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
+    @PreAuthorize(ADMIN_AUTHORITY)
     @GetMapping("/users")
     public ResponseEntity<List<Map<String, Object>>> getUserReports(
             @RequestParam Instant startDate,
@@ -186,7 +196,7 @@ public class TransactionController {
         return ResponseEntity.ok(reports);
     }
 
-    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
+    @PreAuthorize(ADMIN_AUTHORITY)
     @GetMapping("/transactions")
     public ResponseEntity<List<Map<String, Object>>> getTransactionDetails(
             @RequestParam Instant startDate,
@@ -195,6 +205,7 @@ public class TransactionController {
         return ResponseEntity.ok(transactions);
     }
 
+//    @PreAuthorize(ADMIN_AUTHORITY)
     @GetMapping("/transactions-detail")
     public ResponseEntity<List<TransactionStatsResponse>> getTransactions(
             @RequestParam Instant startDate,
@@ -202,6 +213,5 @@ public class TransactionController {
         List<TransactionStatsResponse> transactions = transactionService.getTransactions(startDate, endDate);
         return ResponseEntity.ok(transactions);
     }
-
 }
 

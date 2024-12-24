@@ -42,6 +42,9 @@ import org.springframework.stereotype.Service;
 
 
 import org.springframework.data.domain.Pageable;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -485,5 +488,10 @@ public class UserServiceImpl implements UserService {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public String getUserIdByUsername(String username) {
+        return userProfileRepository.findUserIdByUsername(username);
     }
 }

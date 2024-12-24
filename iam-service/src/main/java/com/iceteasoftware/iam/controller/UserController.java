@@ -15,7 +15,9 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final String ADMIN_AUTHORITY = "hasRole('ROLE_ADMIN')";
 
+    @PreAuthorize(ADMIN_AUTHORITY)
     @GetMapping("/get-role-status/{userId}")
     public StatusRoleUserResponse getRoleStatus(@PathVariable String userId) {
         return userService.getRoleAndStatusByUserId(userId);
@@ -23,7 +25,7 @@ public class UserController {
 
 
     @PutMapping("update-status/{userId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(ADMIN_AUTHORITY)
     public void updateUserStatus(
             @PathVariable String userId,
             @RequestBody Map<String, String> statusMap

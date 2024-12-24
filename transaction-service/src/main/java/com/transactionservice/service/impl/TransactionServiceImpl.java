@@ -32,6 +32,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -256,23 +258,47 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionDetailResponse getTransactionDetailByTransactionCode(String transactionCode) {
-        Transaction transaction = transactionRepository.findTransactionByTransactionCode(transactionCode);
-
+    public TransactionDetailResponse getTransactionDetailByAdmin(String transactionCode) {
+        // Fetch transaction details
+        Transaction transaction = transactionRepository.findTransactionByAdmin(transactionCode);
         if (transaction == null) {
             throw new NotFoundAlertException(MessageCode.MSG4111);
         }
 
-        // Lấy userId từ recipientWalletCode
-        String recipientId = walletClient.getUserIdByWalletCode(transaction.getRecipientWalletCode());
-        // Lấy thông tin user (firstName, lastName) từ userId
-        FullNameResponse recipientFullNameResponse = userClient.getFullNameByUserId(recipientId);
+        // Fetch sender and recipient details
+        return buildTransactionDetailResponse(transaction);
+    }
 
-        // Lấy userId từ senderWalletCode
+    @Override
+    public TransactionDetailResponse getTransactionDetailByUser(String transactionCode) {
+        // Retrieve username and associated wallet code
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userId = userClient.getUserIdByUsername(username);
+        ResponseEntity<WalletResponse> wallet = walletClient.getWallet(userId);
+
+        // Fetch transaction details
+        Transaction transaction = transactionRepository.findTransactionDetailByUser(transactionCode, Objects.requireNonNull(wallet.getBody()).getWalletCode());
+        if (transaction == null) {
+            throw new NotFoundAlertException(MessageCode.MSG4111);
+        }
+
+        // Fetch sender and recipient details
+        return buildTransactionDetailResponse(transaction);
+    }
+
+    /**
+     * Helper method to build TransactionDetailResponse from a Transaction object.
+     */
+    private TransactionDetailResponse buildTransactionDetailResponse(Transaction transaction) {
+        // Fetch sender's full name
         String senderId = walletClient.getUserIdByWalletCode(transaction.getSenderWalletCode());
-        // Lấy thông tin user (firstName, lastName) từ userId
         FullNameResponse senderFullNameResponse = userClient.getFullNameByUserId(senderId);
 
+        // Fetch recipient's full name
+        String recipientId = walletClient.getUserIdByWalletCode(transaction.getRecipientWalletCode());
+        FullNameResponse recipientFullNameResponse = userClient.getFullNameByUserId(recipientId);
+
+        // Construct response object
         TransactionDetailResponse response = new TransactionDetailResponse();
         response.setTransactionCode(transaction.getTransactionCode());
         response.setSenderWalletCode(transaction.getSenderWalletCode());
@@ -286,9 +312,7 @@ public class TransactionServiceImpl implements TransactionService {
         response.setUpdatedDate(transaction.getUpdatedDate());
 
         return response;
-
     }
-
     /**
      * Retrieves a transaction by its ID.
      *
