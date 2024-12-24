@@ -1,6 +1,6 @@
 package com.iceteasoftware.iam.exception.handle;
 
-import com.iceteasoftware.iam.configuration.message.Labels;
+import com.iceteasoftware.common.message.Labels;
 import com.iceteasoftware.iam.constant.ApiConstants;
 import com.iceteasoftware.iam.enums.MessageCode;
 import org.zalando.problem.AbstractThrowableProblem;

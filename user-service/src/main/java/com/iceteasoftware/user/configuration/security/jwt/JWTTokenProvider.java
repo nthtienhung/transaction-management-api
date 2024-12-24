@@ -2,7 +2,7 @@ package com.iceteasoftware.user.configuration.security.jwt;
 
 import com.iceteasoftware.user.configuration.cache.CacheProperties;
 import com.iceteasoftware.user.configuration.message.LabelKey;
-import com.iceteasoftware.user.configuration.message.Labels;
+import com.iceteasoftware.common.message.Labels;
 import com.iceteasoftware.user.configuration.security.AuthenticationProperties;
 import com.iceteasoftware.user.constant.SecurityConstants;
 import com.iceteasoftware.user.entity.User;

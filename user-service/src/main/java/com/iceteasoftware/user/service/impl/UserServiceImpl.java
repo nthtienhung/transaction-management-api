@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iceteasoftware.user.client.IamClient;
 import com.iceteasoftware.user.constant.KafkaTopicConstants;
-import com.iceteasoftware.user.configuration.message.Labels;
+import com.iceteasoftware.common.message.Labels;
 import com.iceteasoftware.user.dto.UserProfileResponse;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
 import com.iceteasoftware.user.dto.response.StatusRoleUserResponse;

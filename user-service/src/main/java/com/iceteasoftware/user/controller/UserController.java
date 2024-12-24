@@ -125,7 +125,6 @@ public class UserController {
         return userService.getFullNameByUserId(userId);
     }
 
-    @PreAuthorize(ADMIN_AUTHORITY)
     @GetMapping("/user-id")
     public String getUserIdByUsername(@RequestParam String username){
         return userService.getUserIdByUsername(username);

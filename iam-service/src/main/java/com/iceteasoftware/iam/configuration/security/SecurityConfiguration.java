@@ -1,6 +1,7 @@
 package com.iceteasoftware.iam.configuration.security;
 
 
+import com.iceteasoftware.common.security.CustomAuthenticationEntryPoint;
 import com.iceteasoftware.iam.configuration.security.jwt.JWTCookieFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +22,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfiguration {
     private final JWTCookieFilter jwtCookieFilter;
-    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final String[] WHITE_LIST = {
             "/v3/api-docs/**", "/swagger/**", "/swagger-ui/**", "/login", "/logoutAccount", "/register/**", "/refreshTokenUser", "/forgot-password/**", "/admin/emails/**", "/change-password/**"};
 
@@ -31,7 +31,7 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtCookieFilter, UsernamePasswordAuthenticationFilter.class) // Thêm JWT filter
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(authenticationEntryPoint))
+                        .authenticationEntryPoint(customAuthenticationEntryPoint()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(WHITE_LIST).permitAll()
                         .requestMatchers("/get-role-status/**", "update-status/**").hasRole("ADMIN")
@@ -45,6 +45,11 @@ public class SecurityConfiguration {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public CustomAuthenticationEntryPoint customAuthenticationEntryPoint() {
+        return new CustomAuthenticationEntryPoint();
     }
 
 }

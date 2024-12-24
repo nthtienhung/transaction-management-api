@@ -3,7 +3,9 @@ server:
 
 jwt:
     secret : 0aPglnnROU/zGjIuvAA32LpDzmqEY2O7J4fgQ4Eh+4KuJaSCXQIFQgBv6a69Pvkt
-
+logging:
+  level:
+    org.springframework.boot.autoconfigure: DEBUG
 spring:
   cloud:
     inetutils:

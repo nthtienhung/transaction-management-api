@@ -1,13 +1,13 @@
 package com.iceteasoftware.user.client;
 
-import com.iceteasoftware.user.configuration.FeignClientConfiguration;
+import com.iceteasoftware.common.security.AuthenticationRequestInterceptor;
 import com.iceteasoftware.user.dto.response.StatusRoleUserResponse;
 import com.iceteasoftware.user.enums.Status;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "iam-service", url = "localhost:8081/auth",
-    configuration = { FeignClientConfiguration.class })
+    configuration = { AuthenticationRequestInterceptor.class })
 public interface IamClient {
 
     @GetMapping("/get-role-status/{userId}")

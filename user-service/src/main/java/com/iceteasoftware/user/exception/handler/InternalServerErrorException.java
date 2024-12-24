@@ -1,6 +1,6 @@
 package com.iceteasoftware.user.exception.handler;
 
-import com.iceteasoftware.user.configuration.message.Labels;
+import com.iceteasoftware.common.message.Labels;
 import com.iceteasoftware.user.constant.ApiConstants;
 import com.iceteasoftware.user.enums.MessageCode;
 import lombok.Getter;

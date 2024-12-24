@@ -1,0 +1,11 @@
+spring:
+  messages:
+    encoding: 'UTF-8'   # Đảm bảo mã hóa đúng
+    use-code-as-default-message: true  # Sử dụng code làm thông điệp mặc định nếu không tìm thấy thông điệp
+    basename: i18n/labels  # Đảm bảo đúng tên file (không cần đuôi .properties trong basename)
+    cache-duration: 560   # Thời gian cache (60 giây)
+
+security:
+  authentication:
+    jwt:
+      base64-secret: 'ajMywt0FWnZYET/u3Pm309ziD6eXRewGX+QsyHs6/Y4ascWDHAAK46ARsuUZKLcjMQxUa5mQfNTaujgm8Sg4TJh4wKGwwXBAtB2gsEm1TkZuSRo97/BEFIR5rEKefTBf41J4kcU/YndvNFJcMRXkgMoC6fvzjSVYx1fGNYxSJqO+neilVm3uBpQiuhQrhTMmrKZJYa5M9xutWfJsbQ1Tf6IQ6zlRKZqdt8edUD/mOuUwltlyC1UZCyALrcji2vFlgXu+eks6IjBkxlAT3LvwVe5Et4MoNaB+eHetIdL6epigf1nYxmLSPT3rWfQxRRmHAwSQnO+1atAubG/xQqvsTQ=='

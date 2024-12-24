@@ -1,7 +1,6 @@
 package com.transactionservice.client;
 
-
-import com.transactionservice.configuration.security.AuthenticationRequestInterceptor;
+import com.iceteasoftware.common.security.AuthenticationRequestInterceptor;
 import com.transactionservice.dto.response.FullNameResponse;
 import com.transactionservice.dto.response.user.UserResponse;
 import org.springframework.cloud.openfeign.FeignClient;
