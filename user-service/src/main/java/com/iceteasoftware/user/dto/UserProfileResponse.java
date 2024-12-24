@@ -16,5 +16,6 @@ public class UserProfileResponse {
     private String address;
     private LocalDate dob;
     private String role;
+    private String isVerified;
     private Boolean status;
 }

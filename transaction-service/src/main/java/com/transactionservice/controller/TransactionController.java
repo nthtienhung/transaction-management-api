@@ -221,7 +221,7 @@ public class TransactionController {
         return ResponseEntity.ok(transactions);
     }
 
-    @PreAuthorize(ADMIN_AUTHORITY)
+//    @PreAuthorize(ADMIN_AUTHORITY)
     @GetMapping("/transactions-detail")
     public ResponseEntity<List<TransactionStatsResponse>> getTransactions(
             @RequestParam Instant startDate,
@@ -229,6 +229,5 @@ public class TransactionController {
         List<TransactionStatsResponse> transactions = transactionService.getTransactions(startDate, endDate);
         return ResponseEntity.ok(transactions);
     }
-
 }
 

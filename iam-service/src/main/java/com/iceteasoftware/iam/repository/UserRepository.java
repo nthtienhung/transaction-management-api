@@ -17,7 +17,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByEmail(String email);
 
-    @Query("select new com.iceteasoftware.iam.dto.response.StatusRoleUserResponse(u.role, u.status) from User u " +
+    @Query("select new com.iceteasoftware.iam.dto.response.StatusRoleUserResponse(u.role, u.isVerified, u.status) from User u " +
             "where u.userId = :userId")
     Optional<StatusRoleUserResponse> findStatusRoleUser(String userId);
 

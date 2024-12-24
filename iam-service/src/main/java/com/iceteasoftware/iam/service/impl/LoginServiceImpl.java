@@ -83,9 +83,9 @@ public class LoginServiceImpl implements LoginService {
             throw new BadRequestAlertException(MessageCode.MSG1049);
         }
         // Check tài khoản có bị block k
-        if (com.iceteasoftware.iam.util.Validator.equals(Status.BLOCK.name(), user.get().getStatus())) {
+        if (user.get().getStatus() == false) {
             throw new BadRequestAlertException(MessageCode.MSG1006);
-        } else if (com.iceteasoftware.iam.util.Validator.equals(Status.INACTIVE.name(), user.get().getStatus())) {
+        } else if (user.get().getIsVerified().equals("NOT_VERIFIED")) {
             // Check tài khoản đã được active chưa
             throw new BadRequestAlertException(MessageCode.MSG1008);
         }

@@ -24,6 +24,7 @@ public class UserServiceImpl implements UserService {
         if(response.isPresent()) {
             StatusRoleUserResponse statusRoleUserResponse = new StatusRoleUserResponse();
             statusRoleUserResponse.setRole(response.get().getRole());
+            statusRoleUserResponse.setIsVerified(response.get().getIsVerified());
             statusRoleUserResponse.setStatus(response.get().getStatus());
             return statusRoleUserResponse;
         } else {
@@ -35,14 +36,7 @@ public class UserServiceImpl implements UserService {
     public void updateUserStatus(String userId, Status status) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new BadRequestAlertException(MessageCode.MSG1101));
-        // user.setStatus(Boolean.valueOf(status.name()));
-
-        // // Fix the status conversion
-        // //this is boolean somehow?
-        // //use this if status is boolean type
         user.setStatus(status == Status.ACTIVE);
-
-        // user.setStatus(status);
         userRepository.save(user);
     }
 
