@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +46,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -393,9 +395,23 @@ public class UserServiceImpl implements UserService {
         Optional<User> user = userRepository.findByEmail(email);
         return new ResponseEntity<>(user.get(), HttpStatus.OK);
     }
-    
 
-
+    /**
+     * Retrieves a paginated list of user profiles with optional search functionality and excludes profiles with the role "Admin".
+     *
+     * <p>Steps:
+     * <ol>
+     *   <li>Fetch all profiles using the provided {@link Pageable} parameter.</li>
+     *   <li>If a search term is provided, filter profiles by first name or last name using case-insensitive matching.</li>
+     *   <li>Filter out profiles with the role "Admin" by querying the IAM client for each profile's role.</li>
+     *   <li>Map each profile to a {@link UserProfileResponse} object, including the role and status from the IAM client.</li>
+     *   <li>Return a {@link Page} of {@link UserProfileResponse} objects.</li>
+     * </ol>
+     *
+     * @param pageable   the {@link Pageable} object specifying the pagination information (page number, size, and sort order).
+     * @param searchTerm an optional search term to filter profiles by first name or last name (case-insensitive).
+     * @return a {@link Page} of {@link UserProfileResponse} objects containing filtered and mapped user profiles.
+     */
     @Override
     public Page<UserProfileResponse> getAllUserProfile(Pageable pageable, String searchTerm) {
         // Use Spring's Pageable directly
@@ -410,20 +426,32 @@ public class UserServiceImpl implements UserService {
             profilePage = userProfileRepository.findAll(pageable);
         }
 
-        return profilePage.map(profile -> {
-            StatusRoleUserResponse statusRoleUserResponse = iamClient.getRoleStatus(profile.getUserId());
-            return UserProfileResponse.builder()
-                    .userId(profile.getUserId())
-                    .firstName(profile.getFirstName())
-                    .lastName(profile.getLastName())
-                    .email(profile.getEmail())
-                    .phone(profile.getPhone())
-                    .dob(profile.getDob())
-                    .address(profile.getAddress())
-                    .role(statusRoleUserResponse.getRole())
-                    .status(statusRoleUserResponse.getStatus())
-                    .build();
-        });
+        //return profiles, fitler out profiles with role=admin
+        return new PageImpl<>(
+            profilePage.getContent().stream()
+                .filter(profile -> {
+                    StatusRoleUserResponse statusRoleUserResponse = iamClient.getRoleStatus(profile.getUserId());
+                    return !"Admin".equalsIgnoreCase(statusRoleUserResponse.getRole());
+                })
+                .map(profile -> {
+                    StatusRoleUserResponse statusRoleUserResponse = iamClient.getRoleStatus(profile.getUserId());
+                    return UserProfileResponse.builder()
+                            .userId(profile.getUserId())
+                            .firstName(profile.getFirstName())
+                            .lastName(profile.getLastName())
+                            .email(profile.getEmail())
+                            .phone(profile.getPhone())
+                            .dob(profile.getDob())
+                            .address(profile.getAddress())
+                            .role(statusRoleUserResponse.getRole())
+                            .isVerified(statusRoleUserResponse.getIsVerified())
+                            .status(statusRoleUserResponse.getStatus())
+                            .build();
+                })
+                .collect(Collectors.toList()),
+            pageable,
+            profilePage.getTotalElements()
+        );
     }
 
     public UserResponse getUserById(String userId) {
@@ -458,23 +486,4 @@ public class UserServiceImpl implements UserService {
             return null;
         }
     }
-
-    // @Override
-    // public void updateUserStatus(String userId, Status status) {
-    //     if (userId == null || userId.trim().isEmpty()) {
-    //         throw new BadRequestAlertException(MessageCode.MSG1101);
-    //     }
-        
-    //     try {
-    //         String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
-    //         iamClient.updateUserStatus(
-    //             userId, 
-    //             status,
-    //             token,
-    //             "ROLE_ADMIN"
-    //         );
-    //     } catch (IllegalArgumentException e) {
-    //         throw new BadRequestAlertException(MessageCode.MSG1101);
-    //     }
-    // }
 }

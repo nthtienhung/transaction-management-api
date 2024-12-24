@@ -12,7 +12,7 @@ import lombok.Setter;
 public class StatusRoleUserResponse {
 
     private String role;
-
+    private String isVerified;
     private Boolean status;
 
 }
