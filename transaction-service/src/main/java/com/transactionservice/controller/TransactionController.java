@@ -185,9 +185,7 @@ public class TransactionController {
     public ResponseEntity<Page<TransactionSearchResponse>> getAllTransaction(@ModelAttribute TransactionSearch transactionSearch,
                                                                              @RequestParam int page,
                                                                              @RequestParam int size) {
-        Instant fromInstant = transactionSearch.getFromDate() != null ? Instant.parse(transactionSearch.getFromDate().toString()) : null;
-        Instant toInstant = transactionSearch.getToDate() != null ? Instant.parse(transactionSearch.getToDate().toString()) : null;
-        TransactionSearch transactionSearchValue = new TransactionSearch(transactionSearch.getTransactionId(), transactionSearch.getWalletCode(), transactionSearch.getStatus(), fromInstant, toInstant);
+        TransactionSearch transactionSearchValue = new TransactionSearch(transactionSearch.getTransactionId(), transactionSearch.getWalletCode(), transactionSearch.getStatus(), transactionSearch.getFromDate(),transactionSearch.getToDate());
         Pageable pageable = PageRequest.of(page, size); // Tạo Pageable từ tham số
         Page<TransactionSearchResponse> transactionSearchResponses =
                 transactionService.getTransactionByInformation(transactionSearchValue, pageable);
