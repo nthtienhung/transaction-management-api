@@ -2,6 +2,9 @@ server:
   port: 8084
   servlet:
     context-path: /transaction
+logging:
+  level:
+    org.springframework.boot.autoconfigure: DEBUG
 spring:
   application:
     name: transaction-service

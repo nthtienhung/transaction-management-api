@@ -1,5 +1,7 @@
 package com.transactionservice.configuration.security;
 
+import com.iceteasoftware.common.security.CustomAuthenticationEntryPoint;
+import com.iceteasoftware.common.security.CustomRequestFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,18 +24,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final CustomAuthenticationFilter customAuthenticationFilter;
-    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(customRequestFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(authenticationEntryPoint))
+                        .authenticationEntryPoint(customAuthenticationEntryPoint()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html","/transaction/transactions-detail").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/transactions-detail").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -41,6 +41,16 @@ public class SecurityConfiguration {
                 );
 
         return http.build();
+    }
+
+    @Bean
+    public CustomRequestFilter customRequestFilter() {
+        return new CustomRequestFilter();
+    }
+
+    @Bean
+    public CustomAuthenticationEntryPoint customAuthenticationEntryPoint() {
+        return new CustomAuthenticationEntryPoint();
     }
 
 }

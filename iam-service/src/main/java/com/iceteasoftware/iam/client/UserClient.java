@@ -1,6 +1,6 @@
 package com.iceteasoftware.iam.client;
 
-import com.iceteasoftware.iam.configuration.security.AuthenticationRequestInterceptor;
+import com.iceteasoftware.common.security.AuthenticationRequestInterceptor;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;

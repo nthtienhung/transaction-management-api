@@ -3,7 +3,7 @@ package com.iceteasoftware.iam.configuration.security.jwt;
 
 import com.iceteasoftware.iam.configuration.cache.CacheProperties;
 import com.iceteasoftware.iam.configuration.message.LabelKey;
-import com.iceteasoftware.iam.configuration.message.Labels;
+import com.iceteasoftware.common.message.Labels;
 import com.iceteasoftware.iam.configuration.security.AuthenticationProperties;
 import com.iceteasoftware.iam.constant.SecurityConstants;
 import com.iceteasoftware.iam.entity.User;

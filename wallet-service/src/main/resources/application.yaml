@@ -2,7 +2,9 @@ server:
   port: 8086
   servlet:
     context-path: /wallet
-
+logging:
+  level:
+    org.springframework.boot.autoconfigure: DEBUG
 spring:
   application:
     name: wallet-service

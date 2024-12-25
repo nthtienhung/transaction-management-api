@@ -107,6 +107,11 @@ public class TransactionController {
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
+    /**
+     * Retrieves the total amount of transactions by a user.
+     * @param transactionCode
+     * @return
+     */
     @PreAuthorize(ADMIN_AUTHORITY)
     @GetMapping("/transaction-detail-by-admin/{transactionCode}")
     public MessageResponse<TransactionDetailResponse> getTransactionDetailByTransactionCode(@PathVariable String transactionCode){
@@ -114,6 +119,11 @@ public class TransactionController {
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
+    /**
+     * Retrieves the total amount of transactions by a user.
+     * @param transactionCode
+     * @return
+     */
     @PreAuthorize(USER_AUTHORITY)
     @GetMapping("/transaction-detail-by-user/{transactionCode}")
     public MessageResponse<TransactionDetailResponse> getTransactionDetailByUser(@PathVariable String transactionCode){
@@ -121,6 +131,12 @@ public class TransactionController {
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
+    /**
+     * API tạo giao dịch
+     * @param transactionRequest
+     * @return
+     * @throws JsonProcessingException
+     */
     @PreAuthorize(USER_AUTHORITY)
     @PostMapping("/create-transaction")
     public MessageResponse<TransactionResponse> createTransaction(@RequestBody TransactionRequest transactionRequest) throws JsonProcessingException {
@@ -203,7 +219,7 @@ public class TransactionController {
         return ResponseEntity.ok(transactions);
     }
 
-    @PreAuthorize(ADMIN_AUTHORITY)
+//    @PreAuthorize(ADMIN_AUTHORITY)
     @GetMapping("/transactions-detail")
     public ResponseEntity<List<TransactionStatsResponse>> getTransactions(
             @RequestParam Instant startDate,
@@ -211,6 +227,5 @@ public class TransactionController {
         List<TransactionStatsResponse> transactions = transactionService.getTransactions(startDate, endDate);
         return ResponseEntity.ok(transactions);
     }
-
 }
 
