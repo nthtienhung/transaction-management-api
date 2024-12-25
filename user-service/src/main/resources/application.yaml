@@ -2,6 +2,9 @@ server:
   port: 8082
   servlet:
     context-path: /user
+logging:
+  level:
+    org.springframework.boot.autoconfigure: DEBUG
 spring:
   application:
     name: user-service
@@ -69,7 +72,7 @@ cache:
     timeout: 3000
   time-to-lives:
     default: -1
-    token: 300
+    token: 160
     remember-me-token: 7200
     refresh-token: 86400
     otp: 180

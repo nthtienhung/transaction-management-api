@@ -11,22 +11,13 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.ProducerListener;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class KafkaProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
-
-//    public <T> void sendMessage(String topicName, T messageObject) throws JsonProcessingException {
-//        try {
-//            ObjectMapper objectMapper = JacksonConfig.createObjectMapper();
-//            String message = objectMapper.writeValueAsString(messageObject);
-//            log.info("Sending message to topic {}: {}", topicName, message);
-//            kafkaTemplate.send(topicName, message);
-//        } catch (JsonProcessingException e){
-//            log.error("Failed to serialize message for topic {}: {}", topicName, messageObject, e);
-//        }
-//    }
 
     public <T> void sendMessage(String topicName, T messageObject) {
         try {
@@ -59,5 +50,4 @@ public class KafkaProducer {
         log.error("Message failed to send. Triggering rollback or compensation logic for topic: {}", record.topic());
         // Rollback hoặc gửi thông báo thất bại
     }
-
 }

@@ -67,6 +67,9 @@
         <swagger.annotations.version>1.6.6</swagger.annotations.version>
         <redission.version>3.27.2</redission.version>
         <spring.data.redis.version>3.2.4</spring.data.redis.version>
+        <jjwt.jackson.version>0.11.5</jjwt.jackson.version>
+        <jjwt.api.version>0.11.5</jjwt.api.version>
+        <jjwt.impl.version>0.11.5</jjwt.impl.version>
     </properties>
     <dependencies>
         <dependency>
@@ -129,8 +132,29 @@
             <version>${swagger.annotations.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.impl.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.zalando</groupId>
@@ -143,6 +167,15 @@
             <artifactId>problem-spring-web</artifactId>
             <version>0.25.2</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com</groupId>
+            <artifactId>common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <dependencyManagement>

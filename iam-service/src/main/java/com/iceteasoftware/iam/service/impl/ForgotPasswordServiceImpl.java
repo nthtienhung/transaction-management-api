@@ -3,7 +3,6 @@ package com.iceteasoftware.iam.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iceteasoftware.iam.configuration.kafka.KafkaProducer;
-import com.iceteasoftware.iam.configuration.message.Labels;
 import com.iceteasoftware.iam.constant.Constants;
 import com.iceteasoftware.iam.constant.KafkaTopicConstants;
 import com.iceteasoftware.iam.dto.request.EmailRequest;
@@ -137,7 +136,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
 
             //Returns successful feedback
             ResponseObject response = new ResponseObject(
-                    Labels.getLabels(MessageCode.MSG1040.getKey()), // Thành công
+                    MessageCode.MSG1040.toString(), // Thành công
                     HttpStatus.OK.value(),
                     LocalDateTime.now(),
                     user

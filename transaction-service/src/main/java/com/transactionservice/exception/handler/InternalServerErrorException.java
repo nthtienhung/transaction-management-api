@@ -1,6 +1,6 @@
 package com.transactionservice.exception.handler;
 
-import com.transactionservice.configuration.message.Labels;
+import com.iceteasoftware.common.message.Labels;
 import com.transactionservice.constant.ApiConstants;
 import com.transactionservice.enums.MessageCode;
 import lombok.Getter;

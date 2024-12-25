@@ -2,7 +2,9 @@ server:
     port: 8081
     servlet:
         context-path: /auth
-
+logging:
+    level:
+        org.springframework.boot.autoconfigure: DEBUG
 spring:
     application:
         name: iam-service
@@ -83,7 +85,7 @@ cache:
         timeout: 3000
     time-to-lives:
         default: -1
-        token: 300
+        token: 60
         remember-me-token: 7200
         refresh-token: 86400
         otp: 180

@@ -4,8 +4,12 @@
  */
 package com.iceteasoftware.wallet.util;
 
-import com.iceteasoftware.wallet.util.Constants;
 import lombok.extern.slf4j.Slf4j;
+import com.iceteasoftware.wallet.constant.RegularExpressionConstants;
+import com.iceteasoftware.wallet.util.Constants;
+import com.iceteasoftware.wallet.util.StringUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -1152,6 +1156,77 @@ public class Validator {
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Kiểm tra xem email có đúng định dạng hay không.
+     *
+     * @param email Chuỗi cần kiểm tra.
+     * @return true nếu đối tượng là sai định dạng, false nếu ngược lại.
+     */
+    public static boolean isEmail(String email) {
+        return !Pattern.compile(RegularExpressionConstants.DEFAULT_REGEXP_EMAIL)
+                .matcher(email)
+                .matches();
+    }
+
+    /**
+     * Kiểm tra xem password có đúng định dạng hay không.
+     *
+     * @param password Chuỗi cần kiểm tra.
+     * @return true nếu đối tượng là sai định dạng, false nếu ngược lại.
+     */
+    public static boolean isPasswordRegex(String password) {
+        if (password.length() < com.iceteasoftware.wallet.constant.Constants.DEFAULT_PASSWORD_LENGTH_MIN
+                || password.length() > com.iceteasoftware.wallet.constant.Constants.DEFAULT_PASSWORD_LENGTH_MAX){
+            return false;
+        }
+
+        return Pattern.compile(RegularExpressionConstants.DEFAULT_REGEXP_PASSWORD)
+                .matcher(password)
+                .find();
+    }
+
+    /**
+     * Kiểm tra xem totp có đúng định dạng hay không.
+     *
+     * @param totp Chuỗi cần kiểm tra.
+     * @return true nếu đối tượng là sai định dạng, false nếu ngược lại.
+     */
+    public static boolean isTOTP(String totp) {
+        return !Pattern.compile(RegularExpressionConstants.DEFAULT_REGEXP_TOTP)
+                .matcher(totp)
+                .matches();
+    }
+
+    /**
+     * Kiểm tra xem totp có đúng định dạng hay không.
+     *
+     * @param fullName Chuỗi cần kiểm tra.
+     * @return true nếu đối tượng là sai định dạng, false nếu ngược lại.
+     */
+    public static boolean isFullName(String fullName) {
+        return !Pattern.compile(RegularExpressionConstants.DEFAULT_REGEXP_FULL_NAME)
+                .matcher(fullName)
+                .matches();
+    }
+
+    /**
+     * Kiểm tra xem chuỗi cho có rỗng hoặc trống không.
+     *
+     * @param s Chuỗi cần kiểm tra.
+     * @return true nếu đối tượng là null hoặc rỗng, false nếu ngược lại.
+     */
+    public static boolean isBlankOrEmpty(String s) {
+        return StringUtils.isBlank(s) || StringUtils.isEmpty(s);
+    }
+    public static boolean isOTP(String otp) {
+        return !Pattern.compile(RegularExpressionConstants.DEFAULT_REGEXP_TOTP)
+                .matcher(otp)
+                .matches();
+    }
+
+    /**
+>>>>>>> 176232eee4f75913cae54a023c04fcfeeb478ee1
      * Tính tuổi hiện tại theo ngày tháng năm sinh.
      *
      * @param birthDate ngày tháng năm kiểm tra.
@@ -1171,6 +1246,38 @@ public class Validator {
             years--;
         }
         return years;
+    }
+
+    /**
+     * Kiểm tra xem totp có đúng định dạng hay không.
+     *
+     * @param phoneNumber Chuỗi cần kiểm tra.
+     * @return true nếu đối tượng là sai định dạng, false nếu ngược lại.
+     */
+    public static boolean isPhoneNumberRegex(String phoneNumber) {
+        return !Pattern.compile(RegularExpressionConstants.DEFAULT_REGEXP_PHONE_NUMBER)
+                .matcher(phoneNumber)
+                .find();
+    }
+
+    /**
+     * Kiểm tra xem s có là ký tự đặc biệt trong SQL không.
+     *
+     * @param s Chuỗi cần kiểm tra.
+     * @return s.
+     */
+    public static String convertStringSQL(String s) {
+        if (!isBlankOrEmpty(s)) {
+            StringBuilder result = new StringBuilder();
+            for (char c : s.trim().toCharArray()) {
+                if (DEFAULT_PERCENT_SIGN == c) {
+                    result.append(DEFAULT_BACKSLASH);
+                }
+                result.append(c);
+            }
+            return result.toString();
+        }
+        return s;
     }
 
 }

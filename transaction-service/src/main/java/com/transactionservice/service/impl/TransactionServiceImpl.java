@@ -16,6 +16,9 @@ import com.transactionservice.dto.request.email.EmailTransactionRequest;
 import com.transactionservice.dto.response.*;
 import com.transactionservice.dto.response.wallet.WalletResponse;
 import com.transactionservice.dto.response.wallet.WalletTransactionStatus;
+import com.transactionservice.dto.response.FullNameResponse;
+import com.transactionservice.dto.response.transaction.*;
+import com.transactionservice.dto.response.user.UserResponse;
 import com.transactionservice.entity.Transaction;
 import com.transactionservice.enums.MessageCode;
 import com.transactionservice.enums.Stage;
@@ -36,13 +39,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -449,6 +451,62 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.countBySenderWalletCodeOrRecipientWalletCode(walletCode);
     }
 
+    @Override
+    public TransactionDetailResponse getTransactionDetailByAdmin(String transactionCode) {
+        // Fetch transaction details
+        Transaction transaction = transactionRepository.findTransactionByAdmin(transactionCode);
+        if (transaction == null) {
+            throw new NotFoundAlertException(MessageCode.MSG4111);
+        }
+
+        // Fetch sender and recipient details
+        return buildTransactionDetailResponse(transaction);
+    }
+
+    @Override
+    public TransactionDetailResponse getTransactionDetailByUser(String transactionCode) {
+        // Retrieve username and associated wallet code
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userId = userClient.getUserIdByUsername(username);
+        ResponseEntity<WalletResponse> wallet = walletClient.getWallet(userId);
+
+        // Fetch transaction details
+        Transaction transaction = transactionRepository.findTransactionDetailByUser(transactionCode, Objects.requireNonNull(wallet.getBody()).getWalletCode());
+        if (transaction == null) {
+            throw new NotFoundAlertException(MessageCode.MSG4111);
+        }
+
+        // Fetch sender and recipient details
+        return buildTransactionDetailResponse(transaction);
+    }
+
+    /**
+     * Helper method to build TransactionDetailResponse from a Transaction object.
+     */
+    private TransactionDetailResponse buildTransactionDetailResponse(Transaction transaction) {
+        // Fetch sender's full name
+        String senderId = walletClient.getUserIdByWalletCode(transaction.getSenderWalletCode());
+        FullNameResponse senderFullNameResponse = userClient.getFullNameByUserId(senderId);
+
+        // Fetch recipient's full name
+        String recipientId = walletClient.getUserIdByWalletCode(transaction.getRecipientWalletCode());
+        FullNameResponse recipientFullNameResponse = userClient.getFullNameByUserId(recipientId);
+
+        // Construct response object
+        TransactionDetailResponse response = new TransactionDetailResponse();
+        response.setTransactionCode(transaction.getTransactionCode());
+        response.setSenderWalletCode(transaction.getSenderWalletCode());
+        response.setRecipientWalletCode(transaction.getRecipientWalletCode());
+        response.setAmount(transaction.getAmount());
+        response.setDescription(transaction.getDescription());
+        response.setNameOfSender(senderFullNameResponse.getFirstName() + " " + senderFullNameResponse.getLastName());
+        response.setNameOfRecipient(recipientFullNameResponse.getFirstName() + " " + recipientFullNameResponse.getLastName());
+        response.setStatus(String.valueOf(transaction.getStatus()));
+        response.setCreatedDate(transaction.getCreatedDate());
+        response.setUpdatedDate(transaction.getUpdatedDate());
+
+        return response;
+    }
     /**
      * Retrieves a transaction by its ID.
      *
@@ -632,41 +690,117 @@ public class TransactionServiceImpl implements TransactionService {
         String walletCode = (transactionSearch.getWalletCode() != null && !transactionSearch.getWalletCode().isEmpty())
                 ? transactionSearch.getWalletCode()
                 : null;
-        Page<Transaction> transactionList = transactionRepository.findTransactions(transactionId, walletCode, walletCode, pageable);
+        String sendWallet = walletCode;
+        String receiverWallet = walletCode;
+
+        // Tìm giao dịch từ repository
+        Page<Transaction> transactionList = transactionRepository.findTransactions(transactionId, sendWallet, receiverWallet, pageable);
         List<TransactionSearchResponse> transactionResponseList = new ArrayList<>();
+
+        // Kiểm tra điều kiện theo ngày
         for (Transaction transaction : transactionList) {
+            boolean statusMatches = (transactionSearch.getStatus() == null || transactionSearch.getStatus().equals(transaction.getStatus()));
+
+            // Kiểm tra nếu từ ngày hoặc đến ngày là null hoặc rỗng
             if (transactionSearch.getFromDate() == null || transactionSearch.getToDate() == null) {
-                if (transaction.getStatus() == transactionSearch.getStatus()) {
-                    WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getSenderWalletCode());
-                    UserResponse userResponse = userClient.getUserById(walletResponse.getUserId());
-                    String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
-                    TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(), transaction.getSenderWalletCode(), fullName, transaction.getRecipientWalletCode(), transaction.getAmount(), transaction.getDescription(), transaction.getStatus());
-                    transactionResponseList.add(transactionSearchResponse);
-                } else if (transactionSearch.getStatus() == null) {
-                    WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getSenderWalletCode());
-                    UserResponse userResponse = userClient.getUserById(walletResponse.getUserId());
-                    String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
-                    TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(), transaction.getSenderWalletCode(), fullName, transaction.getRecipientWalletCode(), transaction.getAmount(), transaction.getDescription(), transaction.getStatus());
-                    transactionResponseList.add(transactionSearchResponse);
+                if (statusMatches) {
+                    checkValueTransaction(transactionSearch, transaction, transactionResponseList);
                 }
-            } else if (transaction.getCreatedDate().isBefore(transactionSearch.getToDate()) &&
-                    transaction.getCreatedDate().isAfter(transactionSearch.getFromDate())) {
-                if (transaction.getStatus() == transactionSearch.getStatus()) {
-                    WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getRecipientWalletCode());
-                    UserResponse userResponse = userClient.getUserById(walletResponse.getWalletCode());
-                    String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
-                    TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(), transaction.getSenderWalletCode(), fullName, transaction.getRecipientWalletCode(), transaction.getAmount(), transaction.getDescription(), transaction.getStatus());
-                    transactionResponseList.add(transactionSearchResponse);
-                } else if (transactionSearch.getStatus() == null) {
-                    WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getSenderWalletCode());
-                    UserResponse userResponse = userClient.getUserById(walletResponse.getUserId());
-                    String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
-                    TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(), transaction.getSenderWalletCode(), fullName, transaction.getRecipientWalletCode(), transaction.getAmount(), transaction.getDescription(), transaction.getStatus());
-                    transactionResponseList.add(transactionSearchResponse);
+            } else if (transaction.getCreatedDate().isAfter(transactionSearch.getFromDate()) &&
+                    transaction.getCreatedDate().isBefore(transactionSearch.getToDate())) {
+                if (statusMatches) {
+                    checkValueTransaction(transactionSearch, transaction, transactionResponseList);
                 }
             }
         }
+
         return new PageImpl<>(transactionResponseList);
+    }
+
+    private void checkValueTransaction(TransactionSearch transactionSearch, Transaction transaction, List<TransactionSearchResponse> transactionResponseList) {
+        String transactionId = transactionSearch.getTransactionId();
+        String walletCode = transactionSearch.getWalletCode();
+        Status status = transactionSearch.getStatus();  // Thêm kiểm tra status
+
+        boolean isTransactionIdEmpty = transactionId == null || transactionId.isEmpty();
+        boolean isWalletCodeEmpty = walletCode == null || walletCode.isEmpty();
+        boolean isStatusEmpty = status == null;  // Kiểm tra nếu status là null
+
+        // Trường hợp cả transactionId, walletCode và status đều null hoặc rỗng -> lấy tất cả giao dịch
+        if (isTransactionIdEmpty && isWalletCodeEmpty && isStatusEmpty) {
+            addTransaction(transaction, transactionResponseList);
+            return;
+        }
+
+        // Trường hợp tất cả 3 giá trị đều có giá trị -> Tìm giao dịch thỏa mãn tất cả 3 tiêu chí
+        if (!isTransactionIdEmpty && !isWalletCodeEmpty && !isStatusEmpty) {
+            if (transaction.getTransactionCode().equals(transactionId) &&
+                    (transaction.getRecipientWalletCode().equals(walletCode) || transaction.getSenderWalletCode().equals(walletCode)) &&
+                    transaction.getStatus().equals(status)) {
+                addTransaction(transaction, transactionResponseList);
+            }
+            return;
+        }
+
+        // Trường hợp chỉ có transactionId
+        if (!isTransactionIdEmpty && transaction.getTransactionCode().equals(transactionId)) {
+            // Nếu chỉ có transactionId và không có walletCode và status
+            if (isWalletCodeEmpty && isStatusEmpty) {
+                addTransaction(transaction, transactionResponseList);
+            }
+            // Nếu có walletCode và chỉ khớp với một trong hai (recipient hoặc sender)
+            else if (!isWalletCodeEmpty &&
+                    (transaction.getRecipientWalletCode().equals(walletCode) || transaction.getSenderWalletCode().equals(walletCode))) {
+                addTransaction(transaction, transactionResponseList);
+            }
+            // Nếu có status và khớp với status
+            else if (!isStatusEmpty && transaction.getStatus().equals(status)) {
+                addTransaction(transaction, transactionResponseList);
+            }
+            return;
+        }
+
+        // Trường hợp chỉ có walletCode
+        if (!isWalletCodeEmpty) {
+            // Kiểm tra walletCode có khớp với recipient hoặc sender
+            if (transaction.getRecipientWalletCode().equals(walletCode) || transaction.getSenderWalletCode().equals(walletCode)) {
+                // Nếu không có transactionId và không có status
+                if (isTransactionIdEmpty && isStatusEmpty) {
+                    addTransaction(transaction, transactionResponseList);
+                }
+                // Nếu có status và khớp với status
+                else if (!isStatusEmpty && transaction.getStatus().equals(status)) {
+                    addTransaction(transaction, transactionResponseList);
+                }
+            }
+            return;
+        }
+
+        // Trường hợp chỉ có status
+        if (!isStatusEmpty) {
+            // Nếu status khớp với transaction
+            if (transaction.getStatus().equals(status)) {
+                // Nếu không có transactionId và không có walletCode
+                if (isTransactionIdEmpty && isWalletCodeEmpty) {
+                    addTransaction(transaction, transactionResponseList);
+                }
+                // Nếu có walletCode và khớp với một trong hai (recipient hoặc sender)
+                else if (!isWalletCodeEmpty &&
+                        (transaction.getRecipientWalletCode().equals(walletCode) || transaction.getSenderWalletCode().equals(walletCode))) {
+                    addTransaction(transaction, transactionResponseList);
+                }
+            }
+        }
+    }
+    private void addTransaction(Transaction transaction, List<TransactionSearchResponse> transactionResponseList) {
+        WalletResponse walletResponse = walletClient.getWalletByWalletCode(transaction.getSenderWalletCode());
+        WalletResponse walletResponseToUser = walletClient.getWalletByWalletCode(transaction.getRecipientWalletCode());
+        UserResponse userResponse = userClient.getUserById(walletResponse.getUserId());
+        UserResponse userResponseToUser = userClient.getUserById(walletResponseToUser.getUserId());
+        String fullNameToUser = userResponseToUser.getFirstName() + " " + userResponseToUser.getLastName();
+        String fullName = userResponse.getFirstName() + " " + userResponse.getLastName();
+        TransactionSearchResponse transactionSearchResponse = new TransactionSearchResponse(transaction.getTransactionCode(), transaction.getSenderWalletCode(),fullName, transaction.getRecipientWalletCode(),fullNameToUser, transaction.getAmount(), transaction.getDescription(), transaction.getStatus());
+        transactionResponseList.add(transactionSearchResponse);
     }
 
 
@@ -694,4 +828,61 @@ public class TransactionServiceImpl implements TransactionService {
         return new Instant[]{startDate, endDate};
     }
 
+    @Override
+    public Map<String, Object> getGeneralStatistics(Instant startDate, Instant endDate) {
+        try {
+            Object[] stats = transactionRepository.getTransactionStatistics(startDate, endDate).get(0);
+            Map<String, Object> result = new HashMap<>();
+            result.put("totalTransactions", stats[0]);
+            result.put("totalAmount", stats[1]);
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching general statistics: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Map<String, Object>> getUserStatistics(Instant startDate, Instant endDate) {
+        try {
+            List<Object[]> userStats = transactionRepository.getUserTransactionStatistics(startDate, endDate);
+            return userStats.stream().map(stat -> {
+                Map<String, Object> userStat = new HashMap<>();
+                userStat.put("senderWallet", stat[0]);
+                userStat.put("totalTransactions", stat[1]);
+                userStat.put("totalAmount", stat[2]);
+                return userStat;
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching user statistics: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Map<String, Object>> getTransactionDetails(Instant startDate, Instant endDate) {
+        try {
+            List<Object[]> transactions = transactionRepository.getTransactionDetails(startDate, endDate);
+            return transactions.stream().map(transaction -> {
+                Map<String, Object> result = new HashMap<>();
+                result.put("transactionCode", transaction[0]);
+                result.put("senderWalletCode", transaction[1]);
+                result.put("recipientWalletCode", transaction[2]);
+                result.put("amount", transaction[3]);
+                result.put("status", transaction[4]);
+                result.put("date", transaction[5]);
+                return result;
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching transaction details: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<TransactionStatsResponse> getTransactions(Instant startDate, Instant endDate) {
+        try {
+            List<TransactionStatsResponse> transactions = transactionRepository.getTransactions(startDate, endDate);
+            return transactions;
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching transaction details: " + e.getMessage());
+        }
+    }
 }

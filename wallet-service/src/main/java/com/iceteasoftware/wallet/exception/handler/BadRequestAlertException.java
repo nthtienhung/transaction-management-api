@@ -1,7 +1,6 @@
 package com.iceteasoftware.wallet.exception.handler;
 
-
-import com.iceteasoftware.wallet.configuration.message.Labels;
+import com.iceteasoftware.common.message.Labels;
 import com.iceteasoftware.wallet.constant.ApiConstants;
 import com.iceteasoftware.wallet.enums.MessageCode;
 import lombok.Getter;

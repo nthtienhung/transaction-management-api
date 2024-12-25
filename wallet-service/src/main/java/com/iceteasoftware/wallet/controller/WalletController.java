@@ -6,6 +6,7 @@ import com.iceteasoftware.wallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -18,39 +19,37 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class WalletController {
 
+    private final String USER_AUTHORITY = "hasRole('ROLE_USER')";
     private final WalletService walletService;
 
-//    @PostMapping()
-//    public ResponseObject<String> createWallet(@RequestBody CreateWalletRequest request){
-//        walletService.createWallet(request);
-//        return new ResponseObject<>(HttpStatus.CREATED.value(), Constants.DEFAULT_MESSAGE_CREATE_SUCCESS, LocalDateTime.now());
-//    }
-
+    @PreAuthorize(USER_AUTHORITY)
     @GetMapping("/code/{userId}")
-    WalletResponse getWalletByUserId(@PathVariable("userId") String userId){
+    WalletResponse getWalletByUserId(@PathVariable("userId") String userId) {
         System.out.println("User Id: " + userId);
         return walletService.getWalletByUserId(userId);
     }
 
     @GetMapping("/{walletCode}")
-    WalletResponse getWalletByWalletCode(@PathVariable("walletCode") String walletCode){
+    WalletResponse getWalletByWalletCode(@PathVariable("walletCode") String walletCode) {
         System.out.println("Wallet Code: " + walletCode);
         return walletService.getWalletByCode(walletCode);
     }
 
+    @PreAuthorize(USER_AUTHORITY)
     @PutMapping("/{walletCode}/balance")
-    void updateWalletBalance(@PathVariable("walletCode") String walletCode, @RequestBody Long amount){
+    void updateWalletBalance(@PathVariable("walletCode") String walletCode, @RequestBody Long amount) {
         System.out.println("Wallet Code: " + walletCode);
         walletService.updateWalletBalance(walletCode, amount);
     }
 
     @GetMapping("/{walletCode}/user-id")
-    public String getUserIdByWalletCode(@PathVariable("walletCode") String walletCode){
+    public String getUserIdByWalletCode(@PathVariable("walletCode") String walletCode) {
         return walletService.getUserIdByWalletCode(walletCode);
     }
 
+    @PreAuthorize(USER_AUTHORITY)
     @GetMapping("/getWallet/{userId}")
-    public ResponseEntity<WalletResponse> getWallet(@PathVariable("userId") String userId){
+    public ResponseEntity<WalletResponse> getWallet(@PathVariable("userId") String userId) {
         System.out.println("User ID: " + userId);
         WalletResponse walletResponse = walletService.getWalletByUserId(userId);
         return new ResponseEntity<>(walletResponse, HttpStatus.OK);

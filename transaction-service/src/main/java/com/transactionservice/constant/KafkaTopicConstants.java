@@ -13,4 +13,5 @@ public interface KafkaTopicConstants {
     public static final String DEFAULT_KAFKA_TOPIC_CREDIT_WALLET = "credit-wallet";
     public static final String DEFAULT_KAFKA_TOPIC_SUCCESSFUL_CREDIT_WALLET = "successful-credit-wallet";
     public static final String DEFAULT_KAFKA_TOPIC_COMPENSATION = "compensation";
+    public static final String DEFAULT_KAFKA_TOPIC_SEND_REPORT = "send-report";
 }

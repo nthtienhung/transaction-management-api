@@ -1,5 +1,6 @@
 package com.iceteasoftware.wallet.util;
 
+import com.iceteasoftware.wallet.util.StringPool;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.text.Format;

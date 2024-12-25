@@ -3,7 +3,7 @@ package com.iceteasoftware.iam.configuration.security.jwt;
 
 import com.iceteasoftware.iam.configuration.cache.CacheProperties;
 import com.iceteasoftware.iam.configuration.message.LabelKey;
-import com.iceteasoftware.iam.configuration.message.Labels;
+import com.iceteasoftware.common.message.Labels;
 import com.iceteasoftware.iam.configuration.security.AuthenticationProperties;
 import com.iceteasoftware.iam.constant.SecurityConstants;
 import com.iceteasoftware.iam.entity.User;
@@ -134,16 +134,12 @@ public class JWTTokenProvider<T extends AbstractUserPrincipal> implements Initia
 
         String username = claims.getSubject();
 
-        T principal = (T) userDetailsService.loadUserByUsername(username);
+        String role = claims.get("role", String.class);
 
-        if (Validator.isNull(principal)) {
-            return null;
-        }
 
 //        return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(claims.get("role").toString()));
-        log.info("claim: " + claims.toString() + "\n" + "principal: " + principal.toString());
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+        return new UsernamePasswordAuthenticationToken(username, null,
+                Collections.singletonList(new SimpleGrantedAuthority(role)));
 
     }
     public boolean validateToken(String accessToken, String csrfToken) {

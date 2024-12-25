@@ -1,23 +1,41 @@
 package com.iceteasoftware.user.controller;
 
 
+import com.iceteasoftware.user.constant.Constants;
+import com.iceteasoftware.user.dto.UserProfileResponse;
 import com.iceteasoftware.user.dto.request.CreateProfileRequest;
 import com.iceteasoftware.user.dto.response.UserResponse;
 import com.iceteasoftware.user.dto.response.common.ResponseObject;
 import com.iceteasoftware.user.dto.response.profile.FullNameResponse;
 import com.iceteasoftware.user.entity.Profile;
 import com.iceteasoftware.user.entity.User;
+import com.iceteasoftware.user.enums.MessageCode;
+import com.iceteasoftware.user.enums.Status;
 import com.iceteasoftware.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.awt.print.Pageable;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 public class UserController {
 
+    private final String ADMIN_AUTHORITY = "hasRole('ROLE_ADMIN')";
     private final UserService userService;
 
     /**
@@ -55,9 +73,37 @@ public class UserController {
         return userService.updateProfile(request, updateRequest);
     }
 
+    //
+
     @GetMapping("/getUser")
     public ResponseEntity<User> getUser(HttpServletRequest request) {
         return this.userService.findUser(request);
+    }
+    
+    /**
+     * Gets all user profiles for admin dashboard
+     * 
+     * @return List of all user profiles
+     */
+
+    @GetMapping("/user-list")
+    @PreAuthorize(ADMIN_AUTHORITY)
+    public ResponseObject<Page<UserProfileResponse>> getUserList(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(required = false) String searchTerm,
+        @RequestParam(defaultValue = "createDate") String sortBy,
+        @RequestParam(defaultValue = "desc") String sortDirection
+    ) {
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Page<UserProfileResponse> data = userService.getAllUserProfile(pageRequest, searchTerm);
+        return new ResponseObject<>(
+            HttpStatus.OK.value(), 
+            Constants.DEFAULT_MESSAGE_SUCCESS, 
+            LocalDateTime.now(), 
+            data
+        );
     }
 
     @GetMapping("/{userId}")
@@ -69,7 +115,6 @@ public class UserController {
         return userResponse;
     }
 
-
     @GetMapping("/check-email-exists")
     Boolean isEmailExists(@RequestParam String email) {
         return userService.isEmailExists(email);
@@ -79,4 +124,25 @@ public class UserController {
     public FullNameResponse getFullNameByUserId(@PathVariable("userId") String userId){
         return userService.getFullNameByUserId(userId);
     }
+
+    @GetMapping("/user-id")
+    public String getUserIdByUsername(@RequestParam String username){
+        return userService.getUserIdByUsername(username);
+    }
+
+    // @PutMapping("/user-list/{userId}/status")
+    // @PreAuthorize("hasRole('ADMIN')")
+    // public ResponseObject<Void> updateUserStatus(
+    //     @PathVariable String userId,
+    //     @RequestBody Map<String, String> statusMap
+    // ) {
+    //     Status status = Status.valueOf(statusMap.get("status"));
+    //     userService.updateUserStatus(userId, status);
+    //     return new ResponseObject<>(
+    //         HttpStatus.OK.value(),
+    //         Constants.DEFAULT_MESSAGE_SUCCESS,
+    //         LocalDateTime.now()
+    //     );
+    // }
+
 }

@@ -1,8 +1,5 @@
 package com.iceteasoftware.wallet.util;
 
-import com.iceteasoftware.wallet.util.FastDateFormatFactoryUtil;
-import com.iceteasoftware.wallet.util.StringPool;
-
 import java.sql.Timestamp;
 import java.text.Format;
 import java.util.Calendar;

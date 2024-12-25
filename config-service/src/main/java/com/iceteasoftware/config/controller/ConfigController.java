@@ -36,7 +36,7 @@ import java.util.UUID;
 public class ConfigController {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigController.class);
-
+    private final String ADMIN_AUTHORITY = "hasRole('ROLE_ADMIN')";
     @Autowired
     private ConfigService configService;
 
@@ -108,7 +108,7 @@ public class ConfigController {
     })
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(ADMIN_AUTHORITY)
     public ResponseEntity<ConfigResponse> addConfig(@Valid @RequestBody ConfigRequest request) {
         System.out.println("Accessing addConfig API");
 //        ConfigResponse response = configService.addConfig(request);
@@ -183,7 +183,7 @@ public class ConfigController {
     })
     @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/update/{configId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(ADMIN_AUTHORITY)
     public ResponseEntity<ConfigResponse> updateConfig(
             @PathVariable UUID configId,
             @Valid @RequestBody ConfigRequest request) {
@@ -200,7 +200,7 @@ public class ConfigController {
                                     "  \"status\": 200,\n" +
                                     "  \"localDateTime\": \"2024-04-04T18:01:28.0574667\",\n" +
                                     "  \"data\": {" +
-                                    "    \"content\": [\n"+
+                                    "    \"content\": [\n" +
                                     "    {\n" +
                                     "    \"configID\": 1,\n" +
                                     "    \"group\": \"IAM_GROUP\",\n" +
@@ -256,7 +256,7 @@ public class ConfigController {
                                     "}")))
     })
     @SecurityRequirement(name = "Bearer Authentication")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(ADMIN_AUTHORITY)
     @GetMapping("/getconfig")
     public ResponseEntity<MessageResponse<Page<ConfigResponse>>> getActiveConfigs(
             @RequestParam(required = false) String group,
@@ -305,7 +305,7 @@ public class ConfigController {
     })
     @DeleteMapping("/delete/{configId}")
     @SecurityRequirement(name = "Bearer Authentication")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(ADMIN_AUTHORITY)
     public ResponseEntity<ConfigResponse> deleteConfig(@PathVariable UUID configId) {
 //        ConfigResponse response = configService.deleteConfig(configId);
         return ResponseEntity.ok(configService.deleteConfig(configId));

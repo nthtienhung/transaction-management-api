@@ -1,6 +1,6 @@
 package com.iceteasoftware.iam.client;
 
-import com.iceteasoftware.iam.configuration.security.AuthenticationRequestInterceptor;
+import com.iceteasoftware.common.security.AuthenticationRequestInterceptor;
 import com.iceteasoftware.iam.dto.request.wallet.CreateWalletRequest;
 import com.iceteasoftware.iam.dto.response.common.ResponseObject;
 import org.springframework.cloud.openfeign.FeignClient;

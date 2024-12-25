@@ -79,11 +79,13 @@ public class LoginServiceImpl implements LoginService {
 
         //Lấy thông tin user
         Optional<User> user = userRepository.findByEmail(email);
-
+        if(!loginRequest.getRole().equals(user.get().getRole())) {
+            throw new BadRequestAlertException(MessageCode.MSG1049);
+        }
         // Check tài khoản có bị block k
-        if (com.iceteasoftware.iam.util.Validator.equals(Status.BLOCK.name(), user.get().getStatus())) {
+        if (user.get().getStatus() == false) {
             throw new BadRequestAlertException(MessageCode.MSG1006);
-        } else if (com.iceteasoftware.iam.util.Validator.equals(Status.INACTIVE.name(), user.get().getStatus())) {
+        } else if (user.get().getIsVerified().equals("NOT_VERIFIED")) {
             // Check tài khoản đã được active chưa
             throw new BadRequestAlertException(MessageCode.MSG1008);
         }
@@ -208,9 +210,9 @@ public class LoginServiceImpl implements LoginService {
         // Lấy token từ Authorization header
         String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+        if (bearerToken != null ) {
             // Trả về token mà không có tiền tố "Bearer "
-            return bearerToken.substring(7);
+            return bearerToken;
         }
 
         // Nếu không tìm thấy trong header, kiểm tra cookie (nếu sử dụng)
