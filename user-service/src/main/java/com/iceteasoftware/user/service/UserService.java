@@ -41,6 +41,8 @@ public interface UserService {
 
     FullNameResponse getFullNameByUserId(String userId);
 
+    String getUserIdByUsername(String username);
+
     // void updateUserStatus(String userId, Status status);
 
 }

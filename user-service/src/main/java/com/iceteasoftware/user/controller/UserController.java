@@ -24,6 +24,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.print.Pageable;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,8 +35,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserController {
 
-    public static final String ROLE_USER = "ROLE_USER";
-    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+    private final String ADMIN_AUTHORITY = "hasRole('ROLE_ADMIN')";
     private final UserService userService;
 
     /**
@@ -86,7 +87,7 @@ public class UserController {
      */
 
     @GetMapping("/user-list")
-    @PreAuthorize("hasRole('" + ROLE_ADMIN + "')")
+    @PreAuthorize(ADMIN_AUTHORITY)
     public ResponseObject<Page<UserProfileResponse>> getUserList(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
@@ -124,6 +125,12 @@ public class UserController {
         return userService.getFullNameByUserId(userId);
     }
 
+    @PreAuthorize(ADMIN_AUTHORITY)
+    @GetMapping("/user-id")
+    public String getUserIdByUsername(@RequestParam String username){
+        return userService.getUserIdByUsername(username);
+    }
+
     // @PutMapping("/user-list/{userId}/status")
     // @PreAuthorize("hasRole('ADMIN')")
     // public ResponseObject<Void> updateUserStatus(
@@ -138,4 +145,5 @@ public class UserController {
     //         LocalDateTime.now()
     //     );
     // }
+
 }

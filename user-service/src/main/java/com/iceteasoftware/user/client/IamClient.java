@@ -3,7 +3,6 @@ package com.iceteasoftware.user.client;
 import com.iceteasoftware.user.configuration.FeignClientConfiguration;
 import com.iceteasoftware.user.dto.response.StatusRoleUserResponse;
 import com.iceteasoftware.user.enums.Status;
-import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
