@@ -147,10 +147,27 @@ public class TransactionController {
                 .build();
     }
 
+//    @PreAuthorize("hasRole('" + ROLE_USER + "')")
+//    @GetMapping("/transaction-list-by-user")
+//    public MessageResponse<Page<TransactionListResponse>> getTransactionListByUser(@ModelAttribute TransactionListRequest request) {
+//        Page<TransactionListResponse> data = transactionService.getTransactionListByUser(request);
+//        return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
+//    }
+
     @PreAuthorize("hasRole('" + ROLE_USER + "')")
     @GetMapping("/transaction-list-by-user")
     public MessageResponse<Page<TransactionListResponse>> getTransactionListByUser(@ModelAttribute TransactionListRequest request) {
-        Page<TransactionListResponse> data = transactionService.getTransactionListByUser(request);
+        Instant fromDate = request.getFromDate() != null ? Instant.parse(request.getFromDate().toString()) : null;
+        Instant toDate = request.getToDate() != null ? Instant.parse(request.getToDate().toString()) : null;
+        TransactionListRequest transactionListRequest = new TransactionListRequest(
+                request.getWalletCodeByUserLogIn(),
+                request.getWalletCodeByUserSearch(),
+                request.getTransactionCode(), request.getStatus(),
+                fromDate,
+                toDate,
+                request.getPage(),
+                request.getSize());
+        Page<TransactionListResponse> data = transactionService.getTransactionListByUser(transactionListRequest);
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
