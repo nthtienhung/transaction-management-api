@@ -157,7 +157,7 @@ public class TransactionController {
                 .build();
     }
 
-    @PreAuthorize("hasRole('" + ROLE_USER + "')")
+    @PreAuthorize(USER_AUTHORITY)
     @GetMapping("/transaction-list-by-user")
     public MessageResponse<Page<TransactionListResponse>> getTransactionListByUser(@ModelAttribute TransactionListRequest request) {
         Page<TransactionListResponse> data = transactionService.getTransactionListByUser(request);

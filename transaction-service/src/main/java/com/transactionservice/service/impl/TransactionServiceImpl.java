@@ -94,13 +94,23 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public Page<TransactionListResponse> getTransactionListByUser(TransactionListRequest request) {
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+        Instant startOfDay = null;
+        Instant endOfDay = null;
+
+        if (request.getFromDate() != null) {
+            startOfDay = request.getFromDate().atZone(ZoneId.of("UTC")).toInstant();
+        }
+
+        if (request.getToDate() != null) {
+            endOfDay = request.getToDate().atZone(ZoneId.of("UTC")).with(LocalTime.MAX).toInstant();
+        }
         Page<Transaction> transactionsPage = transactionRepositoryCustom.findFilteredTransactions(
                 request.getWalletCodeByUserLogIn(),
                 request.getWalletCodeByUserSearch(),
                 request.getTransactionCode(),
                 request.getStatus(),
-                request.getFromDate(),
-                request.getToDate(),
+                startOfDay,
+                endOfDay,
                 pageable
         );
         log.info("Transactions Page: {}", transactionsPage);
