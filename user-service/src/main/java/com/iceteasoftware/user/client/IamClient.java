@@ -17,7 +17,7 @@ public interface IamClient {
      void updateUserStatus(
              @PathVariable("userId") String userId,
              @RequestBody Status status,
-             @RequestHeader("Authorization") String token,  // Add this
-             @RequestHeader("X-Role") String role  // Add this
+             @RequestHeader("Authorization") String token,
+             @RequestHeader("X-Role") String role
      );
 }

@@ -1,6 +1,7 @@
 package com.iceteasoftware.iam.service.impl;
 
 
+import com.iceteasoftware.common.message.Labels;
 import com.iceteasoftware.iam.dto.request.changepassword.ChangePasswordRequest;
 import com.iceteasoftware.iam.dto.response.common.ResponseObject;
 import com.iceteasoftware.iam.entity.PasswordHistory;
@@ -85,7 +86,7 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
             passwordHistoryRepository.save(passwordHistory);
 
             ResponseObject response = new ResponseObject(
-                    MessageCode.MSG1040.toString(),
+                    Labels.getLabels(MessageCode.MSG1040.getKey()),
                     200,
                     LocalDateTime.now(),
                     newUser
