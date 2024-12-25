@@ -28,7 +28,10 @@ public interface LabelKey {
     public static final String ERROR_AMOUNT_REQUIRED = "error.amount-required";
     public static final String ERROR_INSUFFICIENT_BALANCE = "error.insufficient-balance";
     public static final String ERROR_NOT_FOUND = "error.not-found";
+    public static final String ERROR_WALLET_CODE_NOT_SAME = "error.wallet-code-not-same";
+    public static final String ERROR_AMOUNT_MUST_BE_POSITIVE = "error.amount-must-be-positive";
 
+    public static final String OTP_INVALID_SO_BLOCKED_TRANSACTION = "otp.invalid-so-blocked-transaction";
     public static final String OTP_INVALID = "otp.invalid";
     public static final String OTP_EXPIRED = "otp.expired";
     public static final String OTP_EMPTY = "otp.empty";

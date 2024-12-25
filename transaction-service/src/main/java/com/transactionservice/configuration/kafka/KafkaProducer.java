@@ -5,7 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.transactionservice.configuration.JacksonConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.ProducerListener;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,15 +17,47 @@ import org.springframework.stereotype.Service;
 public class KafkaProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public <T> void sendMessage(String topicName, T messageObject) throws JsonProcessingException {
+//    public <T> void sendMessage(String topicName, T messageObject) throws JsonProcessingException {
+//        try {
+//            ObjectMapper objectMapper = JacksonConfig.createObjectMapper();
+//            String message = objectMapper.writeValueAsString(messageObject);
+//            log.info("Sending message to topic {}: {}", topicName, message);
+//            kafkaTemplate.send(topicName, message);
+//        } catch (JsonProcessingException e){
+//            log.error("Failed to serialize message for topic {}: {}", topicName, messageObject, e);
+//        }
+//    }
+
+    public <T> void sendMessage(String topicName, T messageObject) {
         try {
             ObjectMapper objectMapper = JacksonConfig.createObjectMapper();
             String message = objectMapper.writeValueAsString(messageObject);
             log.info("Sending message to topic {}: {}", topicName, message);
+
+            // Thêm Producer Listener
+            kafkaTemplate.setProducerListener(new ProducerListener<>() {
+                @Override
+                public void onSuccess(ProducerRecord<String, String> producerRecord, RecordMetadata recordMetadata) {
+                    log.info("Message sent successfully to topic: {}", producerRecord.topic());
+                }
+
+                @Override
+                public void onError(ProducerRecord<String, String> producerRecord, RecordMetadata recordMetadata, Exception exception) {
+                    log.error("Error sending message to topic {}: {}", producerRecord.topic(), exception.getMessage());
+                    handleFailedMessage(producerRecord);
+                }
+            });
+
             kafkaTemplate.send(topicName, message);
-        } catch (JsonProcessingException e){
+
+        } catch (JsonProcessingException e) {
             log.error("Failed to serialize message for topic {}: {}", topicName, messageObject, e);
         }
+    }
+
+    private void handleFailedMessage(ProducerRecord<String, String> record) {
+        log.error("Message failed to send. Triggering rollback or compensation logic for topic: {}", record.topic());
+        // Rollback hoặc gửi thông báo thất bại
     }
 
 }

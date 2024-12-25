@@ -11,10 +11,7 @@ import com.transactionservice.dto.response.TransactionListResponse;
 import org.springframework.data.domain.Page;
 import com.transactionservice.dto.request.TransactionSearch;
 import com.transactionservice.dto.response.TransactionSearchResponse;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 public interface TransactionService {
 
@@ -33,6 +30,8 @@ public interface TransactionService {
     double getTotalReceivedTransactionByUserInWeek(String recipientWalletCode);
 
     void generateOtp(EmailRequest request) throws JsonProcessingException;
+
+    TransactionResponse initiateTransaction(ConfirmTransactionRequest confirmTransactionRequest) throws JsonProcessingException;
 
     TransactionResponse confirmTransactionWithOTP(ConfirmTransactionRequest confirmTransactionRequest) throws JsonProcessingException;
 

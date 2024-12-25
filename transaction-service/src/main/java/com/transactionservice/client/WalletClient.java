@@ -1,11 +1,10 @@
 package com.transactionservice.client;
 
-import com.transactionservice.dto.response.WalletResponse;
+import com.transactionservice.dto.request.UpdateWalletRequest;
+import com.transactionservice.dto.response.wallet.WalletResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "${feign.client.config.wallet-service.name}", url = "${feign.client.config.wallet-service.url}")
 public interface WalletClient {
@@ -17,4 +16,10 @@ public interface WalletClient {
 
     @GetMapping("/{walletCode}/user-id")
     String getUserIdByWalletCode(@PathVariable("walletCode") String walletCode);
+
+//    @PostMapping("/deduct")
+//    ResponseEntity<?> deductBalance(@RequestBody WalletTransactionRequest request);
+
+    @PostMapping("/rollback")
+    ResponseEntity<?> rollbackBalance(@RequestBody UpdateWalletRequest request);
 }

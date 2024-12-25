@@ -21,7 +21,10 @@ public enum MessageCode {
     MSG4111(LabelKey.ERROR_NOT_FOUND),
     MSG4112(LabelKey.OTP_INVALID),
     MSG4113(LabelKey.OTP_EXPIRED),
-    MSG4114(LabelKey.OTP_EMPTY);
+    MSG4114(LabelKey.OTP_EMPTY),
+    MSG4115(LabelKey.ERROR_WALLET_CODE_NOT_SAME),
+    MSG4116(LabelKey.ERROR_AMOUNT_MUST_BE_POSITIVE),
+    MSG4118(LabelKey.OTP_INVALID_SO_BLOCKED_TRANSACTION);
 
     private String key;
 }

@@ -1,6 +1,7 @@
 package com.iceteasoftware.wallet.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.iceteasoftware.wallet.dto.request.wallet.UpdateWalletRequest;
 import com.iceteasoftware.wallet.dto.response.WalletResponse;
 
 /**
@@ -19,4 +20,8 @@ public interface WalletService {
     String getUserIdByWalletCode(String walletCode);
 
     WalletResponse getWalletByUserId(String userId);
+
+//    void deductBalance(String walletCode, Long amount);
+
+//    void rollbackBalance(UpdateWalletRequest request);
 }

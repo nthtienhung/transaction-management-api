@@ -1,5 +1,6 @@
 package com.iceteasoftware.wallet.controller;
 
+import com.iceteasoftware.wallet.dto.request.wallet.UpdateWalletRequest;
 import com.iceteasoftware.wallet.dto.response.WalletResponse;
 import com.iceteasoftware.wallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -54,4 +55,16 @@ public class WalletController {
         WalletResponse walletResponse = walletService.getWalletByUserId(userId);
         return new ResponseEntity<>(walletResponse, HttpStatus.OK);
     }
+
+//    @PostMapping("/deduct")
+//    public ResponseEntity<?> deductBalance(@RequestBody WalletTransactionRequest request) {
+//        walletService.deductBalance(request.getWalletCode(), request.getAmount());
+//        return ResponseEntity.ok("Balance deducted successfully");
+//    }
+
+//    @PostMapping("/rollback")
+//    public ResponseEntity<?> rollbackBalance(@RequestBody UpdateWalletRequest request) {
+//        walletService.rollbackBalance(request);
+//        return ResponseEntity.ok("Balance rolled back successfully");
+//    }
 }

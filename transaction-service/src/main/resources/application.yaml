@@ -28,10 +28,19 @@ spring:
     basename: i18n/labels  # ??m b?o ?�ng t�n file (kh�ng c?n ?u�i .properties trong basename)
     cache-duration: 560   # Th?i gian cache (60 gi�y)
   kafka:
+    bootstrap-servers: localhost:9094
     producer:
-      bootstrap-servers: localhost:9094
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      retries: 3
+      properties:
+        request.timeout.ms: 5000        # Timeout cho request Kafka
+        delivery.timeout.ms: 10000      # Tổng timeout của producer (bao gồm retry)
+        retry.backoff.ms: 2000          # Thời gian giữa các lần retry
+    consumer:
+      group-id: transaction-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
   data:
     redis:
       host: localhost

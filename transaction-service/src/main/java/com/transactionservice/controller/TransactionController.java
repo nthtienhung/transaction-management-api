@@ -66,6 +66,7 @@ public class TransactionController {
         TransactionResponse savedTransaction = transactionService.createTransaction(transactionRequest);
         return MessageResponse.<TransactionResponse>builder().status((short) HttpStatus.CREATED.value()).message(Constants.DEFAULT_MESSAGE_SUCCESS).data(savedTransaction).localDateTime(String.valueOf(Instant.now())).build();
     }
+
     /**
      * API gửi OTP xác nhận giao dịch
      */
@@ -85,6 +86,20 @@ public class TransactionController {
     @PostMapping("/confirm")
     public MessageResponse<TransactionResponse> confirmTransactionWithOTP(@RequestBody ConfirmTransactionRequest confirmTransactionRequest) throws JsonProcessingException {
         TransactionResponse response = transactionService.confirmTransactionWithOTP(confirmTransactionRequest);
+        return MessageResponse.<TransactionResponse>builder()
+                .status((short) HttpStatus.OK.value())
+                .message(Constants.DEFAULT_MESSAGE_CREATE_SUCCESS)
+                .data(response)
+                .localDateTime(String.valueOf(Instant.now()))
+                .build();
+    }
+
+    /**
+     * API xác nhận giao dịch với OTP
+     */
+    @PostMapping("/confirm-transaction")
+    public MessageResponse<TransactionResponse> initiateTransaction(@RequestBody ConfirmTransactionRequest confirmTransactionRequest) throws JsonProcessingException {
+        TransactionResponse response = transactionService.initiateTransaction(confirmTransactionRequest);
         return MessageResponse.<TransactionResponse>builder()
                 .status((short) HttpStatus.OK.value())
                 .message(Constants.DEFAULT_MESSAGE_CREATE_SUCCESS)

@@ -6,6 +6,10 @@ server:
 spring:
   application:
     name: wallet-service
+  task:
+    scheduling:
+      pool:
+        size: 5
   datasource:
     url: jdbc:postgresql://localhost:1200/team2db
     username: postgres
@@ -29,8 +33,43 @@ spring:
     basename: i18n/labels
     cache-duration: 60
   kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
     consumer:
-      bootstrap-servers: localhost:9094
       group-id: wallet-service-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false
+cache:
+  config-type: 'redisson'
+  redisson:
+    mode: single
+    single:
+      address: 'redis://localhost:6379'
+      password: ''
+      clientName: 'my-redis-client'
+      connectionMinimumIdleSize: 24
+      connectionPoolSize: 64
+      subscriptionConnectionPoolSize: 50
+      subscriptionConnectionMinimumIdleSize: 1
+    retryAttempts: 3
+    retryInterval: 1500 # Đặt giá trị khác 0
+    idleConnectionTimeout: 10000 # Đặt giá trị khác 0
+    connectTimeout: 10000
+    timeout: 3000
+  time-to-lives:
+    default: -1
+    token: 300
+    remember-me-token: 7200
+    refresh-token: 86400
+    otp: 180
+    otp-verify: 3600
+    temp-file: 3600
+    login-failed: 86400
+    captcha: 300
+    password-verify: 300
+    customer_draft_password: 300
+    apiGee_getToken: 300
+    customer_verify_password_failed: 3600

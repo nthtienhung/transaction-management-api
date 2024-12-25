@@ -64,6 +64,9 @@
     <properties>
         <java.version>17</java.version>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
+        <swagger.annotations.version>1.6.6</swagger.annotations.version>
+        <redission.version>3.27.2</redission.version>
+        <spring.data.redis.version>3.2.4</spring.data.redis.version>
     </properties>
     <dependencies>
         <dependency>
@@ -95,6 +98,15 @@
             <scope>annotationProcessor</scope>
         </dependency>
         <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>${redission.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-streams</artifactId>
         </dependency>
@@ -110,6 +122,27 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swagger.annotations.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>problem</artifactId>
+            <version>0.27.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>problem-spring-web</artifactId>
+            <version>0.25.2</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
     <dependencyManagement>

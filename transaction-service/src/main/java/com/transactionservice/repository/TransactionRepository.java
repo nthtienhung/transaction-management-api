@@ -1,6 +1,7 @@
 package com.transactionservice.repository;
 
 import com.transactionservice.entity.Transaction;
+import com.transactionservice.enums.Status;
 import feign.Param;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -49,4 +52,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.senderWalletCode = :walletCode OR t.recipientWalletCode = :walletCode")
     Integer countBySenderWalletCodeOrRecipientWalletCode(String walletCode);
 
+    Optional<Transaction> findByTransactionCode(String transactionCode);
+
+    @Query("SELECT t FROM Transaction t WHERE t.updatedDate < :instant AND t.status = :status")
+    List<Transaction> findByUpdatedDateAndStatus(Instant instant, Status status);
 }

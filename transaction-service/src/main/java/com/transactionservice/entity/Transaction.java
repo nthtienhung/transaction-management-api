@@ -1,6 +1,7 @@
 package com.transactionservice.entity;
 
 import com.transactionservice.entity.common.AuditTable;
+import com.transactionservice.enums.Stage;
 import com.transactionservice.enums.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -40,4 +41,10 @@ public class Transaction extends AuditTable {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "stage")
+    @Enumerated(EnumType.STRING)
+    private Stage stage;
+
+    @Column(name = "error_message")
+    private String errorMessage;
 }
