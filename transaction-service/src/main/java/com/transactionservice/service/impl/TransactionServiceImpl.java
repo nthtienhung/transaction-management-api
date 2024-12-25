@@ -500,76 +500,81 @@ public class TransactionServiceImpl implements TransactionService {
     private void checkValueTransaction(TransactionSearch transactionSearch, Transaction transaction, List<TransactionSearchResponse> transactionResponseList) {
         String transactionId = transactionSearch.getTransactionId();
         String walletCode = transactionSearch.getWalletCode();
-        Status status = transactionSearch.getStatus();  // Thêm kiểm tra status
+        Status status = transactionSearch.getStatus();
+        Instant fromDate = transactionSearch.getFromDate();
+        Instant toDate = transactionSearch.getToDate();
 
+        boolean isFromDateEmpty = fromDate == null || fromDate.isBefore(Instant.now());
+        boolean isToDateEmpty = toDate == null || toDate.isBefore(Instant.now());
         boolean isTransactionIdEmpty = transactionId == null || transactionId.isEmpty();
         boolean isWalletCodeEmpty = walletCode == null || walletCode.isEmpty();
-        boolean isStatusEmpty = status == null;  // Kiểm tra nếu status là null
+        boolean isStatusEmpty = status == null;
 
-        // Trường hợp cả transactionId, walletCode và status đều null hoặc rỗng -> lấy tất cả giao dịch
-        if (isTransactionIdEmpty && isWalletCodeEmpty && isStatusEmpty) {
+        // Case 1: All filters are empty -> Include all transactions
+        if (isTransactionIdEmpty && isWalletCodeEmpty && isStatusEmpty && isFromDateEmpty && isToDateEmpty) {
             addTransaction(transaction, transactionResponseList);
             return;
         }
 
-        // Trường hợp tất cả 3 giá trị đều có giá trị -> Tìm giao dịch thỏa mãn tất cả 3 tiêu chí
-        if (!isTransactionIdEmpty && !isWalletCodeEmpty && !isStatusEmpty) {
-            if (transaction.getTransactionCode().equals(transactionId) &&
-                    (transaction.getRecipientWalletCode().equals(walletCode) || transaction.getSenderWalletCode().equals(walletCode)) &&
-                    transaction.getStatus().equals(status)) {
-                addTransaction(transaction, transactionResponseList);
-            }
+        // Case 2: Filters with specific combinations
+        boolean matchesTransactionId = !isTransactionIdEmpty && transaction.getTransactionCode().equals(transactionId);
+        boolean matchesWalletCode = !isWalletCodeEmpty &&
+                (transaction.getRecipientWalletCode().equals(walletCode) || transaction.getSenderWalletCode().equals(walletCode));
+        boolean matchesStatus = !isStatusEmpty && transaction.getStatus().equals(status);
+        boolean matchesFromDate = !isFromDateEmpty && !transaction.getCreatedDate().isBefore(fromDate);
+        boolean matchesToDate = !isToDateEmpty && !transaction.getCreatedDate().isAfter(toDate);
+
+        // Case 2a: Matches all filters
+        if (matchesTransactionId && matchesWalletCode && matchesStatus && matchesFromDate && matchesToDate) {
+            addTransaction(transaction, transactionResponseList);
             return;
         }
 
-        // Trường hợp chỉ có transactionId
-        if (!isTransactionIdEmpty && transaction.getTransactionCode().equals(transactionId)) {
-            // Nếu chỉ có transactionId và không có walletCode và status
-            if (isWalletCodeEmpty && isStatusEmpty) {
-                addTransaction(transaction, transactionResponseList);
-            }
-            // Nếu có walletCode và chỉ khớp với một trong hai (recipient hoặc sender)
-            else if (!isWalletCodeEmpty &&
-                    (transaction.getRecipientWalletCode().equals(walletCode) || transaction.getSenderWalletCode().equals(walletCode))) {
-                addTransaction(transaction, transactionResponseList);
-            }
-            // Nếu có status và khớp với status
-            else if (!isStatusEmpty && transaction.getStatus().equals(status)) {
-                addTransaction(transaction, transactionResponseList);
-            }
+        // Case 2b: Matches transactionId only
+        if (matchesTransactionId && isWalletCodeEmpty && isStatusEmpty && isFromDateEmpty && isToDateEmpty) {
+            addTransaction(transaction, transactionResponseList);
             return;
         }
 
-        // Trường hợp chỉ có walletCode
-        if (!isWalletCodeEmpty) {
-            // Kiểm tra walletCode có khớp với recipient hoặc sender
-            if (transaction.getRecipientWalletCode().equals(walletCode) || transaction.getSenderWalletCode().equals(walletCode)) {
-                // Nếu không có transactionId và không có status
-                if (isTransactionIdEmpty && isStatusEmpty) {
-                    addTransaction(transaction, transactionResponseList);
-                }
-                // Nếu có status và khớp với status
-                else if (!isStatusEmpty && transaction.getStatus().equals(status)) {
-                    addTransaction(transaction, transactionResponseList);
-                }
-            }
+        // Case 2c: Matches walletCode only
+        if (matchesWalletCode && isTransactionIdEmpty && isStatusEmpty && isFromDateEmpty && isToDateEmpty) {
+            addTransaction(transaction, transactionResponseList);
             return;
         }
 
-        // Trường hợp chỉ có status
-        if (!isStatusEmpty) {
-            // Nếu status khớp với transaction
-            if (transaction.getStatus().equals(status)) {
-                // Nếu không có transactionId và không có walletCode
-                if (isTransactionIdEmpty && isWalletCodeEmpty) {
-                    addTransaction(transaction, transactionResponseList);
-                }
-                // Nếu có walletCode và khớp với một trong hai (recipient hoặc sender)
-                else if (!isWalletCodeEmpty &&
-                        (transaction.getRecipientWalletCode().equals(walletCode) || transaction.getSenderWalletCode().equals(walletCode))) {
-                    addTransaction(transaction, transactionResponseList);
-                }
-            }
+        // Case 2d: Matches status only
+        if (matchesStatus && isTransactionIdEmpty && isWalletCodeEmpty && isFromDateEmpty && isToDateEmpty) {
+            addTransaction(transaction, transactionResponseList);
+            return;
+        }
+
+        // Case 2e: Matches transactionId and walletCode
+        if (matchesTransactionId && matchesWalletCode && isStatusEmpty && isFromDateEmpty && isToDateEmpty) {
+            addTransaction(transaction, transactionResponseList);
+            return;
+        }
+
+        // Case 2f: Matches transactionId and status
+        if (matchesTransactionId && matchesStatus && isWalletCodeEmpty && isFromDateEmpty && isToDateEmpty) {
+            addTransaction(transaction, transactionResponseList);
+            return;
+        }
+
+        // Case 2g: Matches walletCode and status
+        if (matchesWalletCode && matchesStatus && isTransactionIdEmpty && isFromDateEmpty && isToDateEmpty) {
+            addTransaction(transaction, transactionResponseList);
+            return;
+        }
+
+        // Case 2h: Matches fromDate and toDate only
+        if (matchesFromDate && matchesToDate && isTransactionIdEmpty && isWalletCodeEmpty && isStatusEmpty) {
+            addTransaction(transaction, transactionResponseList);
+            return;
+        }
+
+        // Case 2i: Matches combinations of filters including fromDate and toDate
+        if ((matchesTransactionId || matchesWalletCode || matchesStatus) && matchesFromDate && matchesToDate) {
+            addTransaction(transaction, transactionResponseList);
         }
     }
     private void addTransaction(Transaction transaction, List<TransactionSearchResponse> transactionResponseList) {
