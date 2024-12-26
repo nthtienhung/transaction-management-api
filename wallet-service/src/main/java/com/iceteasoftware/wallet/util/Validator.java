@@ -4,11 +4,12 @@
  */
 package com.iceteasoftware.wallet.util;
 
+import com.iceteasoftware.common.util.CharPool;
+import com.iceteasoftware.common.util.Constants;
+import com.iceteasoftware.common.util.StringPool;
+import com.iceteasoftware.common.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import com.iceteasoftware.wallet.constant.RegularExpressionConstants;
-import com.iceteasoftware.wallet.util.Constants;
-import com.iceteasoftware.wallet.util.StringUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.MalformedURLException;

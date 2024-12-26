@@ -11,10 +11,10 @@ import com.iceteasoftware.iam.exception.handle.BadRequestAlertException;
 import com.iceteasoftware.iam.exception.handle.UnauthorizedException;
 import com.iceteasoftware.iam.repository.UserRepository;
 import com.iceteasoftware.iam.service.impl.TokenService;
-import com.iceteasoftware.iam.util.DateUtil;
-import com.iceteasoftware.iam.util.GetterUtil;
-import com.iceteasoftware.iam.util.Validator;
-import com.iceteasoftware.iam.util.security.AbstractUserPrincipal;
+import com.iceteasoftware.common.util.DateUtil;
+import com.iceteasoftware.common.util.GetterUtil;
+import com.iceteasoftware.common.util.Validator;
+import com.iceteasoftware.iam.configuration.security.AbstractUserPrincipal;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -22,6 +22,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -41,7 +42,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class JWTTokenProvider<T extends AbstractUserPrincipal> implements InitializingBean {
     private Key key;
-
     private final AuthenticationProperties properties;
 
     private final UserDetailsService userDetailsService;
@@ -129,6 +129,7 @@ public class JWTTokenProvider<T extends AbstractUserPrincipal> implements Initia
 
         return token;
     }
+
     public Authentication getAuthentication(String token) {
         Claims claims = jwtParser.parseClaimsJws(token).getBody();
 
@@ -224,11 +225,14 @@ public class JWTTokenProvider<T extends AbstractUserPrincipal> implements Initia
         return createToken(user.get().getEmail(), duration,user.get().getRole(), params);
     }
     private JWTToken createRefreshToken(String username, Map<String, Object> params) {
+        int duration = GetterUtil.getIntegerValue(timeToLives.get(SecurityConstants.TokenType.REFRESH_TOKEN));
+        Date expiration = DateUtil.getDateAfterSecond(new Date(), duration);
         String jwt = Jwts.builder()
                 .setSubject(username)
                 .addClaims(params)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setIssuedAt(new Date())
+                .setExpiration(expiration)
                 .compact();
         return new JWTToken(jwt);
     }

@@ -18,5 +18,7 @@ public class TransactionListResponse {
     private String description;
     private String FirstName;
     private String LastName;
+    private String FirstNameSender;
+    private String LastNameSender;
     private Instant createdAt;
 }

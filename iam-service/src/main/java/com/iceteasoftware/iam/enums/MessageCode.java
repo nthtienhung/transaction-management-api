@@ -45,6 +45,17 @@ public enum MessageCode {
     // Mã TOTP không đúng hoặc đã hết hạn
     MSG1017(LabelKey.ERROR_TOTP_IS_INCORRECT_OR_HAS_EXPIRED),
 
+
+    // ID user không để trống
+    MSG1020(LabelKey.ERROR_ID_USER_NOT_EMPTY),
+
+
+    MSG1022(LabelKey.ERROR_ID_USER_NOT_EMPTY),
+
+
+    // QR Code TOTP bị gián đoạn
+    MSG1025(LabelKey.ERROR_INTERNAL_SERVER),
+
     // OTP không đúng định dạng
     MSG1026(LabelKey.ERROR_OTP_IS_INVALID),
 
@@ -71,6 +82,7 @@ public enum MessageCode {
 
     MSG1101(LabelKey.ERROR_ID_USER_NOT_EMPTY),
 
+
     // Email không tồn tại
     MSG1035(LabelKey.ERROR_EMAIL_NOT_EXIST),
 
@@ -92,6 +104,7 @@ public enum MessageCode {
     // Đăng xuất thành công
     MSG1041(LabelKey.SUCCESS_LOGOUT_SUCCESS),
 
+
     //Nhập sai OTP quá 5 lần
     MSG1043(LabelKey.ERROR_INPUT_WRONG_OTP_MORE_THAN_FIVE_TIMES),
 
@@ -100,6 +113,7 @@ public enum MessageCode {
 
     // Phone number để trống
     MSG1045(LabelKey.ERROR_PHONE_NUMBER_IS_EMPTY),
+
 
     // Not have permission
     MSG1049(LabelKey.ERROR_YOU_HAVE_NOT_PERMISSION),
@@ -118,8 +132,9 @@ public enum MessageCode {
     MSG1054(LabelKey.EROR_LAST_NAME_IS_EMPTY),
 
     MSG1055(LabelKey.ERROR_PHONE_NUMBER_IS_USED),
+    MSG1056(LabelKey.ERROR_USER_IS_REGISTER_BUT_NOT_VERIFIED),
 
-    MSG1056(LabelKey.ERROR_USER_IS_REGISTER_BUT_NOT_VERIFIED);
+    MSG1057(LabelKey.ERROR_REFRESH_TOKEN_EXPIRED);
 
     private String key;
 }

@@ -1,6 +1,7 @@
 package com.iceteasoftware.iam.service.impl;
 
 
+import com.iceteasoftware.common.message.Labels;
 import com.iceteasoftware.iam.dto.request.changepassword.ChangePasswordRequest;
 import com.iceteasoftware.iam.dto.response.common.ResponseObject;
 import com.iceteasoftware.iam.entity.PasswordHistory;
@@ -10,7 +11,7 @@ import com.iceteasoftware.iam.exception.handle.BadRequestAlertException;
 import com.iceteasoftware.iam.repository.PasswordHistoryRepository;
 import com.iceteasoftware.iam.repository.UserRepository;
 import com.iceteasoftware.iam.service.ChangePasswordService;
-import com.iceteasoftware.iam.util.Validator;
+import com.iceteasoftware.common.util.Validator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -85,7 +86,7 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
             passwordHistoryRepository.save(passwordHistory);
 
             ResponseObject response = new ResponseObject(
-                    MessageCode.MSG1040.toString(),
+                    Labels.getLabels(MessageCode.MSG1040.getKey()),
                     200,
                     LocalDateTime.now(),
                     newUser

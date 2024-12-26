@@ -11,7 +11,7 @@ import com.iceteasoftware.wallet.enums.Stage;
 import com.iceteasoftware.wallet.exception.handler.BadRequestAlertException;
 import com.iceteasoftware.wallet.repository.WalletRepository;
 import com.iceteasoftware.wallet.service.WalletService;
-import com.iceteasoftware.wallet.util.ThreadLocalUtil;
+import com.iceteasoftware.common.util.ThreadLocalUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -30,4 +30,5 @@ public interface Constants {
     public static final int DEFAULT_LOGIN_FAIL = 0;
     public static final int DEFAULT_COUNT_SEND_MAIL = 0;
 
+    public static final String DEFAULT_FORMAT_DATE = "yyyyMMddHHmmss";
 }

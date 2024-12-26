@@ -1,9 +1,9 @@
 package com.iceteasoftware.wallet.configuration.cache;
+import com.iceteasoftware.common.util.ReflectionUtil;
 import com.iceteasoftware.wallet.annotation.cache.CacheAction;
 import com.iceteasoftware.wallet.annotation.cache.CacheCollection;
 import com.iceteasoftware.wallet.annotation.cache.CacheMap;
 import com.iceteasoftware.wallet.annotation.cache.CacheUpdate;
-import com.iceteasoftware.wallet.util.ReflectionUtil;
 import com.iceteasoftware.wallet.util.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

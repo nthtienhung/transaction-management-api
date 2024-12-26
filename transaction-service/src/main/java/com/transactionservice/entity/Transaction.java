@@ -25,10 +25,10 @@ public class Transaction extends AuditTable {
     @Column(name = "transaction_code")
     private String transactionCode;
 
-    @Column(name ="sender_wallet_code")
+    @Column(name = "sender_wallet_code")
     private String senderWalletCode;
 
-    @Column(name ="recipient_wallet_code")
+    @Column(name = "recipient_wallet_code")
     private String recipientWalletCode;
 
     @Column(name = "amount")

@@ -1,6 +1,6 @@
 package com.iceteasoftware.notification.configuration.auditing;
 
-import com.iceteasoftware.notification.util.ThreadLocalUtil;
+import com.iceteasoftware.common.util.ThreadLocalUtil;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
 
