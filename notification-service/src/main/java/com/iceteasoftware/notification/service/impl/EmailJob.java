@@ -112,11 +112,11 @@ public class EmailJob implements Job {
     private String getPeriodByReportType(ReportType reportType) {
         switch (reportType) {
             case DAILY:
-                return "Last 24 hours";
+                return "this day";
             case WEEKLY:
-                return "Last 7 days";
+                return "this week";
             case MONTHLY:
-                return "Last 30 days";
+                return "this month";
             default:
                 return "Custom period";
         }

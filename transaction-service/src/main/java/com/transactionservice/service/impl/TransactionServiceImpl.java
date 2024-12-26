@@ -410,10 +410,10 @@ public class TransactionServiceImpl implements TransactionService {
         // Gửi message bồi hoàn
         if (Stage.DEDUCTED == errorState) {
             log.info("Sending compensation compensation message for transaction: {}", transaction.getTransactionCode());
-            kafkaProducer.sendMessage("COMPENSATION", new UpdateWalletRequest(transaction.getTransactionCode(), transaction.getSenderWalletCode(), transaction.getRecipientWalletCode(), Stage.DEDUCTED, transaction.getAmount()));
+            kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_COMPENSATION, new UpdateWalletRequest(transaction.getTransactionCode(), transaction.getSenderWalletCode(), transaction.getRecipientWalletCode(), Stage.DEDUCTED, transaction.getAmount()));
         } else if (Stage.COMPLETED == errorState) {
             log.info("Sending compensation message for transaction: {}", transaction.getTransactionCode());
-            kafkaProducer.sendMessage("COMPENSATION", new UpdateWalletRequest(transaction.getTransactionCode(), transaction.getSenderWalletCode(), transaction.getRecipientWalletCode(), Stage.COMPENSATED, transaction.getAmount()));
+            kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_COMPENSATION, new UpdateWalletRequest(transaction.getTransactionCode(), transaction.getSenderWalletCode(), transaction.getRecipientWalletCode(), Stage.COMPENSATED, transaction.getAmount()));
         }
     }
 
@@ -741,8 +741,8 @@ public class TransactionServiceImpl implements TransactionService {
         Instant fromDate = transactionSearch.getFromDate();
         Instant toDate = transactionSearch.getToDate();
 
-        boolean isFromDateEmpty = fromDate == null || fromDate.isBefore(Instant.now());
-        boolean isToDateEmpty = toDate == null || toDate.isBefore(Instant.now());
+            boolean isFromDateEmpty = fromDate == null || transaction.getCreatedDate().isBefore(fromDate);
+        boolean isToDateEmpty = toDate == null || transaction.getCreatedDate().isAfter(toDate);
         boolean isTransactionIdEmpty = transactionId == null || transactionId.isEmpty();
         boolean isWalletCodeEmpty = walletCode == null || walletCode.isEmpty();
         boolean isStatusEmpty = status == null;
@@ -804,10 +804,12 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         // Case 2h: Matches fromDate and toDate only
-        if (matchesFromDate && matchesToDate && isTransactionIdEmpty && isWalletCodeEmpty && isStatusEmpty) {
-            addTransaction(transaction, transactionResponseList);
-            return;
-        }
+            if (!isFromDateEmpty && !isToDateEmpty) {
+                addTransaction(transaction, transactionResponseList);
+                return;
+            }
+
+
 
         // Case 2i: Matches combinations of filters including fromDate and toDate
         if ((matchesTransactionId || matchesWalletCode || matchesStatus) && matchesFromDate && matchesToDate) {

@@ -20,6 +20,7 @@ import com.iceteasoftware.iam.service.LoginService;
 import com.iceteasoftware.common.util.GetterUtil;
 import com.iceteasoftware.iam.configuration.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
@@ -38,7 +39,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Optional;
 
 @Slf4j
@@ -168,45 +172,68 @@ public class LoginServiceImpl implements LoginService {
     public ResponseEntity<ResponseObject<TokenResponse>> refreshToken(HttpServletRequest request) {
         String refreshTokenOld = resolveToken(request);
         if (refreshTokenOld == null) {
-            throw new BadRequestAlertException(MessageCode.MSG1050);
+            throw new BadRequestAlertException(MessageCode.MSG1057);
         }
         String email = getSubjectFromToken(refreshTokenOld);
-        JWTAccessToken accessToken = this.jwtTokenProvider.createAccessToken(email, false);
 
-        JWTToken refreshToken = this.jwtTokenProvider.createRefreshToken(email);
+        try {
+            JWTToken refreshTokenUserCheck = getTokenDetails(refreshTokenOld);
+            LocalDate now = LocalDate.now();
+            Date date = Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            if(refreshTokenUserCheck.getExpiredTime().before(date)) {
+                throw new BadRequestAlertException(MessageCode.MSG1057);
+            }else {
+                JWTAccessToken accessToken = this.jwtTokenProvider.createAccessToken(email, false);
+                JWTToken refreshToken = this.jwtTokenProvider.createRefreshToken(email);
+                // Chuẩn bị TokenResponse để trả về cho client
+                TokenResponse tokenResponse = TokenResponse.builder()//
+                        .type(SecurityConstants.Header.BEARER_START.trim())
+                        .csrfToken(accessToken.getCsrfToken().getToken())
+                        .refreshToken(refreshToken.getToken())
+                        .csrfTokenDuration(accessToken.getCsrfToken().getDuration())
+                        .csrfExpiresAt(accessToken.getCsrfToken().getExpiredTime())
+                        .build();
 
-        // Chuẩn bị TokenResponse để trả về cho client
-        TokenResponse tokenResponse = TokenResponse.builder()//
-                .type(SecurityConstants.Header.BEARER_START.trim())
-                .csrfToken(accessToken.getCsrfToken().getToken())
-                .refreshToken(refreshToken.getToken())
-                .csrfTokenDuration(accessToken.getCsrfToken().getDuration())
-                .csrfExpiresAt(accessToken.getCsrfToken().getExpiredTime())
-                .build();
+                // Nếu sử dụng cookie, tạo cookie chứa các token mới
+                HttpCookie accessCookie = this.jwtTokenProvider.createHttpCookie(SecurityConstants.Cookie.ACCESS_TOKEN,
+                        accessToken.getAccessToken().getToken(), accessToken.getAccessToken().getDuration());
 
-        // Nếu sử dụng cookie, tạo cookie chứa các token mới
-        HttpCookie accessCookie = this.jwtTokenProvider.createHttpCookie(SecurityConstants.Cookie.ACCESS_TOKEN,
-                accessToken.getAccessToken().getToken(), accessToken.getAccessToken().getDuration());
+                HttpCookie rememberMeCookie = this.jwtTokenProvider.createHttpCookie(SecurityConstants.Cookie.REMEMBER_ME,
+                        String.valueOf(false), accessToken.getAccessToken().getDuration());
 
-        HttpCookie rememberMeCookie = this.jwtTokenProvider.createHttpCookie(SecurityConstants.Cookie.REMEMBER_ME,
-                String.valueOf(false), accessToken.getAccessToken().getDuration());
+                // Thêm cookie vào header
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.add(HttpHeaders.SET_COOKIE, accessCookie.toString());
+                httpHeaders.add(HttpHeaders.SET_COOKIE, rememberMeCookie.toString());
 
-        // Thêm cookie vào header
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(HttpHeaders.SET_COOKIE, accessCookie.toString());
-        httpHeaders.add(HttpHeaders.SET_COOKIE, rememberMeCookie.toString());
+                // Trả về ResponseEntity chứa token mới
+                ResponseObject<TokenResponse> data = new ResponseObject<>(Constants.DEFAULT_MESSAGE_SUCCESS,
+                        HttpStatus.OK.value(), LocalDateTime.now(), tokenResponse);
 
-        // Trả về ResponseEntity chứa token mới
-        ResponseObject<TokenResponse> data = new ResponseObject<>(Constants.DEFAULT_MESSAGE_SUCCESS,
-                HttpStatus.OK.value(), LocalDateTime.now(), tokenResponse);
+                return new ResponseEntity<>(data, httpHeaders, HttpStatus.OK);
+            }
+        }catch (Exception e) {
+            throw new BadRequestAlertException(MessageCode.MSG1057);
+        }
 
-        return new ResponseEntity<>(data, httpHeaders, HttpStatus.OK);
     }
+    public Claims parseToken(String refreshToken) {
+        Jws<Claims> jwsClaims = Jwts.parserBuilder()
+                .setSigningKey(jwtSecret)
+                .build()
+                .parseClaimsJws(refreshToken);
 
+        return jwsClaims.getBody(); // Returns the claims (payload) of the token
+    }
+    public JWTToken getTokenDetails(String refreshToken) {
+        Claims claims = parseToken(refreshToken);
+        String role = claims.get("role", String.class);
+        Date expiration = claims.getExpiration();
+        return new JWTToken(role,expiration);
+    }
     public String resolveToken(HttpServletRequest request) {
         // Lấy token từ Authorization header
         String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
-
         if (bearerToken != null ) {
             // Trả về token mà không có tiền tố "Bearer "
             return bearerToken;
