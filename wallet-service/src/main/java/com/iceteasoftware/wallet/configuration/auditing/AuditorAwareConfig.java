@@ -1,6 +1,6 @@
 package com.iceteasoftware.wallet.configuration.auditing;
 
-import com.iceteasoftware.wallet.util.ThreadLocalUtil;
+import com.iceteasoftware.common.util.ThreadLocalUtil;
 import org.springframework.data.domain.AuditorAware;
 
 import java.util.Optional;

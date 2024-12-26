@@ -19,7 +19,7 @@ import com.iceteasoftware.user.exception.handler.BadRequestAlertException;
 import com.iceteasoftware.user.repository.UserProfileRepository;
 import com.iceteasoftware.user.repository.UserRepository;
 import com.iceteasoftware.user.service.UserService;
-import com.iceteasoftware.user.util.ThreadLocalUtil;
+import com.iceteasoftware.common.util.ThreadLocalUtil;
 import io.jsonwebtoken.*;
 import com.iceteasoftware.common.util.Validator;
 import io.jsonwebtoken.Claims;

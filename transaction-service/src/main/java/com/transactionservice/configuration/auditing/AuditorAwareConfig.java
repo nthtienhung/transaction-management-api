@@ -1,6 +1,6 @@
 package com.transactionservice.configuration.auditing;
 
-import com.transactionservice.util.ThreadLocalUtil;
+import com.iceteasoftware.common.util.ThreadLocalUtil;
 import org.springframework.data.domain.AuditorAware;
 
 import java.util.Optional;

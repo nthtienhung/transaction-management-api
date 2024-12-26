@@ -1,6 +1,6 @@
 package com.iceteasoftware.user.configuration.auditing;
 
-import com.iceteasoftware.user.util.ThreadLocalUtil;
+import com.iceteasoftware.common.util.ThreadLocalUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
