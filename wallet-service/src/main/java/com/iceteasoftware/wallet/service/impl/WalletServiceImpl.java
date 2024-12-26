@@ -23,6 +23,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Random;
 
 /**
@@ -79,7 +80,13 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public WalletResponse getWalletByCode(String walletCode) {
-        Wallet wallet = walletRepository.findByWalletCode(walletCode);
+
+        Optional<Wallet> walletF = walletRepository.findByWalletCode(walletCode);
+        if (walletF.isEmpty()) {
+            throw new BadRequestAlertException(MessageCode.MSG4100);
+        }
+
+        Wallet wallet = walletF.get();
 
         return WalletResponse.builder()
                 .walletCode(wallet.getWalletCode())
@@ -90,7 +97,12 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public void updateWalletBalance(String walletCode, Long amount) {
-        Wallet wallet = walletRepository.findByWalletCode(walletCode);
+        Optional<Wallet> walletF = walletRepository.findByWalletCode(walletCode);
+        if (walletF.isEmpty()) {
+            throw new BadRequestAlertException(MessageCode.MSG4100);
+        }
+
+        Wallet wallet = walletF.get();
         wallet.setBalance(wallet.getBalance() + amount);
         System.out.println(wallet.toString());
         walletRepository.save(wallet);
@@ -123,9 +135,13 @@ public class WalletServiceImpl implements WalletService {
             }
 
             // 1. Validate số dư
-            Wallet senderWallet = walletRepository.findByWalletCode(request.getSenderWalletCode());
+            Optional<Wallet> walletF = walletRepository.findByWalletCode(request.getSenderWalletCode());
+            if (walletF.isEmpty()) {
+                throw new BadRequestAlertException(MessageCode.MSG4100);
+            }
+            Wallet senderWallet = walletF.get();
             if (senderWallet.getBalance() < request.getAmount()) {
-                throw new BadRequestAlertException(MessageCode.MSG4103);
+                throw new BadRequestAlertException(MessageCode.MSG4100);
             }
 
             // 2. Trừ tiền người gửi trong transaction
@@ -140,23 +156,28 @@ public class WalletServiceImpl implements WalletService {
     }
 
     public void deductMoneyFromSender(UpdateWalletRequest request, Wallet senderWallet) throws JsonProcessingException {
-        senderWallet.setBalance(senderWallet.getBalance() - request.getAmount());
-        walletRepository.save(senderWallet);
+        try {
+            senderWallet.setBalance(senderWallet.getBalance() - request.getAmount());
+            walletRepository.save(senderWallet);
 
-        WalletTransactionStatus transactionStatus = new WalletTransactionStatus(
-                request.getTransactionCode(),
-                Stage.DEDUCTED,
-                request.getSenderWalletCode(),
-                request.getRecipientWalletCode(),
-                request.getAmount(),
-                null
-        );
+            WalletTransactionStatus transactionStatus = new WalletTransactionStatus(
+                    request.getTransactionCode(),
+                    Stage.DEDUCTED,
+                    request.getSenderWalletCode(),
+                    request.getRecipientWalletCode(),
+                    request.getAmount(),
+                    null
+            );
 
-        redisTemplate.opsForValue().set(request.getTransactionCode(), String.valueOf(Stage.DEDUCTED));
+            redisTemplate.opsForValue().set(request.getTransactionCode(), String.valueOf(Stage.DEDUCTED));
 
-        log.info("Deducted money from sender: {}", transactionStatus);
-        kafkaTemplate.send(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SUCCESSFUL_DEDUCT_WALLET, objectMapper.writeValueAsString(transactionStatus)
-        );
+            log.info("Deducted money from sender: {}", transactionStatus);
+            kafkaTemplate.send(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SUCCESSFUL_DEDUCT_WALLET, objectMapper.writeValueAsString(transactionStatus)
+            );
+        } catch (Exception e) {
+            redisTemplate.opsForValue().set(request.getTransactionCode(), String.valueOf(Stage.DEDUCTED));
+            throw new RuntimeException(e);
+        }
     }
 
     @KafkaListener(topics = KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_CREDIT_WALLET, groupId = "wallet-group")
@@ -185,7 +206,11 @@ public class WalletServiceImpl implements WalletService {
     }
 
     public void addMoneyToRecipient(UpdateWalletRequest request) throws JsonProcessingException {
-        Wallet recipientWallet = walletRepository.findByWalletCode(request.getRecipientWalletCode());
+        Optional<Wallet> walletF = walletRepository.findByWalletCode(request.getRecipientWalletCode());
+        if (walletF.isEmpty()) {
+            throw new BadRequestAlertException(MessageCode.MSG4102);
+        }
+        Wallet recipientWallet = walletF.get();
         recipientWallet.setBalance(recipientWallet.getBalance() + request.getAmount());
         walletRepository.save(recipientWallet);
 
@@ -227,20 +252,28 @@ public class WalletServiceImpl implements WalletService {
 
         redisTemplate.delete(request.getTransactionCode());
 
+        Optional<Wallet> walletF = walletRepository.findByWalletCode(request.getSenderWalletCode());
+        if (walletF.isEmpty()) {
+            throw new BadRequestAlertException(MessageCode.MSG4100);
+        }
+
+        Wallet senderWallet = walletF.get();
+        walletF = walletRepository.findByWalletCode(request.getRecipientWalletCode());
+        if(walletF.isEmpty()){
+            throw new BadRequestAlertException(MessageCode.MSG4100);
+        }
+        Wallet recipientWallet = walletF.get();
+
         if (Stage.DEDUCTED == request.getStage()) {
             // Hoàn tiền cho người gửi
-            Wallet senderWallet = walletRepository.findByWalletCode(request.getSenderWalletCode());
             senderWallet.setBalance(senderWallet.getBalance() + request.getAmount());
             walletRepository.save(senderWallet);
 
             log.info("Refunded money to sender: {}", request.getSenderWalletCode());
         } else if (Stage.CREDITED == request.getStage()) {
             // Hoàn tiền cả hai bên
-            Wallet senderWallet = walletRepository.findByWalletCode(request.getSenderWalletCode());
             senderWallet.setBalance(senderWallet.getBalance() + request.getAmount());
             walletRepository.save(senderWallet);
-
-            Wallet recipientWallet = walletRepository.findByWalletCode(request.getRecipientWalletCode());
             recipientWallet.setBalance(recipientWallet.getBalance() - request.getAmount());
             walletRepository.save(recipientWallet);
             log.info("Refunded money to both sender and recipient: {} - {}", request.getSenderWalletCode(), request.getRecipientWalletCode());

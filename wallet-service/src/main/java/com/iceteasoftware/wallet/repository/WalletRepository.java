@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 /**
  * Author: thinhtd
  * Date: 12/4/2024
@@ -13,7 +15,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface WalletRepository extends JpaRepository<Wallet, String> {
-    Wallet findByWalletCode(String walletCode);
+    Optional<Wallet> findByWalletCode(String walletCode);
 
     @Query("SELECT w.userId FROM Wallet w WHERE w.walletCode = :walletCode")
     String findUserIdByWalletCode(String walletCode);
