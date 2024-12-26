@@ -1,7 +1,7 @@
 package com.iceteasoftware.config.controller;
 
 
-import com.iceteasoftware.config.configuration.message.Labels;
+import com.iceteasoftware.common.message.Labels;
 import com.iceteasoftware.config.dto.request.ConfigRequest;
 import com.iceteasoftware.config.dto.response.ConfigResponse;
 import com.iceteasoftware.config.dto.response.MessageResponse;

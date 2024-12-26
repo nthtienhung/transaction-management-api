@@ -52,8 +52,6 @@ public class TransactionController {
         return new MessageResponse<>((short) HttpStatus.OK.value(), Constants.DEFAULT_MESSAGE_SUCCESS, LocalDateTime.now(), data);
     }
 
-
-
     /**
      * Retrieves a list of recent sent transactions for a user.
      *

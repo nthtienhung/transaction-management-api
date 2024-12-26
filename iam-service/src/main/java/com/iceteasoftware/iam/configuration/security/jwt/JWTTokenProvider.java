@@ -11,10 +11,10 @@ import com.iceteasoftware.iam.exception.handle.BadRequestAlertException;
 import com.iceteasoftware.iam.exception.handle.UnauthorizedException;
 import com.iceteasoftware.iam.repository.UserRepository;
 import com.iceteasoftware.iam.service.impl.TokenService;
-import com.iceteasoftware.iam.util.DateUtil;
-import com.iceteasoftware.iam.util.GetterUtil;
-import com.iceteasoftware.iam.util.Validator;
-import com.iceteasoftware.iam.util.security.AbstractUserPrincipal;
+import com.iceteasoftware.common.util.DateUtil;
+import com.iceteasoftware.common.util.GetterUtil;
+import com.iceteasoftware.common.util.Validator;
+import com.iceteasoftware.iam.configuration.security.AbstractUserPrincipal;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;

@@ -10,7 +10,7 @@ import com.iceteasoftware.iam.exception.handle.BadRequestAlertException;
 import com.iceteasoftware.iam.repository.PasswordHistoryRepository;
 import com.iceteasoftware.iam.repository.UserRepository;
 import com.iceteasoftware.iam.service.ChangePasswordService;
-import com.iceteasoftware.iam.util.Validator;
+import com.iceteasoftware.common.util.Validator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

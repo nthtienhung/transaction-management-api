@@ -23,7 +23,7 @@ import com.transactionservice.exception.handler.NotFoundAlertException;
 import com.transactionservice.repository.TransactionRepository;
 import com.transactionservice.repository.TransactionRepositoryCustom;
 import com.transactionservice.service.TransactionService;
-import com.transactionservice.util.ThreadLocalUtil;
+import com.iceteasoftware.common.util.ThreadLocalUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

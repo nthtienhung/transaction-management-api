@@ -3,7 +3,9 @@
  * and open the template in the editor.
  */
 package com.iceteasoftware.common.util;
+import com.iceteasoftware.common.constant.RegularExpressionConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -1014,6 +1016,51 @@ public class Validator {
 
         return true;
     }
+    /**
+     * Kiểm tra xem password có đúng định dạng hay không.
+     *
+     * @param password Chuỗi cần kiểm tra.
+     * @return true nếu đối tượng là sai định dạng, false nếu ngược lại.
+     */
+    public static boolean isPasswordRegex(String password) {
+        if (password.length() < com.iceteasoftware.common.constant.Constants.DEFAULT_PASSWORD_LENGTH_MIN
+                || password.length() > com.iceteasoftware.common.constant.Constants.DEFAULT_PASSWORD_LENGTH_MAX){
+            return false;
+        }
+
+        return Pattern.compile(RegularExpressionConstants.DEFAULT_REGEXP_PASSWORD)
+                .matcher(password)
+                .find();
+    }
+
+    /**
+     * Kiểm tra xem totp có đúng định dạng hay không.
+     *
+     * @param fullName Chuỗi cần kiểm tra.
+     * @return true nếu đối tượng là sai định dạng, false nếu ngược lại.
+     */
+    public static boolean isFullName(String fullName) {
+        return !Pattern.compile(RegularExpressionConstants.DEFAULT_REGEXP_FULL_NAME)
+                .matcher(fullName)
+                .matches();
+    }
+
+    public static boolean isEmail(String email) {
+        return !Pattern.compile(RegularExpressionConstants.DEFAULT_REGEXP_EMAIL)
+                .matcher(email)
+                .matches();
+    }
+
+    public static boolean isBlankOrEmpty(String s) {
+        return StringUtils.isBlank(s) || StringUtils.isEmpty(s);
+    }
+
+    public static boolean isOTP(String otp) {
+        return !Pattern.compile(RegularExpressionConstants.DEFAULT_REGEXP_TOTP)
+                .matcher(otp)
+                .matches();
+    }
+
 
     /**
      * Returns <code>true</code> if the string is a valid phone number. The only

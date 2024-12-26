@@ -19,7 +19,7 @@ import com.iceteasoftware.iam.exception.handle.BadRequestAlertException;
 import com.iceteasoftware.iam.repository.PasswordHistoryRepository;
 import com.iceteasoftware.iam.repository.UserRepository;
 import com.iceteasoftware.iam.service.SignUpService;
-import com.iceteasoftware.iam.util.Validator;
+import com.iceteasoftware.common.util.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;

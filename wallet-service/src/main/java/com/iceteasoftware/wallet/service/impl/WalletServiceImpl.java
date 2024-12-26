@@ -5,7 +5,7 @@ import com.iceteasoftware.wallet.dto.response.WalletResponse;
 import com.iceteasoftware.wallet.entity.Wallet;
 import com.iceteasoftware.wallet.repository.WalletRepository;
 import com.iceteasoftware.wallet.service.WalletService;
-import com.iceteasoftware.wallet.util.ThreadLocalUtil;
+import com.iceteasoftware.common.util.ThreadLocalUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
