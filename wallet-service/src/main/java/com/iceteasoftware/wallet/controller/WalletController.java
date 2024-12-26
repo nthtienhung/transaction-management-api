@@ -29,7 +29,7 @@ public class WalletController {
         return walletService.getWalletByUserId(userId);
     }
 
-    @GetMapping("/{walletCode}")
+    @GetMapping("/get-wallet/{walletCode}")
     WalletResponse getWalletByWalletCode(@PathVariable("walletCode") String walletCode) {
         System.out.println("Wallet Code: " + walletCode);
         return walletService.getWalletByCode(walletCode);

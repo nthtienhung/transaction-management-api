@@ -54,7 +54,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
 
     Optional<Transaction> findByTransactionCode(String transactionCode);
 
-    @Query("SELECT t FROM Transaction t WHERE t.updatedDate < :instant AND t.status = :status")
+    @Query("SELECT t FROM Transaction t WHERE t.updatedDate > :instant AND t.status = :status")
     List<Transaction> findByUpdatedDateAndStatus(Instant instant, Status status);
 
     @Query("SELECT t " +

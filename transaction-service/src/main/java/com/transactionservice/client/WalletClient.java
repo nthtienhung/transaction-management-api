@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
         url = "${feign.client.config.wallet-service.url}",
         configuration = AuthenticationRequestInterceptor.class)
 public interface WalletClient {
-    @GetMapping("/{walletCode}")
+    @GetMapping("/get-wallet/{walletCode}")
     WalletResponse getWalletByWalletCode(@PathVariable("walletCode") String walletCode);
 
     @PutMapping("/{walletCode}/balance")

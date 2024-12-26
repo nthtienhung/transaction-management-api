@@ -410,10 +410,10 @@ public class TransactionServiceImpl implements TransactionService {
         // Gửi message bồi hoàn
         if (Stage.DEDUCTED == errorState) {
             log.info("Sending compensation compensation message for transaction: {}", transaction.getTransactionCode());
-            kafkaProducer.sendMessage("COMPENSATION", new UpdateWalletRequest(transaction.getTransactionCode(), transaction.getSenderWalletCode(), transaction.getRecipientWalletCode(), Stage.DEDUCTED, transaction.getAmount()));
+            kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_COMPENSATION, new UpdateWalletRequest(transaction.getTransactionCode(), transaction.getSenderWalletCode(), transaction.getRecipientWalletCode(), Stage.DEDUCTED, transaction.getAmount()));
         } else if (Stage.COMPLETED == errorState) {
             log.info("Sending compensation message for transaction: {}", transaction.getTransactionCode());
-            kafkaProducer.sendMessage("COMPENSATION", new UpdateWalletRequest(transaction.getTransactionCode(), transaction.getSenderWalletCode(), transaction.getRecipientWalletCode(), Stage.COMPENSATED, transaction.getAmount()));
+            kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_COMPENSATION, new UpdateWalletRequest(transaction.getTransactionCode(), transaction.getSenderWalletCode(), transaction.getRecipientWalletCode(), Stage.COMPENSATED, transaction.getAmount()));
         }
     }
 

@@ -14,7 +14,7 @@ public enum MessageCode {
 
     // Error Messages
     // Tài khoản không tồn tại
-    MSG4100(LabelKey.ERROR_ACCOUNT_NOT_EXITS),
+    MSG4100(LabelKey.ERROR_WALLET_NOT_EXITS),
     MSG4101(LabelKey.ERROR_RECIPIENT_REQUIRED),
     MSG4102(LabelKey.ERROR_AMOUNT_REQUIRED),
     MSG4103(LabelKey.ERROR_INSUFFICIENT_BALANCE),
