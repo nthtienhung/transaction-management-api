@@ -758,8 +758,8 @@ public class TransactionServiceImpl implements TransactionService {
         boolean matchesWalletCode = !isWalletCodeEmpty &&
                 (transaction.getRecipientWalletCode().equals(walletCode) || transaction.getSenderWalletCode().equals(walletCode));
         boolean matchesStatus = !isStatusEmpty && transaction.getStatus().equals(status);
-        boolean matchesFromDate = !isFromDateEmpty && !transaction.getCreatedDate().isBefore(fromDate);
-        boolean matchesToDate = !isToDateEmpty && !transaction.getCreatedDate().isAfter(toDate);
+        boolean matchesFromDate = !isFromDateEmpty && transaction.getCreatedDate().isBefore(fromDate);
+        boolean matchesToDate = !isToDateEmpty && transaction.getCreatedDate().isAfter(toDate);
 
         // Case 2a: Matches all filters
         if (matchesTransactionId && matchesWalletCode && matchesStatus && matchesFromDate && matchesToDate) {
