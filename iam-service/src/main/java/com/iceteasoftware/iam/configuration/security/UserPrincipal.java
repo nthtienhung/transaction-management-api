@@ -1,5 +1,5 @@
-package com.iceteasoftware.user.util.security;
-import com.iceteasoftware.user.entity.User;
+package com.iceteasoftware.iam.configuration.security;
+import com.iceteasoftware.iam.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,4 +39,5 @@ public class UserPrincipal extends AbstractUserPrincipal implements Serializable
         return this.user.getPassword();
     }
 }
+
 

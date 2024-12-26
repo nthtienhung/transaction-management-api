@@ -1,4 +1,4 @@
-package com.iceteasoftware.user.util.security;
+package com.iceteasoftware.iam.configuration.security;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 

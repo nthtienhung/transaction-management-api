@@ -1,27 +1,24 @@
 package com.iceteasoftware.iam.service.impl;
 
-import com.iceteasoftware.iam.configuration.message.LabelKey;
 import com.iceteasoftware.iam.configuration.security.jwt.JWTAccessToken;
 import com.iceteasoftware.iam.configuration.security.jwt.JWTToken;
 import com.iceteasoftware.iam.configuration.security.jwt.JWTTokenProvider;
-import com.iceteasoftware.iam.validator.Validator;
+import com.iceteasoftware.common.util.Validator;
 import com.iceteasoftware.iam.constant.Constants;
 import com.iceteasoftware.iam.constant.SecurityConstants;
 import com.iceteasoftware.iam.dto.request.login.LoginRequest;
 import com.iceteasoftware.iam.dto.response.common.ResponseObject;
 import com.iceteasoftware.iam.dto.response.login.TokenResponse;
-
 import com.iceteasoftware.iam.entity.User;
 import com.iceteasoftware.iam.entity.UserLoginFailed;
 import com.iceteasoftware.iam.entity.UserProperties;
 import com.iceteasoftware.iam.enums.MessageCode;
-import com.iceteasoftware.iam.enums.Status;
 import com.iceteasoftware.iam.exception.handle.BadRequestAlertException;
 import com.iceteasoftware.iam.repository.UserLoginFailedRepository;
 import com.iceteasoftware.iam.repository.UserRepository;
 import com.iceteasoftware.iam.service.LoginService;
-import com.iceteasoftware.iam.util.GetterUtil;
-import com.iceteasoftware.iam.util.security.UserPrincipal;
+import com.iceteasoftware.common.util.GetterUtil;
+import com.iceteasoftware.iam.configuration.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -67,12 +64,12 @@ public class LoginServiceImpl implements LoginService {
         String password = GetterUtil.getString(loginRequest.getPassword());
 
         // Check email có để trống k
-        if (com.iceteasoftware.iam.util.Validator.isNull(email)) {
+        if (com.iceteasoftware.common.util.Validator.isNull(email)) {
             throw new BadRequestAlertException(MessageCode.MSG1003);
         } else if (Validator.isEmail(loginRequest.getEmail())
                 || loginRequest.getEmail().length() > Constants.DEFAULT_EMAIL_LENGTH_MAX) {
             throw new BadRequestAlertException(MessageCode.MSG1002);
-        } else if (com.iceteasoftware.iam.util.Validator.isNull(password)) {
+        } else if (com.iceteasoftware.common.util.Validator.isNull(password)) {
             // Check password có để trống k
             throw new BadRequestAlertException(MessageCode.MSG1001);
         }
@@ -93,7 +90,7 @@ public class LoginServiceImpl implements LoginService {
         UserLoginFailed userLoginFailed = this.userLoginFailedRepository.findByUserId(user.get().getUserId());
 
         // kiểm tra xem có đang bị tạm khóa không
-        if (com.iceteasoftware.iam.util.Validator.isNotNull(userLoginFailed) && com.iceteasoftware.iam.util.Validator.isNotNull(userLoginFailed.getUnlockTime())
+        if (com.iceteasoftware.common.util.Validator.isNotNull(userLoginFailed) && com.iceteasoftware.common.util.Validator.isNotNull(userLoginFailed.getUnlockTime())
                 && userLoginFailed.getUnlockTime().isAfter(LocalDateTime.now())) {
             throw new BadRequestAlertException(MessageCode.MSG1007);
         } else if (!passwordEncoder.matches(password, user.get().getPassword())) {

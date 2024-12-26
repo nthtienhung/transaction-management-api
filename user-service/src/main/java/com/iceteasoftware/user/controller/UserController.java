@@ -73,7 +73,6 @@ public class UserController {
         return userService.updateProfile(request, updateRequest);
     }
 
-    //
 
     @GetMapping("/getUser")
     public ResponseEntity<User> getUser(HttpServletRequest request) {
@@ -111,7 +110,6 @@ public class UserController {
         System.out.println("User ID: " + userId);
         UserResponse userResponse = userService.getUserById(userId);
         System.out.println("User Response: " + userResponse);
-//        return new ResponseObject<UserResponse>(HttpStatus.OK.value(), "Success", LocalDateTime.now(), userResponse);
         return userResponse;
     }
 
@@ -129,20 +127,5 @@ public class UserController {
     public String getUserIdByUsername(@RequestParam String username){
         return userService.getUserIdByUsername(username);
     }
-
-    // @PutMapping("/user-list/{userId}/status")
-    // @PreAuthorize("hasRole('ADMIN')")
-    // public ResponseObject<Void> updateUserStatus(
-    //     @PathVariable String userId,
-    //     @RequestBody Map<String, String> statusMap
-    // ) {
-    //     Status status = Status.valueOf(statusMap.get("status"));
-    //     userService.updateUserStatus(userId, status);
-    //     return new ResponseObject<>(
-    //         HttpStatus.OK.value(),
-    //         Constants.DEFAULT_MESSAGE_SUCCESS,
-    //         LocalDateTime.now()
-    //     );
-    // }
 
 }

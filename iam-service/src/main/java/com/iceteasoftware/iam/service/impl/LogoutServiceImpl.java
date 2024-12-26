@@ -1,17 +1,13 @@
 package com.iceteasoftware.iam.service.impl;
 
-import com.iceteasoftware.iam.configuration.message.LabelKey;
 import com.iceteasoftware.iam.constant.GatewayCacheConstants;
 import com.iceteasoftware.iam.entity.User;
 import com.iceteasoftware.iam.entity.UserLoginFailed;
-import com.iceteasoftware.iam.enums.MessageCode;
 import com.iceteasoftware.iam.repository.UserLoginFailedRepository;
 import com.iceteasoftware.iam.repository.UserRepository;
 import com.iceteasoftware.iam.service.LogoutService;
 import io.jsonwebtoken.*;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
