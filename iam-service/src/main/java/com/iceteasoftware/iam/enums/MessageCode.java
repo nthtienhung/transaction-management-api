@@ -31,19 +31,56 @@ public enum MessageCode {
     // Tài khoản chưa được ACTIVE
     MSG1008(LabelKey.ERROR_ACCOUNT_IS_INACTIVE),
 
+    // Full name không đúng địng dạng
+    MSG1009(LabelKey.ERROR_FULL_NAME_IS_INVALID),
+
+    // Full name không để trống
+    MSG1010(LabelKey.ERROR_FULL_NAME_IS_EMPTY),
+
+    // Date of birth không trống
+    MSG1011(LabelKey.ERROR_DATE_OF_BIRTH_IS_EMPTY),
+
     // Tài khoản đã tồn tại
     MSG1012(LabelKey.ERROR_ACCOUNT_DOES_EXIST),
 
+    // Date of birth sai định dạng yyyy-MM-dd
+    MSG1013(LabelKey.ERROR_DATE_OF_BIRTH_IS_INVALID),
 
     // Sever bị gián đoạn
     MSG1014(LabelKey.ERROR_INTERNAL_SERVER),
 
+    // TOTP không để trống
+    MSG1015(LabelKey.ERROR_TOTP_NOT_EMPTY),
 
     // Tài khoản không tồn tại
     MSG1016(LabelKey.ERROR_ACCOUNT_NOT_EXITS),
 
     // Mã TOTP không đúng hoặc đã hết hạn
     MSG1017(LabelKey.ERROR_TOTP_IS_INCORRECT_OR_HAS_EXPIRED),
+
+    // TOTP không đúng định dạng
+    MSG1018(LabelKey.ERROR_TOTP_IS_INVALID),
+
+    // Date of birth không lớn hơn ngày hiện tại,
+    // ngày sinh nhỏ hơn hoặc bằng 150 và lớn hơn 30 ngày
+    MSG1019(LabelKey.ERROR_DOB_GREATER_THAN_NOW),
+
+    // ID user không để trống
+    MSG1020(LabelKey.ERROR_ID_USER_NOT_EMPTY),
+
+    // Tài khoản đã active
+    MSG1021(LabelKey.ERROR_ACCOUNT_IS_ACTIVE),
+
+    MSG1022(LabelKey.ERROR_ID_USER_NOT_EMPTY),
+
+    // TOTP không để trống
+    MSG1023(LabelKey.ERROR_TOTP_NOT_EMPTY),
+
+    // TOTP không đúng định dạng
+    MSG1024(LabelKey.ERROR_TOTP_IS_INVALID),
+
+    // QR Code TOTP bị gián đoạn
+    MSG1025(LabelKey.ERROR_INTERNAL_SERVER),
 
     // OTP không đúng định dạng
     MSG1026(LabelKey.ERROR_OTP_IS_INVALID),
@@ -71,6 +108,9 @@ public enum MessageCode {
 
     MSG1101(LabelKey.ERROR_ID_USER_NOT_EMPTY),
 
+    // Đăng nhập thành công
+    MSG1034(LabelKey.SUCCESS_LOGIN_SUCCESS),
+
     // Email không tồn tại
     MSG1035(LabelKey.ERROR_EMAIL_NOT_EXIST),
 
@@ -92,6 +132,9 @@ public enum MessageCode {
     // Đăng xuất thành công
     MSG1041(LabelKey.SUCCESS_LOGOUT_SUCCESS),
 
+    // Người dùng vào thẳng API thiếu key
+    MSG1042(LabelKey.ERROR_ILLEGAL_ACCESS_TO_API),
+
     //Nhập sai OTP quá 5 lần
     MSG1043(LabelKey.ERROR_INPUT_WRONG_OTP_MORE_THAN_FIVE_TIMES),
 
@@ -100,6 +143,15 @@ public enum MessageCode {
 
     // Phone number để trống
     MSG1045(LabelKey.ERROR_PHONE_NUMBER_IS_EMPTY),
+
+    // Người dùng chưa đăng nhập
+    MSG1046(LabelKey.ERROR_USER_IS_NOT_LOGIN),
+
+    // Success message
+    MSG1047(LabelKey.SUCCESS_DEFAULT),
+
+    // Success create message
+    MSG1048(LabelKey.SUCCESS_CREATE),
 
     // Not have permission
     MSG1049(LabelKey.ERROR_YOU_HAVE_NOT_PERMISSION),
@@ -118,8 +170,9 @@ public enum MessageCode {
     MSG1054(LabelKey.EROR_LAST_NAME_IS_EMPTY),
 
     MSG1055(LabelKey.ERROR_PHONE_NUMBER_IS_USED),
+    MSG1056(LabelKey.ERROR_USER_IS_REGISTER_BUT_NOT_VERIFIED),
 
-    MSG1056(LabelKey.ERROR_USER_IS_REGISTER_BUT_NOT_VERIFIED);
+    MSG1057(LabelKey.ERROR_REFRESH_TOKEN_EXPIRED);
 
     private String key;
 }

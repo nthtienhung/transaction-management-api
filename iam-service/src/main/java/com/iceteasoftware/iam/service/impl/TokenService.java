@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class TokenService {
 
-    @Cacheable(cacheNames = SecurityConstants.Cache.REFRESH_TOKEN, key = "#username", unless = "#result == null")
-    public JWTToken getRefreshToken(String username) {
-        return null;
+    @Cacheable(cacheNames = SecurityConstants.Cache.REFRESH_TOKEN, key = "#email", unless = "#result == null")
+    public JWTToken getRefreshToken(String email) {
+       return null;
     }
 
     @Cacheable(cacheNames = SecurityConstants.Cache.REMEMBER_ME_TOKEN, key = "#username", unless = "#result == null")
