@@ -42,7 +42,7 @@ public class WalletController {
         walletService.updateWalletBalance(walletCode, amount);
     }
 
-    @GetMapping("/{walletCode}/user-id")
+    @GetMapping("/user-id/{walletCode}")
     public String getUserIdByWalletCode(@PathVariable("walletCode") String walletCode) {
         return walletService.getUserIdByWalletCode(walletCode);
     }

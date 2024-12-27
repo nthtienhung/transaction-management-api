@@ -80,7 +80,7 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public WalletResponse getWalletByCode(String walletCode) {
-
+        log.info("Wallet Code: {}", walletCode);
         Optional<Wallet> walletF = walletRepository.findByWalletCode(walletCode);
         if (walletF.isEmpty()) {
             throw new BadRequestAlertException(MessageCode.MSG4100);
@@ -244,6 +244,7 @@ public class WalletServiceImpl implements WalletService {
     @KafkaListener(topics = KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_COMPENSATION, groupId = "wallet-group")
     public void processCompensation(String message) throws JsonProcessingException {
         UpdateWalletRequest request = objectMapper.readValue(message, UpdateWalletRequest.class);
+        log.info("Received compensation event: {}", request);
 
         if (!String.valueOf(Stage.COMPENSATED).equals(redisTemplate.opsForValue().get(request.getTransactionCode()))) {
             log.info("Transaction has not been processed yet: {}", request.getTransactionCode());

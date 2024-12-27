@@ -33,7 +33,7 @@ public class SecurityConfiguration {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/get-wallet/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/wallet/get-wallet/**", "/wallet/user-id/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
