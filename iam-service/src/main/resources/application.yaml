@@ -9,9 +9,9 @@ spring:
     application:
         name: iam-service
     datasource:
-        url: jdbc:postgresql://localhost:1200/team2db
+        url: jdbc:postgresql://localhost:5432/team2db
         username: postgres
-        password: quang232003
+        password: 123
         driver-class-name: org.postgresql.Driver
         hikari:
             maximum-pool-size: 10
