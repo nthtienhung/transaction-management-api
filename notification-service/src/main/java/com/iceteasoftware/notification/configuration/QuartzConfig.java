@@ -25,7 +25,7 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(emailJobDetail())
                 .withIdentity("emailJobTriggerDaily")
-                .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(14, 57))
+                .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(14, 26))
                 .build();
     }
 
@@ -34,7 +34,7 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(emailJobDetail())
                 .withIdentity("emailJobTriggerWeekly")
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 57 14 ? * THU"))
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 26 14 ? * FRI"))
                 .build();
     }
 
@@ -43,7 +43,7 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(emailJobDetail())
                 .withIdentity("emailJobTriggerMonthly")
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 57 14 26 * ?"))
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 26 14 27 * ?"))
                 .build();
     }
 }

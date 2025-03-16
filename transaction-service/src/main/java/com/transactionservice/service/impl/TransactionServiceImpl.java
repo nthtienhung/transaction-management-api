@@ -341,7 +341,7 @@ public class TransactionServiceImpl implements TransactionService {
         kafkaProducer.sendMessage(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_CREDIT_WALLET, updateWalletRequest);
 
         return kafkaConsumerService.listenForResponse(
-                transaction.getTransactionCode(),
+                    transaction.getTransactionCode(),
                 Arrays.asList(KafkaTopicConstants.DEFAULT_KAFKA_TOPIC_SUCCESSFUL_CREDIT_WALLET, "TRANSACTION_FAILED"),
                 30
         );
